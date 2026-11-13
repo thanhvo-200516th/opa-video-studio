@@ -1,0 +1,389 @@
+{
+  "_about": "Token style @__dviet đo từ 17 video (kênh @__dviet, 20/07–05/10/2026; phân tích 2026-10-29). Cỡ chữ = cỡ font px trên khung 1080x1920, quy từ chiều cao chữ x đo được (trung vị) / hệ số x-height đo trên file font thật. Dùng bởi scripts/dviet_text.py.",
+  "canvas": {
+    "w": 1080,
+    "h": 1920,
+    "fps": 60
+  },
+  "palette": {
+    "text": "#FFFFFF",
+    "light": "#FAFAFA",
+    "dark": "#111111",
+    "accents": {
+      "yellow_bright": "#F3C610",
+      "amber_dim": "#D79E00",
+      "gold_serif": "#E0B52B",
+      "gold_pale_script": "#E3D294",
+      "purple": "#8C6CFF",
+      "purple_render": "#AE61EF",
+      "mint": "#83C7A5",
+      "mint_deep": "#4F927B",
+      "ui_green": "#009900",
+      "yellow_default": "#F4C40C",
+      "sound_green": "#04AC04",
+      "sound_green_light": "#8CF484",
+      "lavender": "#9C84F4",
+      "lavender_light": "#C4B4FC",
+      "purple_deep_on_white": "#7C04AC",
+      "emotion_purple": "#8C44F4",
+      "emotion_pink": "#FC84CC"
+    },
+    "rule": "Một màu nhấn cho cả video, chọn theo chủ đề / tông cảnh / trang phục (mặc định vàng #F4C40C–#F3C610; cảnh tối hổ phách #D79E00; chủ đề âm thanh xanh neon #04AC04 có glow; tập series tím lavender #9C84F4). Mọi chữ khác trắng. Màu ngoài bảng (hồng, tím đậm) chỉ cho từ cảm xúc, tối đa 1–2 lần/video."
+  },
+  "fonts": {
+    "sans_regular": {
+      "family": "SF Pro Display",
+      "style": "Regular",
+      "file": "~/.local/share/fonts/apple-fonts/SF-Pro-Display-Regular.otf",
+      "x_height_em": 0.508
+    },
+    "sans_semibold": {
+      "family": "SF Pro Display",
+      "style": "Semibold",
+      "file": "~/.local/share/fonts/apple-fonts/SF-Pro-Display-Semibold.otf",
+      "x_height_em": 0.518
+    },
+    "sans_bold": {
+      "family": "SF Pro Display",
+      "style": "Bold",
+      "file": "~/.local/share/fonts/apple-fonts/SF-Pro-Display-Bold.otf",
+      "x_height_em": 0.524
+    },
+    "sans_heavy": {
+      "family": "SF Pro Display",
+      "style": "Heavy",
+      "file": "~/.local/share/fonts/apple-fonts/SF-Pro-Display-Heavy.otf",
+      "x_height_em": 0.532
+    },
+    "sans_heavy_italic": {
+      "family": "SF Pro Display",
+      "style": "Heavy Italic",
+      "file": "~/.local/share/fonts/apple-fonts/SF-Pro-Display-HeavyItalic.otf",
+      "x_height_em": 0.532
+    },
+    "serif_italic": {
+      "family": "Playfair Display",
+      "style": "Bold Italic",
+      "file": "~/.local/share/fonts/PlayfairDisplay-BoldItalic.ttf",
+      "x_height_em": 0.542,
+      "note": "Bản tĩnh tạo từ PlayfairDisplay-Italic-Variable (wght=700) vì FilmCraft không thấy kiểu Bold Italic của font variable. Thiếu file thì tạo lại: uvx --from fonttools fonttools varLib.instancer <variable.ttf> wght=700 --update-name-table -o PlayfairDisplay-BoldItalic.ttf"
+    },
+    "script": {
+      "family": "Great Vibes",
+      "style": "Regular",
+      "file": "~/.local/share/fonts/GreatVibes-Regular.ttf",
+      "x_height_em": 0.391,
+      "note": "Kênh dùng Whisper/Cookie (không đủ dấu Việt). Great Vibes hoặc Dancing Script đủ dấu."
+    },
+    "avoid": [
+      "Instrument Serif (thiếu 41 ký tự tiếng Việt)",
+      "Satisfy (thiếu 44)",
+      "Cookie",
+      "Whisper"
+    ]
+  },
+  "shadow": {
+    "color": "#000000",
+    "opacity": 50,
+    "blur": 10,
+    "distance": 4,
+    "note": "bóng mềm rơi xuống; không viền, không hộp nền"
+  },
+  "glow_keyword": {
+    "effect": "wonder_glow",
+    "radius": 18,
+    "intensity": 35,
+    "note": "glow mềm cho từ khoá serif nghiêng (video có màu nhấn tím/mint)"
+  },
+  "tracking": {
+    "caption": -20,
+    "big_sans": -35,
+    "heavy_upper": -50,
+    "serif": -10
+  },
+  "tiers": {
+    "caption": {
+      "font": "sans_semibold",
+      "size": 56,
+      "size_range": [
+        46,
+        82
+      ],
+      "case": "lower",
+      "y_pct": 52,
+      "anim_in": "fade",
+      "anim_dur": 0.1,
+      "words_per_chunk": [
+        1,
+        3
+      ],
+      "size_measured_median": 52,
+      "note": "đo trung vị 52 px; 56 để đọc rõ trên nền rối (luật người dùng: ≥28 px)"
+    },
+    "context_small": {
+      "font": "sans_regular",
+      "size": 64,
+      "size_range": [
+        57,
+        75
+      ],
+      "case": "lower",
+      "anim_in": "blur_in",
+      "anim_dur": 0.2
+    },
+    "keyword_sans": {
+      "font": "sans_bold",
+      "size": 125,
+      "size_range": [
+        95,
+        260
+      ],
+      "case": "lower",
+      "anim_in": "blur_in",
+      "anim_dur": 0.2
+    },
+    "keyword_serif": {
+      "font": "serif_italic",
+      "size": 120,
+      "size_range": [
+        100,
+        230
+      ],
+      "color": "accent",
+      "anim_in": "blur_in",
+      "anim_dur": 0.2,
+      "overlap_pct": 20
+    },
+    "script_accent": {
+      "font": "script",
+      "size": 140,
+      "size_range": [
+        110,
+        480
+      ],
+      "color": "gold_pale_script",
+      "anim_in": "slide_up_blur",
+      "anim_dur": 0.35
+    },
+    "number": {
+      "font": "sans_heavy",
+      "size": 300,
+      "size_range": [
+        270,
+        370
+      ],
+      "color": "accent",
+      "anim_in": "blur_in",
+      "anim_dur": 0.2,
+      "y_pct": 57,
+      "behind_hand": true
+    },
+    "header_label": {
+      "font": "sans_semibold",
+      "size": 44,
+      "case": "lower",
+      "y_pct": 22
+    },
+    "header_big": {
+      "font": "sans_heavy",
+      "size": 160,
+      "case": "lower",
+      "y_pct": 25
+    },
+    "header_sub": {
+      "font": "serif_italic",
+      "size": 64,
+      "align": "right",
+      "y_pct": 28
+    },
+    "cta": {
+      "font": "script",
+      "size": 160,
+      "color": "accent",
+      "y_pct": 53
+    },
+    "sponsor_subtitle": {
+      "font": "sans_semibold",
+      "size": 40,
+      "style_note": "italic",
+      "color": "#E7C52A",
+      "y_pct": 82
+    }
+  },
+  "animations": {
+    "blur_in": {
+      "dur": 0.17,
+      "range": [
+        0.1,
+        0.25
+      ],
+      "gaussian_blur_from": 24,
+      "opacity_from": 0,
+      "slide_px": 0,
+      "ease": "easeIn on landing key"
+    },
+    "word_blur_in": {
+      "per_word": 0.18,
+      "note": "từng từ blur-in, lệch nhau theo mốc lời"
+    },
+    "fade": {
+      "dur": 0.1,
+      "range": [
+        0.08,
+        0.1
+      ]
+    },
+    "slide_up_blur": {
+      "dur": 0.4,
+      "slide_px": 50,
+      "gaussian_blur_from": 12,
+      "note": "kiểu 'Máy phát nhạc 3' CapCut; thêm xoay 10–15° + phối cảnh cho giả 3D"
+    },
+    "whip_in": {
+      "dur": 0.25,
+      "range": [
+        0.2,
+        0.33
+      ],
+      "effect": "move + directional_blur"
+    },
+    "out_default": "hard swap (không animation) khi sang cụm sau hoặc khi cắt",
+    "out_animated": {
+      "blur_out": 0.08,
+      "note": "khi có, nhanh hơn lúc vào"
+    },
+    "sync": "chữ xuất hiện đúng hoặc sớm 0–0,1 s so với từ được nói"
+  },
+  "transitions": {
+    "punch_in": {
+      "scale": [
+        112,
+        125
+      ],
+      "where": "giữa câu trong đoạn nói, che jump cut"
+    },
+    "zoom_blur": {
+      "filmcraft": "zoom_blur",
+      "dur": [
+        0.15,
+        0.25
+      ],
+      "strength": 50,
+      "where": "jump cut trên camera"
+    },
+    "light_leak": {
+      "filmcraft": "light_leak",
+      "dur": [
+        0.25,
+        0.6
+      ],
+      "where": "đổi phần, hook → thân, quay lại camera"
+    },
+    "white_flicker": {
+      "frames": 2,
+      "where": "mở đầu, che jump cut, biến mất cuối cảnh",
+      "how": "bóng người trắng (matte) 2 khung"
+    },
+    "flash": {
+      "filmcraft": "flash",
+      "dur": [
+        0.03,
+        0.1
+      ]
+    },
+    "whip": {
+      "filmcraft": "whip",
+      "dur": [
+        0.2,
+        0.33
+      ],
+      "where": "vào B-roll"
+    },
+    "wave_warp": {
+      "dur": 0.15,
+      "where": "giữa các bước trong phần quay màn hình"
+    },
+    "hard_cut": "giữa các bước quay màn hình"
+  },
+  "layouts": {
+    "talking_head": {
+      "framing": "trung cận, ngồi bàn, đèn ấm",
+      "text_zone_y_pct": [
+        45,
+        65
+      ]
+    },
+    "screen_band": {
+      "band_y_pct": [
+        31,
+        67
+      ],
+      "backdrop": "bản sao mờ + giảm bão hoà của chính bản quay",
+      "caption": "dính mép trên dải (~30%) hoặc 67%"
+    },
+    "compare_cards": {
+      "border_px": 13,
+      "radius_px": 26,
+      "border_color": "#FAFAFA",
+      "backdrop": "mờ đen-xám"
+    },
+    "split_demo": "kết quả ở trên, người nói ở dưới, chữ 1 từ ở đường nối",
+    "spec_card": "nhãn nhỏ / tên lớn bằng font riêng / số thứ tự 01–03"
+  },
+  "audio": {
+    "voice_lufs_stem": [
+      -15.0,
+      -12.3
+    ],
+    "integrated_lufs": [
+      -13.8,
+      -10.7
+    ],
+    "music_under_voice_db": {
+      "median": -6.6,
+      "range": [
+        -13.3,
+        -1.0
+      ]
+    },
+    "music_present_pct": [
+      95.6,
+      100
+    ],
+    "ducking_db": 0,
+    "note": "Nhạc nền chạy suốt, không duck khi nói, chỉ thấp hơn giọng ~6–7 dB.",
+    "music_choice": "Nhạc nền BPM ≥140 cho talking head; có thể tách stem để giữ trống/bỏ giai điệu dưới giọng",
+    "drop": "Đặt drop/nhịp mạnh ngay sau câu punchline của hook; trước drop có thể lọc low-pass nhạc",
+    "sfx": "SFX gắn với khoảnh khắc hình (chữ lớn vào, flash, light leak, biến mất), không phải mọi điểm cắt: đo được tỷ lệ tiếng nhấn ở điểm cắt ≈ ngẫu nhiên",
+    "flash_out_sfx": "riser + whoosh cho hiệu ứng flash biến mất"
+  },
+  "structure": {
+    "hook_0_3s": "Cho xem kết quả/hiệu ứng trước; tiêu đề hook tự minh hoạ kỹ thuật đang dạy; visual hook = hình (zoom-out/strobe) + chữ 2 tầng + 1 SFX cùng khung",
+    "save_cta_early": "Chèn CTA 'Lưu lại' ngay sau hook (≈4–8 s), trước phần hướng dẫn",
+    "body": "Các mục đánh số; mỗi mục: tiêu đề phần (giữ suốt mục, y≈25%) → minh hoạ trên B-roll/quay màn hình → chữ nhấn",
+    "pause_beat": "Trước ý chính: ~0,6 s nền trống, mỗi lần một từ",
+    "outro": "CTA kép (lưu + thích/follow) cùng vị trí với tiêu đề mở đầu; kết bằng flash biến mất hoặc câu ngắn",
+    "pacing": {
+      "words_per_min_median": 287,
+      "text_block_on_screen_s_median": 1.3,
+      "talking_shot_s": [
+        1.7,
+        3.0
+      ]
+    }
+  },
+  "effects": {
+    "edge_blur": "Mép khung luôn mờ, tâm nét (mờ xuyên tâm): bản sao làm mờ ~20 px, mặt nạ elip ngược ~60% khung",
+    "background_blur": "Nền mờ (bản sao chính cảnh, giảm bão hoà) dưới thẻ/quay màn hình",
+    "text_behind_subject": "Chữ lớn sau đầu/vai ở chỗ còn thấy nền; chữ nhỏ ở trước",
+    "white_flicker": "Bóng người trắng 2 khung; âm bản 1–2 khung",
+    "flash_out": "Kết cảnh: người tách nền + glow 4–5 khung, âm bản 4 khung, khung trắng mờ dần 0,5 s → còn ghế trống",
+    "clone": "Phân thân: nhiều lần quay trên cùng plate, mỗi bản một track + mặt nạ mềm 5–10 px, xuất hiện bằng flicker",
+    "light_leak": "Vệt sáng ấm/cầu vồng 0,25–0,6 s ở chỗ đổi phần",
+    "old_footage": "Đen trắng + 12 fps + grain + vết xước (posterize_time 12, noise)",
+    "blend_modes": "Overlay: chữ hoà vào cảnh; Screen: xoá nền đen; Multiply: xoá nền trắng",
+    "glow_text": "Chữ phát sáng khi nói về glow (chữ minh hoạ chính hiệu ứng)",
+    "strobe_grade": "Đổi 2 kiểu màu của cùng clip mỗi 4–5 khung rồi chậm dần trước khi lộ kết quả",
+    "fake_3d_text": "Chữ nghiêng phối cảnh rotateY −15°, rotateZ −5°"
+  }
+}

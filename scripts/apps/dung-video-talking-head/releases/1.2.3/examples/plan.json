@@ -1,0 +1,24 @@
+{
+  "schema": "plan/2",
+  "words_sha": "abf183f167474a54bc7f950b886f9d053e7946872651388b25d7a8a9ca352843",
+  "hook": "H1",
+  "emphasis": [
+    "K1",
+    "K4"
+  ],
+  "steps": "S2",
+  "cta": "C1",
+  "hero": [],
+  "breaks": [],
+  "no_emphasis_reason": "",
+  "flags": [],
+  "steps_title": "NẾU MỖI ẢNH",
+  "steps_labels": [
+    "Đổi màu",
+    "Đổi hình dáng",
+    "Đổi phong cách"
+  ],
+  "cta_label": "Bình luận",
+  "cta_keyword": "5 TÀI SẢN",
+  "broll": []
+}

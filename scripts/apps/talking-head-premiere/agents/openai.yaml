@@ -1,0 +1,4 @@
+interface:
+  display_name: "Talking Head (FilmCraft & Premiere)"
+  short_description: "Dựng talking head: icon, zoom và SFX theo lời nói trên FilmCraft (.fcproj) / Premiere"
+  default_prompt: "Dùng $talking-head-premiere để dựng talking head theo style đã học, icon bám nội dung, zoom nhấn lời nói, SFX rõ và đa dạng giữ nguyên đuôi, rồi tạo sequence trong FilmCraft (.fcproj)."

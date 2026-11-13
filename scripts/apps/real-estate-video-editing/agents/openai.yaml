@@ -1,0 +1,14 @@
+interface:
+  display_name: Real Estate Video Editing
+  short_description: Dựng video bất động sản 2K khớp lời thoại
+  default_prompt: Use $real-estate-video-editing to edit this property video in 2K
+    with captions synchronized to the original voice.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

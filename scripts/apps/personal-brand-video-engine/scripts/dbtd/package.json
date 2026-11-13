@@ -1,0 +1,16 @@
+{
+  "name": "thanh-dbtd-autopost-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "He thong dang bai tu dong chay ngam (Headless Browser) cho TikTok, Facebook Ca Nhan va Fanpage",
+  "scripts": {
+    "login": "node bot_autopost.mjs --login",
+    "run": "node bot_autopost.mjs --run",
+    "check": "node bot_autopost.mjs --dry-run"
+  },
+  "dependencies": {
+    "googleapis": "^144.0.0",
+    "playwright": "^1.48.0"
+  }
+}

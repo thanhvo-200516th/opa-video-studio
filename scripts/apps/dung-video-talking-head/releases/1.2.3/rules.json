@@ -1,0 +1,1868 @@
+{
+  "version": "1.2.3",
+  "params": {
+    "fps": 30,
+    "sr": 48000,
+    "audio": {
+      "rms_win_s": 0.02,
+      "pause_rms_db": -35.0,
+      "pause_min_s": 0.12,
+      "pause_deep_db": -45.0,
+      "pause_deep_min_s": 0.06,
+      "voiced_rms100_db": -35.0,
+      "onset_pre_s": 0.1,
+      "onset_post_s": 0.05,
+      "onset_mono_gap_s": 0.02,
+      "phone_hpf_hz": 300.0,
+      "phone_hpf_order": 4,
+      "momentary_s": 0.4
+    },
+    "sfx": {
+      "role_tier": {
+        "hook": "A",
+        "stomp": "A",
+        "reveal": "A",
+        "cta": "B",
+        "card": "B",
+        "section": "B",
+        "broll_in": "B",
+        "cut": "C",
+        "gapfill": "C"
+      },
+      "role_rank": {
+        "hook": 1,
+        "stomp": 2,
+        "reveal": 2,
+        "cta": 3,
+        "card": 4,
+        "section": 5,
+        "broll_in": 5,
+        "cut": 6,
+        "gapfill": 7
+      },
+      "role_family": {
+        "hook": "impact",
+        "stomp": "impact",
+        "reveal": "impact",
+        "cta": "sparkle",
+        "card": "slide",
+        "section": "whoosh",
+        "broll_in": "whoosh",
+        "cut": "air",
+        "gapfill": "air"
+      },
+      "role_fallback": {
+        "cta": [
+          "slide"
+        ]
+      },
+      "family_files": {
+        "impact": [
+          "impact/hit-blow",
+          "impact/hit-weak"
+        ],
+        "sparkle": [
+          "sparkle/sparkle-wand",
+          "sparkle/sparkle-touch"
+        ],
+        "slide": [
+          "slide/paper-slice-quick",
+          "slide/glass-plate-slide"
+        ],
+        "whoosh": [
+          "whoosh/transition-soft",
+          "whoosh/wind-swoosh-short",
+          "whoosh/zoom-swipe-fast"
+        ],
+        "air": [
+          "air/sweep-short",
+          "air/transition-snap"
+        ]
+      },
+      "family_constraints": {
+        "impact": {
+          "onsets_max": 1,
+          "attack20_ms_max": 80,
+          "lt250_max": 50.0,
+          "crestPK_max": 21.0
+        },
+        "sparkle": {
+          "attack20_ms_max": 400,
+          "tail30_ms_max": 1200,
+          "lt250_max": 50.0
+        },
+        "slide": {
+          "attack20_ms_max": 246,
+          "tail30_ms_max": 508,
+          "lt250_max": 50.0,
+          "crestPK_max": 25.0
+        },
+        "whoosh": {
+          "attack20_ms_max": 300,
+          "tail30_ms_max": 400,
+          "lt250_max": 50.0
+        },
+        "air": {
+          "tail30_ms_max": 400,
+          "lt250_max": 50.0,
+          "gt4k_min": 20.0
+        }
+      },
+      "pause_min_s": {
+        "A": 0.25,
+        "B": 0.25,
+        "C": 0.21
+      },
+      "g0_s": 0.02,
+      "g1_s": 0.06,
+      "lead_max_s": 0.6,
+      "posthit_s": 0.3,
+      "posthit_pre_s": 0.1,
+      "tail_floor_s": 0.03,
+      "attack_cap_s": 0.06,
+      "min_window_s": 0.06,
+      "section_pause_s": 0.4,
+      "cut_jump": 0.12,
+      "cut_near_s": 0.6,
+      "p2p_s": 1.0,
+      "aa_s": 6.0,
+      "stomp_s": 8.0,
+      "same_file_s": 5.0,
+      "cta_clear_s": 1.0,
+      "max_a": 4,
+      "hook_window_s": 3.5,
+      "max_cut_c": 2,
+      "fade_out_s": {
+        "default": 0.08,
+        "sparkle": 0.12
+      },
+      "fade_in_s": {
+        "impact": 0.01,
+        "sparkle": 0.01,
+        "whoosh": 0.03,
+        "slide": 0.03,
+        "air": 0.03
+      },
+      "max_fade_loss_db": 3.0,
+      "tp_cap_dbtp": -2.0,
+      "max_short_db": 1.5,
+      "level_tol_db": 1.5,
+      "l6_floor_dbfs": -50.0,
+      "l6_rel_db": -30.0,
+      "max_gap_s": 8.0,
+      "min_events": 3,
+      "gapfill_margin_s": 1.0,
+      "never_sound": [
+        "jump_cut",
+        "camera_drift",
+        "broll_out",
+        "hero_script",
+        "line_change",
+        "word_pop",
+        "list_item",
+        "hook_title",
+        "ai_disclosure",
+        "joke",
+        "over_speech"
+      ],
+      "sync_frame": {
+        "block": 5,
+        "card": 6,
+        "item": 5,
+        "cta_pill": 4,
+        "hook_title": 6,
+        "cut": 0,
+        "broll_in": 0
+      },
+      "sync_tol_f": {
+        "early": 1,
+        "late": 2
+      }
+    },
+    "presets": {
+      "standard": {
+        "max_5s": 2,
+        "max_10s": 3,
+        "k_per10": 2.5,
+        "tier_db": {
+          "A": -3.0,
+          "B": -8.0,
+          "C": -12.0
+        }
+      },
+      "calm": {
+        "max_5s": 2,
+        "max_10s": 2,
+        "k_per10": 2.0,
+        "tier_db": {
+          "A": -5.0,
+          "B": -10.0,
+          "C": -14.0
+        }
+      },
+      "punchy": {
+        "max_5s": 3,
+        "max_10s": 4,
+        "k_per10": 3.0,
+        "tier_db": {
+          "A": -2.0,
+          "B": -6.0,
+          "C": -11.0
+        }
+      }
+    },
+    "default_preset": "standard",
+    "loudness": {
+      "final_lufs": -16.0,
+      "social_lufs": -14.0,
+      "tol_lu": 0.5,
+      "tp_dbtp": -1.5,
+      "smax_over_i_lu": 5.0,
+      "sfx_di_max_lu": 0.5,
+      "mmax_over_vo_lu": 1.0
+    },
+    "voice": {
+      "hp_hz": 110,
+      "lp_hz": 10000,
+      "eq": [
+        [
+          220,
+          1.1,
+          -6.0
+        ],
+        [
+          3500,
+          1.3,
+          3.5
+        ]
+      ],
+      "comp": {
+        "thr_db": -18,
+        "ratio": 2.2,
+        "attack_ms": 10,
+        "release_ms": 90,
+        "makeup_db": 2
+      },
+      "target_lufs": -16.0,
+      "tol_lu": 0.5,
+      "tp_dbtp": -2.0,
+      "tilt_min_db": -9.5,
+      "low_max_db": -12.0,
+      "xcorr_max_ms": 2.0
+    },
+    "bgm": {
+      "rel_lu": -15.0,
+      "hpf_hz": 100,
+      "eq_hz": 2000,
+      "eq_q": 0.7,
+      "eq_db": -3.0,
+      "fade_in_s": 1.0,
+      "fade_out_s": 1.5,
+      "loop_xfade_s": 0.5,
+      "tol_lu": 1.0,
+      "smax_over_i_lu": 6.0,
+      "offset_step_s": 0.5,
+      "lra_max_lu": 5.0,
+      "st_floor_lu": 10.0
+    },
+    "end": {
+      "pad_s": 0.5,
+      "fade_s": 0.15
+    },
+    "text": {
+      "lead_s": 0.05,
+      "reveal_f": 9,
+      "block_min_s": 1.5,
+      "block_max_s": 3.0,
+      "hero_words_min": 2,
+      "hero_words_max": 5,
+      "max_stomp_like": 3,
+      "shot_gap_min_s": 2.0,
+      "shot_gap_max_s": 4.0,
+      "scale_max": 1.22,
+      "scale_hi": 1.25,
+      "scale_hi_max_shots": 2,
+      "cta_label_max_chars": 14,
+      "cta_keyword_max_chars": 16,
+      "hero_one_row_chars": 8,
+      "close_min": 1.14,
+      "glyph_pad_em": 0.3,
+      "ink_margin_em": 0.01,
+      "hook_max_chars": 8,
+      "hero_row_max_chars": 16
+    },
+    "safe_zone": {
+      "text_x_min": 140,
+      "text_x_max": 940,
+      "text_y_min": 270,
+      "text_y_max": 1436,
+      "sub_bottom_px": 484,
+      "sub_max_w": 800,
+      "subject_y_min": 270,
+      "subject_y_max": 1080
+    },
+    "mapping": {
+      "clip_s": 25,
+      "min_score": 0.6,
+      "min_margin": 0.1,
+      "script_pass": 0.9,
+      "script_min": 0.8
+    },
+    "xcorr_max_ms": 2.0,
+    "budgets": {
+      "PREP": {
+        "turns": 25,
+        "runtime": "20m",
+        "retries": 2,
+        "goal_turns": 0
+      },
+      "INTAKE": {
+        "turns": 15,
+        "runtime": "25m",
+        "retries": 1,
+        "goal_turns": 0
+      },
+      "PLAN": {
+        "turns": 25,
+        "runtime": "20m",
+        "retries": 2,
+        "goal_turns": 0
+      },
+      "BUILD": {
+        "turns": 15,
+        "runtime": "25m",
+        "retries": 1,
+        "goal_turns": 0
+      },
+      "VERIFY": {
+        "turns": 20,
+        "runtime": "25m",
+        "retries": 1,
+        "goal_turns": 0
+      }
+    },
+    "models": {
+      "plan_a2": "ag/claude-sonnet-4-6"
+    },
+    "batch": {
+      "max_videos": 10,
+      "prep_videos_per_card": 5,
+      "sample_every": 5,
+      "exclude_videos": [
+        1,
+        2
+      ]
+    },
+    "face": {
+      "cascade": "data/haarcascade_frontalface_default.xml",
+      "work_px": [
+        270,
+        480
+      ],
+      "scales": {
+        "start": 5.6,
+        "ratio": 1.06,
+        "count": 8
+      },
+      "step_px": 2,
+      "min_hits": 3,
+      "cluster_frac": 0.2,
+      "max_miss_frac": 0.05,
+      "max_gap_s": 0.4,
+      "height_px": [
+        540,
+        820
+      ],
+      "smooth_frames": 5,
+      "window_s": 0.2,
+      "mouth_box": [
+        0.25,
+        0.7,
+        0.75,
+        0.9
+      ],
+      "eye_box": [
+        0.1,
+        0.3,
+        0.9,
+        0.5
+      ],
+      "margin_px": 8,
+      "eye_top_min_px": 330,
+      "pill_pop_px": 8,
+      "exempt": [
+        "hook"
+      ],
+      "exit_allow": {
+        "block": {
+          "rise_px": 20,
+          "blur_px": 12
+        },
+        "steps": {
+          "rise_px": 26,
+          "blur_px": 16
+        }
+      },
+      "cap_floor": 1.10,
+      "bump_max": 0.04,
+      "scale_step": 0.01
+    },
+    "plan": {
+      "lexicon": "data/text_vi.json",
+      "short_sentence_words": 6,
+      "list_item_max_words": 6,
+      "steps_label_max_chars": 26,
+      "steps_title_max_chars": 30,
+      "emphasis_default_max": 2,
+      "shot": {
+        "ideal_gap_s": 3.0,
+        "gap_weight": 0.4,
+        "block_start_bonus": 0.6,
+        "sentence_start_bonus": 0.4,
+        "emphasis_start_bonus": 0.5,
+        "cta_push_bonus": 2.0,
+        "forced_off_pause_cost": 5.0,
+        "same_scale_pen": 1.0,
+        "two_row_close_pen": 2.0,
+        "two_row_chars": 12,
+        "wide": [1.0, 1.04],
+        "close": [1.16, 1.2],
+        "cta_push": [1.06, 1.2],
+        "steps": [1.18, 1.22]
+      },
+      "seg_cost": {
+        "len_dev": 1.0,
+        "clause_cut": 20,
+        "long_clause_cut": 3,
+        "comma_end": 1.0,
+        "colon_end": 0.5,
+        "sentence_merge": 30,
+        "tight_pen": 10
+      },
+      "hero_chars_soft": 18,
+      "side_chars_soft": 24,
+      "repair_max_variants": 30,
+      "repair_show": 3,
+      "hero": {
+        "content": 1.0,
+        "keyword": 2.5,
+        "negation": 0.8,
+        "function": 0.0,
+        "end_bonus": 0.7,
+        "phrase_edge": 1.0,
+        "det_top_end": 2.0,
+        "pronoun_end": 1.0,
+        "func_start": 0.5,
+        "inner_punct": 0.8,
+        "per_word": 0.15,
+        "hero_char_over": 0.5,
+        "side_char_over": 0.3
+      },
+      "dp_window_extra_s": 2.5,
+      "sheet_max_lines": 200,
+      "emphasis_min_video_s": 30.0,
+      "dry_lock_max_iter": 6
+    },
+    "broll": {
+      "ai": {
+        "base_url": "http://169.58.72.124:20128/v1",
+        "still_model": "ag/nano-banana",
+        "clip_model": "xai/grok-imagine-video",
+        "clip_params": {
+          "aspect_ratio": "9:16",
+          "resolution": "720p",
+          "duration": 5
+        },
+        "max_clips": 1,
+        "poll_every_s": 8,
+        "poll_timeout_s": 360,
+        "http_timeout_s": 180
+      },
+      "style_suffix": "Vertical 9:16 realistic photo, natural warm light, shallow depth of field, unbranded generic products and devices, no text, no letters, no logos, no watermark.",
+      "min_s": 2.0,
+      "still_max_s": 3.5,
+      "clip_min_s": 2.0,
+      "clip_max_s": 4.0,
+      "cover_min": 0.25,
+      "cover_max": 0.4,
+      "gap_min_s": 1.5,
+      "per_s": 6,
+      "zone_head_s": 3.5,
+      "zone_tail_s": 3.0,
+      "zone_lead_s": 0.3,
+      "steps_hold_s": 1.5,
+      "cut_pause_min_s": 0.12,
+      "cut_frac": 0.45,
+      "pause_snap_s": 0.05,
+      "anchor_min": 0.6,
+      "cut_guard_s": 0.5,
+      "push": [
+        1.0,
+        1.06
+      ],
+      "settle_f": 4,
+      "settle_amp": 0.018,
+      "flat_std_min": 30,
+      "render_diff_min": 20,
+      "out_w": 1080,
+      "out_h": 1920,
+      "jpg_q": 92,
+      "clip_crf": 18,
+      "clip_fps": 30
+    }
+  },
+  "sources": {
+    "fps": {
+      "label": "kỹ thuật (composition 1080x1920@30fps, §1)",
+      "confidence": "low"
+    },
+    "sr": {
+      "label": "[chuẩn] 48 kHz (BS.1770/EBU R128)",
+      "confidence": "high"
+    },
+    "audio.rms_win_s": {
+      "label": "S05 §5.1 khoảng ngắt [ngành] masking; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "audio.pause_rms_db": {
+      "label": "S05 §5.1 khoảng ngắt [ngành] masking; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "audio.pause_min_s": {
+      "label": "S05 §5.1 khoảng ngắt [ngành] masking; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "audio.pause_deep_db": {
+      "label": "S05 §5.1 khoảng ngắt [ngành] masking; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "audio.pause_deep_min_s": {
+      "label": "S05 §5.1 khoảng ngắt [ngành] masking; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "audio.voiced_rms100_db": {
+      "label": "S14 VO_REF [GĐ→R1]",
+      "confidence": "low"
+    },
+    "audio.onset_pre_s": {
+      "label": "S04 §5.1 onset thật [đo] whisper nuốt 20/21 khoảng ngắt",
+      "confidence": "medium"
+    },
+    "audio.onset_post_s": {
+      "label": "S04 §5.1 onset thật [đo] whisper nuốt 20/21 khoảng ngắt",
+      "confidence": "medium"
+    },
+    "audio.onset_mono_gap_s": {
+      "label": "S04 §5.1 onset thật [đo] whisper nuốt 20/21 khoảng ngắt",
+      "confidence": "medium"
+    },
+    "audio.phone_hpf_hz": {
+      "label": "§5.1 phone-K/phone-A [ngành] đo loa điện thoại",
+      "confidence": "medium"
+    },
+    "audio.phone_hpf_order": {
+      "label": "§5.1 phone-K/phone-A [ngành] đo loa điện thoại",
+      "confidence": "medium"
+    },
+    "audio.momentary_s": {
+      "label": "[chuẩn] BS.1770 momentary 400 ms",
+      "confidence": "high"
+    },
+    "sfx.role_tier.hook": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_tier.stomp": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_tier.reveal": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_tier.cta": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_tier.card": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_tier.section": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_tier.broll_in": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_tier.cut": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_tier.gapfill": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_rank.hook": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_rank.stomp": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_rank.reveal": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_rank.cta": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_rank.card": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_rank.section": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_rank.broll_in": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_rank.cut": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_rank.gapfill": {
+      "label": "S01 [NC] Moreno & Mayer 2000; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.role_family.hook": {
+      "label": "S03 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.role_family.stomp": {
+      "label": "S03 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.role_family.reveal": {
+      "label": "S03 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.role_family.cta": {
+      "label": "S03 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.role_family.card": {
+      "label": "S03 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.role_family.section": {
+      "label": "S03 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.role_family.broll_in": {
+      "label": "S03 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.role_family.cut": {
+      "label": "S03 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.role_family.gapfill": {
+      "label": "S03 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.family_files.impact": {
+      "label": "S03/§5.5 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.family_files.sparkle": {
+      "label": "S03/§5.5 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.family_files.slide": {
+      "label": "S03/§5.5 [đo] measure_files.py (39 file)",
+      "confidence": "medium"
+    },
+    "sfx.family_files.whoosh": {
+      "label": "S03/§5.5 [đo] measure_files.py (39 file); S13 1.1.1: md5 duy nhất toàn release — transition-snap (74 % > 4 kHz) chỉ còn ở air; Q2 (user 2026-09-15): thêm zoom-swipe-fast (Mixkit 2627, ATTRIBUTION dòng 65, [đo] attack20 141 ms / tail30 287 ms / 5 % > 4 kHz)",
+      "confidence": "medium"
+    },
+    "sfx.family_files.air": {
+      "label": "S03/§5.5 [đo] measure_files.py (39 file); 1.1.1: không đổi [air/sweep-short, air/transition-snap] — ghi rõ hướng gỡ trùng md5",
+      "confidence": "medium"
+    },
+    "sfx.role_fallback.cta": {
+      "label": "S20 1.1.1 (canary P10) [đo] sparkle pre-hit chỉ vừa khoảng ngắt trước CTA 0,30–0,65 s (tail30 711/914 ms, S07 lead > 600 ms từ 0,70 s); slide/paper-slice-quick vừa 0,30–1,50 s với lead 252 ms",
+      "confidence": "medium"
+    },
+    "sfx.family_constraints.impact.onsets_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.impact.attack20_ms_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.impact.lt250_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.impact.crestPK_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.sparkle.attack20_ms_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.sparkle.tail30_ms_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.sparkle.lt250_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.slide.attack20_ms_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.slide.tail30_ms_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.slide.lt250_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.slide.crestPK_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.whoosh.attack20_ms_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.whoosh.tail30_ms_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.whoosh.lt250_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.air.tail30_ms_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.air.lt250_max": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.family_constraints.air.gt4k_min": {
+      "label": "S03 [đo] measure_files.py — trần R0a, Task 6 hiệu chỉnh",
+      "confidence": "low"
+    },
+    "sfx.pause_min_s.A": {
+      "label": "S05 [ngành] masking; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "sfx.pause_min_s.B": {
+      "label": "S05 [ngành] masking; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "sfx.pause_min_s.C": {
+      "label": "S05 [ngành] masking; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "sfx.g0_s": {
+      "label": "S05 [ngành] masking; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "sfx.g1_s": {
+      "label": "S06 [ngành]; prototype",
+      "confidence": "medium"
+    },
+    "sfx.lead_max_s": {
+      "label": "S07 [NC] Coupé 2019; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.posthit_s": {
+      "label": "S07 [NC] Coupé 2019; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.posthit_pre_s": {
+      "label": "S06 [ngành]; prototype",
+      "confidence": "medium"
+    },
+    "sfx.tail_floor_s": {
+      "label": "S06 [ngành]; prototype",
+      "confidence": "medium"
+    },
+    "sfx.attack_cap_s": {
+      "label": "S06 [ngành]; prototype",
+      "confidence": "medium"
+    },
+    "sfx.min_window_s": {
+      "label": "[GĐ→R1] ngưỡng cửa sổ tối thiểu để thử cue",
+      "confidence": "low"
+    },
+    "sfx.section_pause_s": {
+      "label": "S02 [ngành] hit list là ứng viên; [đo] §6.3; 1.1.1: 5b còn cần cú cắt zoom có tiếng ở từ neo (S02) — 0,45 sẽ bỏ section@w113 hợp lệ của video 2 (khoảng ngắt 0,427 s, cắt thật) [đo]",
+      "confidence": "medium"
+    },
+    "sfx.cut_jump": {
+      "label": "[GĐ→R1] ngưỡng Δscale nhận cắt zoom",
+      "confidence": "low"
+    },
+    "sfx.cut_near_s": {
+      "label": "S07 [NC] Coupé 2019; [ngành]",
+      "confidence": "medium"
+    },
+    "sfx.p2p_s": {
+      "label": "S10 [ngành] ~1 nhịp thở",
+      "confidence": "medium"
+    },
+    "sfx.aa_s": {
+      "label": "S10 [ngành] ~1 nhịp thở",
+      "confidence": "medium"
+    },
+    "sfx.stomp_s": {
+      "label": "S10 [ngành] ~1 nhịp thở",
+      "confidence": "medium"
+    },
+    "sfx.same_file_s": {
+      "label": "S10 [ngành] ~1 nhịp thở",
+      "confidence": "medium"
+    },
+    "sfx.cta_clear_s": {
+      "label": "S10 [ngành] ~1 nhịp thở",
+      "confidence": "medium"
+    },
+    "sfx.max_a": {
+      "label": "S11 [ngành]; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "sfx.hook_window_s": {
+      "label": "S22 [ngành]; kịch bản kênh \"tắt tiếng vẫn hiểu\"",
+      "confidence": "medium"
+    },
+    "sfx.max_cut_c": {
+      "label": "S11 [ngành]; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "sfx.fade_out_s.default": {
+      "label": "S12 [ngành] forward masking",
+      "confidence": "medium"
+    },
+    "sfx.fade_out_s.sparkle": {
+      "label": "S12 [ngành] forward masking",
+      "confidence": "medium"
+    },
+    "sfx.fade_in_s.impact": {
+      "label": "S06 [ngành]; prototype",
+      "confidence": "medium"
+    },
+    "sfx.fade_in_s.sparkle": {
+      "label": "S06 [ngành]; prototype",
+      "confidence": "medium"
+    },
+    "sfx.fade_in_s.whoosh": {
+      "label": "S06 [ngành]; prototype",
+      "confidence": "medium"
+    },
+    "sfx.fade_in_s.slide": {
+      "label": "S06 [ngành]; prototype",
+      "confidence": "medium"
+    },
+    "sfx.fade_in_s.air": {
+      "label": "S06 [ngành]; prototype",
+      "confidence": "medium"
+    },
+    "sfx.max_fade_loss_db": {
+      "label": "S12 [ngành] forward masking",
+      "confidence": "medium"
+    },
+    "sfx.tp_cap_dbtp": {
+      "label": "S14 [GĐ→R1] không có chuẩn mức SFX so với lời trong khoảng lặng",
+      "confidence": "low"
+    },
+    "sfx.max_short_db": {
+      "label": "S14 [GĐ→R1] không có chuẩn mức SFX so với lời trong khoảng lặng",
+      "confidence": "low"
+    },
+    "sfx.level_tol_db": {
+      "label": "S14 [GĐ→R1] không có chuẩn mức SFX so với lời trong khoảng lặng",
+      "confidence": "low"
+    },
+    "sfx.l6_floor_dbfs": {
+      "label": "S05 [ngành] masking; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "sfx.l6_rel_db": {
+      "label": "S05 [ngành] masking; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "sfx.max_gap_s": {
+      "label": "S26 [ngành] + [GĐ→R1]",
+      "confidence": "low"
+    },
+    "sfx.min_events": {
+      "label": "S26 [ngành] + [GĐ→R1]",
+      "confidence": "low"
+    },
+    "sfx.gapfill_margin_s": {
+      "label": "S26 [ngành] + [GĐ→R1]",
+      "confidence": "low"
+    },
+    "sfx.never_sound": {
+      "label": "S19 [NC] Newman & Schwarz 2018; feedback user \"giống game\"",
+      "confidence": "medium"
+    },
+    "sfx.sync_frame.block": {
+      "label": "S24 [đo trong code] so với code template",
+      "confidence": "medium"
+    },
+    "sfx.sync_frame.card": {
+      "label": "S24 [đo trong code] so với code template",
+      "confidence": "medium"
+    },
+    "sfx.sync_frame.item": {
+      "label": "S24 [đo trong code] so với code template",
+      "confidence": "medium"
+    },
+    "sfx.sync_frame.cta_pill": {
+      "label": "S24 [đo trong code] so với code template",
+      "confidence": "medium"
+    },
+    "sfx.sync_frame.hook_title": {
+      "label": "S24 [đo trong code] so với code template",
+      "confidence": "medium"
+    },
+    "sfx.sync_frame.cut": {
+      "label": "S24 [đo trong code] so với code template",
+      "confidence": "medium"
+    },
+    "sfx.sync_frame.broll_in": {
+      "label": "spec 1.2.0 §9 — B-roll vào cắt cứng đúng đỉnh whoosh, như cú cắt (sync_frame.cut 0)",
+      "confidence": "medium"
+    },
+    "sfx.sync_tol_f.early": {
+      "label": "S08 [chuẩn] ITU-R BT.1359",
+      "confidence": "high"
+    },
+    "sfx.sync_tol_f.late": {
+      "label": "S08 [chuẩn] ITU-R BT.1359",
+      "confidence": "high"
+    },
+    "presets.standard.max_5s": {
+      "label": "S11/§5.3 [ngành]; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.standard.max_10s": {
+      "label": "S11/§5.3 [ngành]; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.standard.k_per10": {
+      "label": "S11/§5.3 [ngành]; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.standard.tier_db.A": {
+      "label": "S14/§5.3 [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.standard.tier_db.B": {
+      "label": "S14/§5.3 [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.standard.tier_db.C": {
+      "label": "S14/§5.3 [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.calm.max_5s": {
+      "label": "S11/§5.3 [ngành]; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.calm.max_10s": {
+      "label": "S11/§5.3 [ngành]; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.calm.k_per10": {
+      "label": "S11/§5.3 [ngành]; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.calm.tier_db.A": {
+      "label": "S14/§5.3 [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.calm.tier_db.B": {
+      "label": "S14/§5.3 [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.calm.tier_db.C": {
+      "label": "S14/§5.3 [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.punchy.max_5s": {
+      "label": "S11/§5.3 [ngành]; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.punchy.max_10s": {
+      "label": "S11/§5.3 [ngành]; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.punchy.k_per10": {
+      "label": "S11/§5.3 [ngành]; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.punchy.tier_db.A": {
+      "label": "S14/§5.3 [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.punchy.tier_db.B": {
+      "label": "S14/§5.3 [GĐ→R1]",
+      "confidence": "low"
+    },
+    "presets.punchy.tier_db.C": {
+      "label": "S14/§5.3 [GĐ→R1]",
+      "confidence": "low"
+    },
+    "default_preset": {
+      "label": "D1 quyết định của user",
+      "confidence": "high"
+    },
+    "loudness.final_lufs": {
+      "label": "S18 [chuẩn] EBU R128 s1; nền tảng re-encode",
+      "confidence": "high"
+    },
+    "loudness.social_lufs": {
+      "label": "S18 [chuẩn] EBU R128 s1; nền tảng re-encode",
+      "confidence": "high"
+    },
+    "loudness.tol_lu": {
+      "label": "S18 [chuẩn] EBU R128 s1; nền tảng re-encode",
+      "confidence": "high"
+    },
+    "loudness.tp_dbtp": {
+      "label": "S18 [chuẩn] EBU R128 s1; nền tảng re-encode",
+      "confidence": "high"
+    },
+    "loudness.smax_over_i_lu": {
+      "label": "S18 [chuẩn] EBU R128 s1; nền tảng re-encode",
+      "confidence": "high"
+    },
+    "loudness.sfx_di_max_lu": {
+      "label": "S18 [chuẩn] EBU R128 s1; nền tảng re-encode",
+      "confidence": "high"
+    },
+    "loudness.mmax_over_vo_lu": {
+      "label": "S18 [chuẩn] EBU R128 s1; nền tảng re-encode",
+      "confidence": "high"
+    },
+    "voice.hp_hz": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.lp_hz": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.eq": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.comp.thr_db": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.comp.ratio": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.comp.attack_ms": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.comp.release_ms": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.comp.makeup_db": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.target_lufs": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.tol_lu": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.tp_dbtp": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.tilt_min_db": {
+      "label": "R126 2026-09-17: đo QA vo-clean 1.1.1 trên 58 video HeyGen — tilt trung bình −8,11 dB, lệch chuẩn 0,40, thấp nhất −8,91 (video 18); ngưỡng cũ −8,5 (S28 chuỗi v5 + tilt.py) chặn 8/58 dù không có cụm giọng hỏng riêng. −9,5 ≈ trung bình − 3,5 lệch chuẩn; user duyệt sau khi nghe A/B video 21/16",
+      "confidence": "medium"
+    },
+    "voice.low_max_db": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "voice.xcorr_max_ms": {
+      "label": "S28 [đo] chuỗi vo-clear-1 v5 + tilt.py",
+      "confidence": "medium"
+    },
+    "bgm.rel_lu": {
+      "label": "S29/§5.6 [ngành] lời ≥10 LU trên nhạc, nền ≥15 LU; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "bgm.hpf_hz": {
+      "label": "S29/§5.6 [ngành] lời ≥10 LU trên nhạc, nền ≥15 LU; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "bgm.eq_hz": {
+      "label": "S29/§5.6 [ngành] lời ≥10 LU trên nhạc, nền ≥15 LU; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "bgm.eq_q": {
+      "label": "S29/§5.6 [ngành] lời ≥10 LU trên nhạc, nền ≥15 LU; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "bgm.eq_db": {
+      "label": "S29/§5.6 [ngành] lời ≥10 LU trên nhạc, nền ≥15 LU; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "bgm.fade_in_s": {
+      "label": "S29/§5.6 [ngành] lời ≥10 LU trên nhạc, nền ≥15 LU; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "bgm.fade_out_s": {
+      "label": "S29/§5.6 [ngành] lời ≥10 LU trên nhạc, nền ≥15 LU; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "bgm.loop_xfade_s": {
+      "label": "S29/§5.6 [ngành] lời ≥10 LU trên nhạc, nền ≥15 LU; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "bgm.tol_lu": {
+      "label": "S29/§5.6 [ngành] lời ≥10 LU trên nhạc, nền ≥15 LU; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "bgm.smax_over_i_lu": {
+      "label": "S29/§5.6 [ngành] lời ≥10 LU trên nhạc, nền ≥15 LU; [GĐ→R1]",
+      "confidence": "low"
+    },
+    "bgm.offset_step_s": {
+      "label": "S29 1.1.1 (canary P12) kỹ thuật: lưới offset bắt đầu bài, chọn offset cho LRA của bed nhỏ nhất; [GĐ→R1] nghe chỗ bắt đầu giữa ô nhịp",
+      "confidence": "low"
+    },
+    "bgm.lra_max_lu": {
+      "label": "S29/L12 1.1.1 [chuẩn] LRA theo EBU Tech 3342 trên các cửa sổ short-term không fade của bed; [đo] 4 bài × T 40–60 s: offset tốt nhất ≤ 3,0 LU, offset 0 cat-walk 9,1–9,6 / house-vibez 6,3–6,6; [GĐ→R1]",
+      "confidence": "medium"
+    },
+    "bgm.st_floor_lu": {
+      "label": "S29/L12 1.1.1 [ngành] lời ≥ 10 LU trên nhạc trên mỗi cửa sổ short-term 3 s có lời (bảng F1: bed ≤ giọng − 10 LU); [đo] v16 offset 19,0 s: min 11,5 LU",
+      "confidence": "medium"
+    },
+    "end.pad_s": {
+      "label": "S27 [ngành] + [GĐ→R1]",
+      "confidence": "low"
+    },
+    "end.fade_s": {
+      "label": "S27 [ngành] + [GĐ→R1]",
+      "confidence": "low"
+    },
+    "text.lead_s": {
+      "label": "kỹ thuật (picture_lock show = on − lead_s)",
+      "confidence": "low"
+    },
+    "text.reveal_f": {
+      "label": "S22 [ngành]; kịch bản kênh \"tắt tiếng vẫn hiểu\"",
+      "confidence": "medium"
+    },
+    "text.block_min_s": {
+      "label": "§9.1 validate_edit [ngành] tốc độ đọc phụ đề",
+      "confidence": "medium"
+    },
+    "text.block_max_s": {
+      "label": "§9.1 validate_edit [ngành] tốc độ đọc phụ đề",
+      "confidence": "medium"
+    },
+    "text.hero_words_min": {
+      "label": "§9.1 validate_edit [ngành] tốc độ đọc phụ đề",
+      "confidence": "medium"
+    },
+    "text.hero_words_max": {
+      "label": "§9.1 validate_edit [ngành] tốc độ đọc phụ đề",
+      "confidence": "medium"
+    },
+    "text.max_stomp_like": {
+      "label": "§9.1 validate_edit [GĐ→R1]",
+      "confidence": "low"
+    },
+    "text.shot_gap_min_s": {
+      "label": "§9.1 validate_edit kỹ thuật",
+      "confidence": "low"
+    },
+    "text.shot_gap_max_s": {
+      "label": "§9.1 validate_edit kỹ thuật",
+      "confidence": "low"
+    },
+    "text.scale_max": {
+      "label": "B21 che lỗi avatar [chưa kiểm]",
+      "confidence": "low"
+    },
+    "text.scale_hi": {
+      "label": "B21 che lỗi avatar [chưa kiểm]",
+      "confidence": "low"
+    },
+    "text.scale_hi_max_shots": {
+      "label": "B21 che lỗi avatar [chưa kiểm]",
+      "confidence": "low"
+    },
+    "text.cta_label_max_chars": {
+      "label": "B14 pill CTA vừa hộp chữ mà chữ không co quá nhỏ (final review B2) [GĐ→R1]",
+      "confidence": "low"
+    },
+    "text.cta_keyword_max_chars": {
+      "label": "B14 pill CTA; từ khoá dài nhất trong 60 kịch bản kênh = 16 ký tự (final review B2) [GĐ→R1]",
+      "confidence": "low"
+    },
+    "text.hero_one_row_chars": {
+      "label": "spec 1.1.1 §11 — đo bằng PIL trên Subtitle.fitSize: hero 3 tầng ≤ 8 ký tự mới nằm một dòng",
+      "confidence": "medium"
+    },
+    "text.hero_row_max_chars": {
+      "label": "R124 canary v16 — hero ghi đè (plan.hero) dài hơn text.hero_one_row_chars thì dựng MỘT hàng, cỡ = cỡ gốc × hero_one_row_chars / số ký tự; 16 ký tự ⇒ script ~75 px (R128 lô b01: CTA «BRIEF TRƯỚC TOOL» 16 ký tự HOA ⇒ 77 px, user duyệt ảnh A/B)",
+      "confidence": "medium"
+    },
+    "text.close_min": {
+      "label": "spec 1.1.1 §11 — PLAN.md §6: cảnh cận 1.14–1.22; thẻ liệt kê phải nằm trong cảnh cận",
+      "confidence": "low"
+    },
+    "text.glyph_pad_em": {
+      "label": "D2 1.1.1 (R64) [đo] fontTools BeVietnamPro-BlackItalic: nét thò ngoài hộp chữ lớn nhất trên 0,239 em (Ẳ, so với typo ascent) / phải 0,226 em (Ế, gồm letter-spacing hero 0,015) + lề; lề sơn của span gradient (background-clip:text) — chỉ vẽ, không đổi bố cục (19/19 block video 16 cùng vị trí); canary v16 'tính tù', 'nhu', 'tụ'",
+      "confidence": "high"
+    },
+    "text.ink_margin_em": {
+      "label": "D2 1.1.1 (R65) [đo] lề cộng vào bảng phần thò src/ink.ts (tools/make_ink_table.py): mọi phần thò > 0 + 0,01 em ⇒ 0/600 hero script, 0/600 hero stomp tràn x 940 (bảng thò > 0,02 em, lề 0,005: còn 1/240 hero tràn 1–2 px)",
+      "confidence": "medium"
+    },
+    "text.hook_max_chars": {
+      "label": "spec 1.1.1 §11",
+      "confidence": "medium"
+    },
+    "safe_zone.text_x_min": {
+      "label": "B14 nền tảng (TikTok safe zone)",
+      "confidence": "high"
+    },
+    "safe_zone.text_x_max": {
+      "label": "B14 nền tảng (TikTok safe zone)",
+      "confidence": "high"
+    },
+    "safe_zone.text_y_min": {
+      "label": "B14 nền tảng (TikTok safe zone)",
+      "confidence": "high"
+    },
+    "safe_zone.text_y_max": {
+      "label": "B14 nền tảng (TikTok safe zone)",
+      "confidence": "high"
+    },
+    "safe_zone.sub_bottom_px": {
+      "label": "B14 nền tảng (TikTok safe zone)",
+      "confidence": "high"
+    },
+    "safe_zone.sub_max_w": {
+      "label": "B14 nền tảng (TikTok safe zone)",
+      "confidence": "high"
+    },
+    "safe_zone.subject_y_min": {
+      "label": "B14 nền tảng (TikTok safe zone)",
+      "confidence": "high"
+    },
+    "safe_zone.subject_y_max": {
+      "label": "B14 nền tảng (TikTok safe zone)",
+      "confidence": "high"
+    },
+    "mapping.clip_s": {
+      "label": "§6.1 [đo] hiệu chỉnh theo lượt quét 2026-09-11",
+      "confidence": "medium"
+    },
+    "mapping.min_score": {
+      "label": "§6.1 [đo] hiệu chỉnh theo lượt quét 2026-09-11",
+      "confidence": "medium"
+    },
+    "mapping.min_margin": {
+      "label": "§6.1 [đo] hiệu chỉnh theo lượt quét 2026-09-11",
+      "confidence": "medium"
+    },
+    "mapping.script_pass": {
+      "label": "§6.2 [đo] hiệu chỉnh R1, D10 khớp 94,5%/98,1%",
+      "confidence": "medium"
+    },
+    "mapping.script_min": {
+      "label": "§6.2 [đo] hiệu chỉnh R1, D10 khớp 94,5%/98,1%",
+      "confidence": "medium"
+    },
+    "xcorr_max_ms": {
+      "label": "S25 [đo] lệch 42,67 ms",
+      "confidence": "medium"
+    },
+    "budgets.PREP.turns": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.PREP.runtime": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.PREP.retries": {
+      "label": "§9 Dây chuyền — số lần thử lại SAU lần đầu (§10.5 lần 2 thì block); make_cards truyền Hermes --max-retries = retries + 1 (C2), kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.PREP.goal_turns": {
+      "label": "§9 Dây chuyền — 0 = không dùng goal mode của Hermes (R43: judge chỉ thấy card con trỏ, block goal không có kind); stage.py gác complete bằng NEXT, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.INTAKE.turns": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.INTAKE.runtime": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.INTAKE.retries": {
+      "label": "§9 Dây chuyền — số lần thử lại SAU lần đầu (§10.5 lần 2 thì block); make_cards truyền Hermes --max-retries = retries + 1 (C2), kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.INTAKE.goal_turns": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.PLAN.turns": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.PLAN.runtime": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.PLAN.retries": {
+      "label": "§9 Dây chuyền — số lần thử lại SAU lần đầu (§10.5 lần 2 thì block); make_cards truyền Hermes --max-retries = retries + 1 (C2), kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.PLAN.goal_turns": {
+      "label": "§9 Dây chuyền — 0 = không dùng goal mode của Hermes (R43: judge chỉ thấy card con trỏ, block goal không có kind); stage.py gác complete bằng NEXT, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.BUILD.turns": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.BUILD.runtime": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.BUILD.retries": {
+      "label": "§9 Dây chuyền — số lần thử lại SAU lần đầu (§10.5 lần 2 thì block); make_cards truyền Hermes --max-retries = retries + 1 (C2), kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.BUILD.goal_turns": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.VERIFY.turns": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.VERIFY.runtime": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.VERIFY.retries": {
+      "label": "§9 Dây chuyền — số lần thử lại SAU lần đầu (§10.5 lần 2 thì block); make_cards truyền Hermes --max-retries = retries + 1 (C2), kỹ thuật",
+      "confidence": "low"
+    },
+    "budgets.VERIFY.goal_turns": {
+      "label": "§9 Dây chuyền — ngân sách lượt theo stage, kỹ thuật",
+      "confidence": "low"
+    },
+    "models.plan_a2": {
+      "label": "§9 PLAN — a2 dùng model mạnh hơn, kỹ thuật",
+      "confidence": "low"
+    },
+    "batch.max_videos": {
+      "label": "§13.4 thứ tự lô, kỹ thuật",
+      "confidence": "low"
+    },
+    "batch.prep_videos_per_card": {
+      "label": "§7.1 1 card PREP xử lý ≤ 5 video, kỹ thuật",
+      "confidence": "low"
+    },
+    "batch.sample_every": {
+      "label": "D5 quyết định của user (mẫu 1/5)",
+      "confidence": "high"
+    },
+    "batch.exclude_videos": {
+      "label": "D11 quyết định của user (video 1–2 đã giao, không dựng lại; §13.4 mục 6) — intake.py luôn loại khỏi lô",
+      "confidence": "high"
+    },
+    "face.cascade": {
+      "label": "§8.1 1.1.1: bản sao cv2/data của OpenCV 4.13 (Python 3.12 hệ thống), cascade Lienhart 24×24 stump, giữ nguyên giấy phép Intel License Agreement; venv Hermes cv2 5.0 không có CascadeClassifier (kiểm 2026-09-15) nên thlib.face chạy Viola-Jones bằng numpy",
+      "confidence": "high"
+    },
+    "face.work_px": {
+      "label": "¼ khung 1080×1920 (toạ độ ×4); v16 1108 khung trong 7.3 s [đo]",
+      "confidence": "high"
+    },
+    "face.scales.start": {
+      "label": "prototype Viola-Jones numpy design111/mouthsafe/nphaar2.py (spec 1.1.1 §8.1); survey 58 video: mặt cao 604–744 px; v16 5/1108 khung hụt [đo]",
+      "confidence": "medium"
+    },
+    "face.scales.ratio": {
+      "label": "prototype Viola-Jones numpy design111/mouthsafe/nphaar2.py (spec 1.1.1 §8.1); survey 58 video: mặt cao 604–744 px; v16 5/1108 khung hụt [đo]",
+      "confidence": "medium"
+    },
+    "face.scales.count": {
+      "label": "prototype Viola-Jones numpy design111/mouthsafe/nphaar2.py (spec 1.1.1 §8.1); survey 58 video: mặt cao 604–744 px; v16 5/1108 khung hụt [đo]",
+      "confidence": "medium"
+    },
+    "face.step_px": {
+      "label": "prototype Viola-Jones numpy design111/mouthsafe/nphaar2.py (spec 1.1.1 §8.1); survey 58 video: mặt cao 604–744 px; v16 5/1108 khung hụt [đo]",
+      "confidence": "medium"
+    },
+    "face.min_hits": {
+      "label": "prototype Viola-Jones numpy design111/mouthsafe/nphaar2.py (spec 1.1.1 §8.1); survey 58 video: mặt cao 604–744 px; v16 5/1108 khung hụt [đo]",
+      "confidence": "medium"
+    },
+    "face.cluster_frac": {
+      "label": "prototype Viola-Jones numpy design111/mouthsafe/nphaar2.py (spec 1.1.1 §8.1); survey 58 video: mặt cao 604–744 px; v16 5/1108 khung hụt [đo]",
+      "confidence": "medium"
+    },
+    "face.max_miss_frac": {
+      "label": "cổng INTAKE «mặt» (spec 1.1.1 §8.1): survey 4960/4961 khung có mặt; v16/v2 hụt liền dài nhất 2 khung, trung vị h 649/648 px [GĐ→R1]",
+      "confidence": "medium"
+    },
+    "face.max_gap_s": {
+      "label": "cổng INTAKE «mặt» (spec 1.1.1 §8.1): survey 4960/4961 khung có mặt; v16/v2 hụt liền dài nhất 2 khung, trung vị h 649/648 px [GĐ→R1]",
+      "confidence": "medium"
+    },
+    "face.height_px": {
+      "label": "cổng INTAKE «mặt» (spec 1.1.1 §8.1): survey 4960/4961 khung có mặt; v16/v2 hụt liền dài nhất 2 khung, trung vị h 649/648 px [GĐ→R1]",
+      "confidence": "medium"
+    },
+    "face.smooth_frames": {
+      "label": "rung đường miệng p95 32–38 px [đo]",
+      "confidence": "medium"
+    },
+    "face.window_s": {
+      "label": "rung đường miệng p95 32–38 px [đo]",
+      "confidence": "medium"
+    },
+    "face.mouth_box": {
+      "label": "bảng môi 12 khung v16: môi dưới 0,84–0,88 h khi nói, 0,90–0,92 h khi há to",
+      "confidence": "medium"
+    },
+    "face.eye_box": {
+      "label": "kính 0,31–0,49 h",
+      "confidence": "medium"
+    },
+    "face.margin_px": {
+      "label": "biên an toàn chống lấn viền nét chữ vào miệng/mắt",
+      "confidence": "low"
+    },
+    "face.eye_top_min_px": {
+      "label": "UI TikTok trên ≈ 0–250 + safe_zone.text_y_min 270 + lề",
+      "confidence": "low"
+    },
+    "face.pill_pop_px": {
+      "label": "Cta.tsx outBack đỉnh ×1,084 trên ~106 px ≈ 4,5 px + nhịp đập",
+      "confidence": "medium"
+    },
+    "face.exempt": {
+      "label": "miễn kiểm tra đè mặt cho lớp hook",
+      "confidence": "high"
+    },
+    "face.exit_allow.block.rise_px": {
+      "label": "Subtitle.tsx −20·inCubic (ghim bằng test)",
+      "confidence": "high"
+    },
+    "face.exit_allow.block.blur_px": {
+      "label": "Subtitle.tsx blur 6q; ghim bằng test",
+      "confidence": "high"
+    },
+    "face.exit_allow.steps.rise_px": {
+      "label": "StepList −26·q; ghim bằng test",
+      "confidence": "high"
+    },
+    "face.exit_allow.steps.blur_px": {
+      "label": "StepList blur 8q (2σ); ghim bằng test",
+      "confidence": "high"
+    },
+    "face.cap_floor": {
+      "label": "s1 tối thiểu khi hạ scale tránh che miệng (spec 1.1.1 §8.3)",
+      "confidence": "low"
+    },
+    "face.bump_max": {
+      "label": "độ tăng s0 tối đa khi BUMP cho cảnh rộng (spec 1.1.1 §8.3)",
+      "confidence": "low"
+    },
+    "face.scale_step": {
+      "label": "bước dò scale khi CAP hoặc BUMP (spec 1.1.1 §8.3)",
+      "confidence": "low"
+    },
+    "plan.lexicon": {
+      "label": "spec 1.1.1 §3.2 — danh sách đóng và cặp âm tiết không tách (R55)",
+      "confidence": "high"
+    },
+    "plan.short_sentence_words": {
+      "label": "spec 1.1.1 §11",
+      "confidence": "medium"
+    },
+    "plan.list_item_max_words": {
+      "label": "spec 1.1.1 §11",
+      "confidence": "medium"
+    },
+    "plan.steps_label_max_chars": {
+      "label": "spec 1.1.1 §11",
+      "confidence": "medium"
+    },
+    "plan.steps_title_max_chars": {
+      "label": "spec 1.1.1 §11",
+      "confidence": "medium"
+    },
+    "plan.emphasis_default_max": {
+      "label": "spec 1.1.1 §11",
+      "confidence": "medium"
+    },
+    "plan.sheet_max_lines": {
+      "label": "spec 1.1.1 §11 — một lần đọc file là đủ cho agent PLAN",
+      "confidence": "low"
+    },
+    "plan.dry_lock_max_iter": {
+      "label": "spec 1.1.1 §11 — nguyên mẫu PLAN thật: 0 thẻ đọc gấp sau ≤ 2 vòng trên 12/12 video [đo]; dự kiến chạy 0 vòng nhờ R31 kéo sớm đuôi thẻ",
+      "confidence": "medium"
+    },
+    "plan.emphasis_min_video_s": {
+      "label": "spec 1.1.1 §11 — canary P1: video dài từ 30 s cần ít nhất 1 điểm nhấn",
+      "confidence": "low"
+    },
+    "plan.shot.ideal_gap_s": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.gap_weight": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.block_start_bonus": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.sentence_start_bonus": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.emphasis_start_bonus": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.cta_push_bonus": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.forced_off_pause_cost": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.same_scale_pen": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.two_row_close_pen": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.two_row_chars": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.wide": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.close": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.cta_push": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.shot.steps": {
+      "label": "spec 1.1.1 §4.7/§11 — 12/12 video khả thi, v40 cần đúng 1 cú cắt lệch",
+      "confidence": "low"
+    },
+    "plan.seg_cost.len_dev": {
+      "label": "spec 1.1.1 §4.5/§11 — đo trên 12 timeline thật",
+      "confidence": "low"
+    },
+    "plan.seg_cost.clause_cut": {
+      "label": "spec 1.1.1 §4.5/§11 — đo trên 12 timeline thật",
+      "confidence": "low"
+    },
+    "plan.seg_cost.long_clause_cut": {
+      "label": "spec 1.1.1 §4.5/§11 — đo trên 12 timeline thật",
+      "confidence": "low"
+    },
+    "plan.seg_cost.comma_end": {
+      "label": "spec 1.1.1 §4.5/§11 — đo trên 12 timeline thật",
+      "confidence": "low"
+    },
+    "plan.seg_cost.colon_end": {
+      "label": "spec 1.1.1 §4.5/§11 — đo trên 12 timeline thật",
+      "confidence": "low"
+    },
+    "plan.seg_cost.sentence_merge": {
+      "label": "spec 1.1.1 §4.5/§11 — đo trên 12 timeline thật",
+      "confidence": "low"
+    },
+    "plan.seg_cost.tight_pen": {
+      "label": "spec 1.1.1 §4.5/§11 — đo trên 12 timeline thật",
+      "confidence": "low"
+    },
+    "plan.dp_window_extra_s": {
+      "label": "spec 1.1.1 §4.5/§11 — đo trên 12 timeline thật",
+      "confidence": "medium"
+    },
+    "plan.hero_chars_soft": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "medium"
+    },
+    "plan.side_chars_soft": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "medium"
+    },
+    "plan.hero.content": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.keyword": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.negation": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.function": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.end_bonus": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.phrase_edge": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.det_top_end": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.pronoun_end": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.func_start": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.inner_punct": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.per_word": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.hero_char_over": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.hero.side_char_over": {
+      "label": "spec 1.1.1 §4.6/§11 — quét trọng số trên 209 thẻ của 12 video",
+      "confidence": "low"
+    },
+    "plan.repair_max_variants": {
+      "label": "spec 1.1.1 §11 — ngân sách lượt của agent PLAN: một lần đọc file là đủ",
+      "confidence": "low"
+    },
+    "plan.repair_show": {
+      "label": "spec 1.1.1 §11 — ngân sách lượt của agent PLAN: một lần đọc file là đủ",
+      "confidence": "low"
+    },
+    "broll.ai.base_url": {
+      "label": "config Hermes providers.ninerouter.base_url (env NINEROUTER_BASE_URL ghi đè)",
+      "confidence": "high"
+    },
+    "broll.ai.still_model": {
+      "label": "spec 1.2.0 §2 — cổng R0b đo 2026-09-23 trên 9router: ag/nano-banana 200, JPEG 768×1376 ~12 s",
+      "confidence": "high"
+    },
+    "broll.ai.clip_model": {
+      "label": "spec 1.2.0 §2 — cổng R0b đo 2026-09-23 trên 9router: xai/grok-imagine-video 9:16 720p → 720×1280 24 fps ~40 s, ≈ $0,35/5 s",
+      "confidence": "high"
+    },
+    "broll.ai.clip_params.aspect_ratio": {
+      "label": "spec 1.2.0 §2 — cổng R0b đo 2026-09-23 trên 9router: thiếu aspect_ratio ⇒ 848×480 ngang",
+      "confidence": "high"
+    },
+    "broll.ai.clip_params.resolution": {
+      "label": "spec 1.2.0 §2 — cổng R0b đo 2026-09-23 trên 9router: thiếu aspect_ratio ⇒ 848×480 ngang",
+      "confidence": "high"
+    },
+    "broll.ai.clip_params.duration": {
+      "label": "spec 1.2.0 §2 — cổng R0b đo 2026-09-23 trên 9router: thiếu aspect_ratio ⇒ 848×480 ngang",
+      "confidence": "high"
+    },
+    "broll.ai.max_clips": {
+      "label": "spec 1.2.0 D-B2 — user 2026-09-23: tối đa 1 clip mỗi video",
+      "confidence": "high"
+    },
+    "broll.ai.poll_every_s": {
+      "label": "spec 1.2.0 §2 — cổng R0b đo 2026-09-23 trên 9router: clip xong sau ~40 s",
+      "confidence": "medium"
+    },
+    "broll.ai.poll_timeout_s": {
+      "label": "spec 1.2.0 §2 — cổng R0b đo 2026-09-23 trên 9router: clip xong sau ~40 s; trần gấp 9 lần",
+      "confidence": "medium"
+    },
+    "broll.ai.http_timeout_s": {
+      "label": "spec 1.2.0 §2 — cổng R0b đo 2026-09-23 trên 9router: ảnh ~12 s",
+      "confidence": "medium"
+    },
+    "broll.style_suffix": {
+      "label": "spec 1.1 B15 nhất quán hình + B16 cấm logo/watermark; D-B1 khung dọc",
+      "confidence": "medium"
+    },
+    "broll.min_s": {
+      "label": "spec 1.2.0 D-B1 — user: mỗi slot 2–4 s; spec 1.1 B05",
+      "confidence": "high"
+    },
+    "broll.still_max_s": {
+      "label": "spec 1.1 B05 still ≤ 3,5 s",
+      "confidence": "medium"
+    },
+    "broll.clip_min_s": {
+      "label": "spec 1.2.0 D-B1; spec 1.1 B05 clip ≥ 1,5 s",
+      "confidence": "medium"
+    },
+    "broll.clip_max_s": {
+      "label": "spec 1.2.0 D-B1 — user: tối đa 4 s",
+      "confidence": "high"
+    },
+    "broll.cover_min": {
+      "label": "spec 1.1 B04 hybrid 25–40 %",
+      "confidence": "medium"
+    },
+    "broll.cover_max": {
+      "label": "spec 1.2.0 R203 — trần cứng 40 %",
+      "confidence": "medium"
+    },
+    "broll.gap_min_s": {
+      "label": "spec 1.1 B04: giữa 2 slot ≥ 1,5 s thấy mặt",
+      "confidence": "medium"
+    },
+    "broll.per_s": {
+      "label": "spec 1.1 B04: số slot ≤ floor(giây/6)",
+      "confidence": "medium"
+    },
+    "broll.zone_head_s": {
+      "label": "spec 1.1 B03: vùng cấm [0; 3,5 s)",
+      "confidence": "medium"
+    },
+    "broll.zone_tail_s": {
+      "label": "spec 1.1 B03: 3 s cuối",
+      "confidence": "medium"
+    },
+    "broll.zone_lead_s": {
+      "label": "spec 1.1 B03: từ cta.range[0] − 0,3 s",
+      "confidence": "medium"
+    },
+    "broll.steps_hold_s": {
+      "label": "spec 1.2.0 §4.3: thẻ liệt kê còn hiện sau mục cuối (xấp xỉ, PLAN chưa có khoá hình)",
+      "confidence": "low"
+    },
+    "broll.cut_pause_min_s": {
+      "label": "audio.pause_min_s 0,12 — khoảng ngắt thật",
+      "confidence": "medium"
+    },
+    "broll.cut_frac": {
+      "label": "spec 1.1 B06: t0 + 45 % khoảng ngắt",
+      "confidence": "medium"
+    },
+    "broll.pause_snap_s": {
+      "label": "spec 1.2.0 §4.2: khoảng ngắt lệch mép từ ≤ 50 ms vẫn tính là giữa hai từ",
+      "confidence": "low"
+    },
+    "broll.anchor_min": {
+      "label": "spec 1.2.0 §4.4: ô trùng ≥ 60 % token với câu neo PREP",
+      "confidence": "low"
+    },
+    "broll.cut_guard_s": {
+      "label": "spec 1.1 B12: hai cú cắt cách ≥ 0,5 s — B-roll vào/ra cũng là cú cắt (T9, e2e video 2)",
+      "confidence": "medium"
+    },
+    "broll.push": {
+      "label": "spec 1.1 B09: push 1,00→1,06",
+      "confidence": "medium"
+    },
+    "broll.settle_f": {
+      "label": "spec 1.1 B10: settle 4 f",
+      "confidence": "medium"
+    },
+    "broll.settle_amp": {
+      "label": "template Footage.tsx: nảy cú cắt 0,018",
+      "confidence": "medium"
+    },
+    "broll.flat_std_min": {
+      "label": "spec 1.1 B18: lệch chuẩn độ sáng < 30/255 ⇒ FAIL",
+      "confidence": "medium"
+    },
+    "broll.render_diff_min": {
+      "label": "spec 1.2.0 §11 V8: khung giữa slot khác master > 20/255",
+      "confidence": "low"
+    },
+    "broll.out_w": {
+      "label": "composition 1080×1920",
+      "confidence": "high"
+    },
+    "broll.out_h": {
+      "label": "composition 1080×1920",
+      "confidence": "high"
+    },
+    "broll.jpg_q": {
+      "label": "spec 1.1 B19: JPG q ≥ 90",
+      "confidence": "medium"
+    },
+    "broll.clip_crf": {
+      "label": "spec 1.1 B19: CRF ≤ 18",
+      "confidence": "medium"
+    },
+    "broll.clip_fps": {
+      "label": "spec 1.1 B19: 30 fps",
+      "confidence": "medium"
+    }
+  }
+}

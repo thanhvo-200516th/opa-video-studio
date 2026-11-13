@@ -1,0 +1,161 @@
+"""Đồ hoạ PNG 1080×1920 trong suốt cho các hiệu ứng chữ cần hình (vẽ bằng PIL, dấu tiếng Việt đúng).
+
+Mọi hàm ghi file vào `out_dir` và trả về đường dẫn tuyệt đối (str). Toạ độ theo khung 1080×1920.
+"""
+from __future__ import annotations
+
+import math
+from pathlib import Path
+
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+W, H = 1080, 1920
+WHITE, DARK = (255, 255, 255, 255), (18, 18, 18, 255)
+
+
+def _canvas() -> tuple[Image.Image, ImageDraw.ImageDraw]:
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    return im, ImageDraw.Draw(im)
+
+
+def _rgba(hex_: str, a: int = 255) -> tuple:
+    h = hex_.lstrip("#")
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4)) + (a,)
+
+
+def _save(im: Image.Image, out_dir: Path, name: str) -> str:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    p = out_dir / f"{name}.png"
+    im.save(p)
+    return str(p.resolve())
+
+
+def select_box(out_dir: Path, name: str, cx: int, cy: int, w: int, h: int) -> str:
+    """Khung chọn chữ kiểu phần mềm dựng: viền mảnh + 8 tay nắm vuông + chấm xoay phía dưới (B19)."""
+    im, d = _canvas()
+    x0, y0, x1, y1 = cx - w // 2, cy - h // 2, cx + w // 2, cy + h // 2
+    d.rectangle([x0, y0, x1, y1], outline=(255, 255, 255, 235), width=3)
+    for hx in (x0, cx, x1):
+        for hy in (y0, cy, y1):
+            if (hx, hy) != (cx, cy):
+                d.rectangle([hx - 9, hy - 9, hx + 9, hy + 9], fill=WHITE, outline=DARK, width=2)
+    d.line([cx, y1 + 9, cx, y1 + 30], fill=(255, 255, 255, 200), width=3)
+    d.ellipse([cx - 7, y1 + 30, cx + 7, y1 + 44], fill=WHITE, outline=DARK, width=2)
+    return _save(im, out_dir, name)
+
+
+def strike_bar(out_dir: Path, name: str, cx: int, cy: int, w: int, color: str = "#E8203A", thick: int = 10,
+               glow: bool = True) -> str:
+    """Vạch gạch ngang chữ (B23 phủ định); glow cùng màu nếu glow=True."""
+    im, d = _canvas()
+    d.rounded_rectangle([cx - w // 2, cy - thick // 2, cx + w // 2, cy + thick // 2], radius=thick // 2, fill=_rgba(color))
+    if glow:
+        g = im.filter(ImageFilter.GaussianBlur(10))
+        im = Image.alpha_composite(g, im)
+    return _save(im, out_dir, name)
+
+
+def bookmark(out_dir: Path, name: str, x: int, y: int, size: int = 70, fill: str = "#888888", cursor: bool = False) -> str:
+    """Icon bookmark (xám hoặc màu nhấn) + con trỏ chuột tuỳ chọn, góc trên-trái tại (x, y) (B7, B22)."""
+    im, d = _canvas()
+    w, h = size, round(size * 1.3)
+    d.polygon([(x, y), (x + w, y), (x + w, y + h), (x + w / 2, y + h * 0.72), (x, y + h)], fill=_rgba(fill), outline=WHITE)
+    if cursor:
+        cx, cy, s = x + w * 0.6, y + h * 0.55, size / 70
+        pts = [(0, 0), (40, 28), (21, 31), (31, 54), (22, 58), (12, 35), (0, 48)]
+        d.polygon([(cx + px * s, cy + py * s) for px, py in pts], fill=WHITE, outline=(0, 0, 0, 255))
+    return _save(im, out_dir, name)
+
+
+def pill(out_dir: Path, name: str, text: str, font_file: str, cx: int, cy: int, size: int = 40,
+         fill: str = "#3E7F69", alpha: int = 150, icon: str = "") -> str:
+    """Pill kính bo tròn bán trong suốt chứa chữ trắng (B20). Lộ dần bằng chuyển cảnh linear_wipe."""
+    im, d = _canvas()
+    f = ImageFont.truetype(font_file, size)
+    tw = d.textlength(text, font=f)
+    pad = size * 0.7
+    w = tw + pad * 2 + (size * 1.2 if icon else 0)
+    h = size * 1.8
+    x0, y0 = cx - w / 2, cy - h / 2
+    d.rounded_rectangle([x0, y0, x0 + w, y0 + h], radius=h / 2, fill=_rgba(fill, alpha), outline=(200, 240, 225, 110), width=2)
+    d.text((x0 + pad, cy), text, font=f, fill=WHITE, anchor="lm")
+    if icon:
+        d.text((x0 + w - pad * 0.6, cy), icon, font=f, fill=WHITE, anchor="rm")
+    return _save(im, out_dir, name)
+
+
+def gradient_text(out_dir: Path, name: str, text: str, font_file: str, size: int, cx: int, baseline: int,
+                  colors: list[str], angle: float = 90, shadow: bool = True) -> str:
+    """Chữ tô gradient (B18) — vẽ thành PNG để đúng màu và dấu; colors 2–3 mã hex, angle 90 = ngang, 0 = dọc."""
+    f = ImageFont.truetype(font_file, size)
+    mask = Image.new("L", (W, H), 0)
+    md = ImageDraw.Draw(mask)
+    md.text((cx, baseline), text, font=f, fill=255, anchor="ms")
+    box = mask.getbbox() or (0, 0, W, H)
+    grad = Image.new("RGBA", (W, H))
+    gd = ImageDraw.Draw(grad)
+    x0, y0, x1, y1 = box
+    n = len(colors) - 1
+    horizontal = abs(math.cos(math.radians(angle))) < 0.5
+    span = (x1 - x0) if horizontal else (y1 - y0)
+    for i in range(max(1, span)):
+        t = i / max(1, span - 1)
+        k = min(n - 1, int(t * n))
+        u = t * n - k
+        c0, c1 = _rgba(colors[k]), _rgba(colors[k + 1])
+        col = tuple(round(c0[j] + (c1[j] - c0[j]) * u) for j in range(4))
+        if horizontal:
+            gd.line([(x0 + i, 0), (x0 + i, H)], fill=col)
+        else:
+            gd.line([(0, y0 + i), (W, y0 + i)], fill=col)
+    out = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    if shadow:
+        sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        sh.putalpha(mask.point(lambda v: v * 0.55))
+        sh = sh.filter(ImageFilter.GaussianBlur(8))
+        out = Image.alpha_composite(out, sh.transform((W, H), Image.AFFINE, (1, 0, 0, 0, 1, -6)))
+    grad.putalpha(mask)
+    return _save(Image.alpha_composite(out, grad), out_dir, name)
+
+
+def curved_text(out_dir: Path, name: str, text: str, font_file: str, size: int, cx: int, cy: int, radius: int,
+                start_deg: float = 200, end_deg: float = 340, ring: bool = True, ring_color: str = "#D9B8FF") -> str:
+    """Chữ chạy theo cung tròn dưới một vòng tròn (B23 chữ cong). Góc tính theo độ, 0° = bên phải, chiều kim đồng hồ."""
+    im, d = _canvas()
+    f = ImageFont.truetype(font_file, size)
+    if ring:
+        r0 = radius - size * 1.4
+        d.ellipse([cx - r0, cy - r0, cx + r0, cy + r0], outline=_rgba(ring_color), width=6)
+    total = sum(d.textlength(ch, font=f) for ch in text)
+    arc = math.radians(end_deg - start_deg)
+    scale = (radius * arc) / max(1, total)
+    ang = math.radians(start_deg)
+    for ch in text:
+        cw = d.textlength(ch, font=f) * scale
+        mid = ang + (cw / 2) / radius
+        tile = Image.new("RGBA", (size * 3, size * 3), (0, 0, 0, 0))
+        ImageDraw.Draw(tile).text((size * 1.5, size * 1.5), ch, font=f, fill=WHITE, anchor="mm")
+        tile = tile.rotate(math.degrees(mid) - 270, resample=Image.BICUBIC)   # đỉnh chữ hướng về tâm vòng
+        x, y = cx + radius * math.cos(mid), cy - radius * math.sin(mid)        # góc toán học → toạ độ màn hình
+        im.alpha_composite(tile, (round(x - size * 1.5), round(y - size * 1.5)))
+        ang += cw / radius
+    return _save(im, out_dir, name)
+
+
+def caption_band(out_dir: Path, name: str, y0: int, y1: int, strength: float = 0.5, feather: int = 110) -> str:
+    """Dải tối mềm ngay sau vùng phụ đề (y0–y1): đậm `strength` ở giữa, mờ dần `feather` px trên/dưới và về hai mép
+    — tăng tương phản phụ đề mà không phủ cả khung (vignette đáy chỉ đậm 15–27% ở vùng phụ đề, 2026-11-04)."""
+    import numpy as np
+    ys = np.arange(H, dtype=np.float32)
+    v = np.clip(np.minimum((ys - (y0 - feather)) / feather, ((y1 + feather) - ys) / feather), 0, 1)
+    xs = np.arange(W, dtype=np.float32)
+    h = np.clip(np.minimum(xs / 160, (W - xs) / 160), 0, 1) * 0.35 + 0.65       # mép trái/phải nhạt hơn 35%
+    alpha = (np.outer(v * v * (3 - 2 * v), h) * 255 * strength).astype(np.uint8)
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    im.putalpha(Image.fromarray(alpha, "L"))
+    return _save(im, out_dir, name)
+
+
+def solid_panel(out_dir: Path, name: str, color: str) -> str:
+    """Tấm màu đặc phủ kín khung (chuyển cảnh panel_wipe)."""
+    return _save(Image.new("RGBA", (W, H), _rgba(color)), out_dir, name)

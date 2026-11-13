@@ -1,0 +1,3695 @@
+{
+ "B1": {
+  "name": "Cặp lớn–nhỏ",
+  "python": "fx.pair('có chủ đích', 'để dựng', at=0.00, dur=2.1)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "Để dựng",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 48,
+      "color": "#FFFFFF",
+      "align": "left",
+      "position": [
+       160,
+       363
+      ],
+      "tracking": -20,
+      "name": "Chữ · Để dựng #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.1,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "Có chủ đích",
+      "at": 0.06666666666666667,
+      "dur": 2.033333333333333,
+      "font": "Playfair Display",
+      "style": "Bold Italic",
+      "size": 150,
+      "color": "#F3C60F",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -10,
+      "name": "Chữ · Có chủ đích #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           30
+          ],
+          [
+           0.25,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "wonder_glow",
+        "params": {
+         "threshold": 40,
+         "radius": 22,
+         "intensity": 85
+        }
+       }
+      ],
+      "motion": {
+       "position": [
+        [
+         0,
+         [
+          540,
+          950
+         ]
+        ],
+        [
+         0.25,
+         [
+          540,
+          960
+         ],
+         "easeIn"
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "B2": {
+  "name": "Từ lớn thay trên chữ nhỏ",
+  "python": "fx.swap_big('không cần', [('máy xịn', 0.00), ('đèn đẹp', 0.70), ('kịch bản dài', 1.40)], end=2.10)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "Không cần",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Semibold",
+      "size": 56,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       570
+      ],
+      "tracking": -20,
+      "name": "Chữ · Không cần #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      }
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "Máy xịn",
+      "at": 0.0,
+      "dur": 0.7,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 110,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -40,
+      "name": "Chữ · Máy xịn #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.1,
+        100
+       ]
+      ]
+     },
+     {
+      "text": "Đèn đẹp",
+      "at": 0.7,
+      "dur": 0.7,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 110,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -40,
+      "name": "Chữ · Đèn đẹp #3",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.1,
+        100
+       ]
+      ]
+     },
+     {
+      "text": "Kịch bản dài",
+      "at": 1.4,
+      "dur": 0.7000000000000002,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 110,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -40,
+      "name": "Chữ · Kịch bản dài #4",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.1,
+        100
+       ]
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B3": {
+  "name": "Chồng 3 tầng",
+  "python": "fx.stack3('cách', 'dựng', 'có chủ đích', at=0.00, dur=2.1)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "Cách",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "Playfair Display",
+      "style": "Regular",
+      "size": 60,
+      "color": "#FFFFFF",
+      "align": "left",
+      "position": [
+       339,
+       308
+      ],
+      "tracking": 0,
+      "name": "Chữ · Cách #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           30
+          ],
+          [
+           0.25,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "Dựng",
+      "at": 0.06666666666666667,
+      "dur": 2.033333333333333,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 165,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       437
+      ],
+      "tracking": -40,
+      "name": "Chữ · Dựng #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           30
+          ],
+          [
+           0.25,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_top 1",
+    "clips": [
+     {
+      "text": "Có chủ đích",
+      "at": 0.16666666666666666,
+      "dur": 1.9333333333333333,
+      "font": "Playfair Display",
+      "style": "Bold Italic",
+      "size": 95,
+      "color": "#F3C60F",
+      "align": "right",
+      "position": [
+       741,
+       562
+      ],
+      "tracking": -10,
+      "name": "Chữ · Có chủ đích #3",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           30
+          ],
+          [
+           0.25,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B4": {
+  "name": "Chồng mà dễ đọc (crop feather)",
+  "python": "fx.stack3('cách', 'dựng', 'có chủ đích', at=0.00, dur=2.1, readable=True)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "Cách",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "Playfair Display",
+      "style": "Regular",
+      "size": 60,
+      "color": "#FFFFFF",
+      "align": "left",
+      "position": [
+       339,
+       308
+      ],
+      "tracking": 0,
+      "name": "Chữ · Cách #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           30
+          ],
+          [
+           0.25,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "Dựng",
+      "at": 0.06666666666666667,
+      "dur": 2.033333333333333,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 165,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       437
+      ],
+      "tracking": -40,
+      "name": "Chữ · Dựng #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           30
+          ],
+          [
+           0.25,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "crop",
+        "params": {
+         "bottom": 74.9,
+         "feather": 80
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_top 1",
+    "clips": [
+     {
+      "text": "Có chủ đích",
+      "at": 0.16666666666666666,
+      "dur": 1.9333333333333333,
+      "font": "Playfair Display",
+      "style": "Bold Italic",
+      "size": 95,
+      "color": "#F3C60F",
+      "align": "right",
+      "position": [
+       741,
+       562
+      ],
+      "tracking": -10,
+      "name": "Chữ · Có chủ đích #3",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           30
+          ],
+          [
+           0.25,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B5": {
+  "name": "Viết tay phát sáng chéo",
+  "python": "k = fx.text('set up', 0.00, 2.1, 'sans', 140); fx.blur_in(k); fx.script_accent('chuyên nghiệp', 0.50, 1.6, over=k)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "Set up",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 140,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -40,
+      "name": "Chữ · Set up #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.12,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           24
+          ],
+          [
+           0.2,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_top 1",
+    "clips": [
+     {
+      "text": "chuyên nghiệp",
+      "at": 0.5,
+      "dur": 1.6,
+      "font": "Great Vibes",
+      "style": "Regular",
+      "size": 96,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       588,
+       391
+      ],
+      "tracking": 0,
+      "name": "Chữ · chuyên nghiệp #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "motion": {
+       "anchor": [
+        588,
+        356
+       ],
+       "rotation": -6,
+       "position": [
+        [
+         0,
+         [
+          658,
+          356
+         ]
+        ],
+        [
+         0.3,
+         [
+          588,
+          356
+         ],
+         "easeIn"
+        ]
+       ]
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           30
+          ],
+          [
+           0.3,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "wonder_glow",
+        "params": {
+         "threshold": 40,
+         "radius": 22,
+         "intensity": 85
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B6": {
+  "name": "Viết tay thay từ",
+  "python": "fx.script_swap('hành trình', [('videographer', 0.00), ('editor', 1.10)], end=2.10)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "Hành trình",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Semibold",
+      "size": 54,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       418
+      ],
+      "tracking": -20,
+      "name": "Chữ · Hành trình #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      }
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "videographer",
+      "at": 0.0,
+      "dur": 1.4,
+      "font": "Great Vibes",
+      "style": "Regular",
+      "size": 110,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": 0,
+      "name": "Chữ · videographer #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        100
+       ],
+       [
+        1.0999999999999999,
+        100
+       ],
+       [
+        1.4,
+        0
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           26
+          ],
+          [
+           0.25,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_top 1",
+    "clips": [
+     {
+      "text": "editor",
+      "at": 1.1,
+      "dur": 1.0,
+      "font": "Great Vibes",
+      "style": "Regular",
+      "size": 110,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": 0,
+      "name": "Chữ · editor #3",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           26
+          ],
+          [
+           0.25,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B7": {
+  "name": "Số khổng lồ + bookmark",
+  "python": "fx.number_hook('3', 'hiệu ứng', at=0.00, dur=2.1, small_words=[('nên', 0.50), ('lưu', 0.70), ('ngay', 0.90)], bookmark_at=1.30)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "nên",
+      "at": 0.5,
+      "dur": 1.6,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 46,
+      "color": "#FFFFFF",
+      "align": "left",
+      "position": [
+       402,
+       580
+      ],
+      "tracking": -20,
+      "name": "Chữ · nên #3",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.07,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_low 2",
+    "clips": [
+     {
+      "text": "lưu",
+      "at": 0.7,
+      "dur": 1.4000000000000001,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 46,
+      "color": "#FFFFFF",
+      "align": "left",
+      "position": [
+       482,
+       580
+      ],
+      "tracking": -20,
+      "name": "Chữ · lưu #4",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.07,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_low 3",
+    "clips": [
+     {
+      "text": "ngay",
+      "at": 0.9,
+      "dur": 1.2000000000000002,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 46,
+      "color": "#FFFFFF",
+      "align": "left",
+      "position": [
+       549,
+       580
+      ],
+      "tracking": -20,
+      "name": "Chữ · ngay #5",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.07,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "3",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "Montserrat",
+      "style": "Black",
+      "size": 230,
+      "color": "#F3C60F",
+      "align": "left",
+      "position": [
+       235,
+       540
+      ],
+      "tracking": -40,
+      "name": "Chữ · 3 #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.168,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           24
+          ],
+          [
+           0.28,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ],
+      "motion": {
+       "anchor": [
+        235,
+        457
+       ],
+       "position": [
+        235,
+        457
+       ],
+       "scale": [
+        [
+         0,
+         92
+        ],
+        [
+         0.22,
+         100,
+         "easeIn"
+        ]
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 2",
+    "clips": [
+     {
+      "text": "Hiệu ứng",
+      "at": 0.06666666666666667,
+      "dur": 2.033333333333333,
+      "font": "SF Pro Display",
+      "style": "Heavy Italic",
+      "size": 110,
+      "color": "#FFFFFF",
+      "align": "left",
+      "position": [
+       398,
+       510
+      ],
+      "tracking": -35,
+      "name": "Chữ · Hiệu ứng #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.168,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           24
+          ],
+          [
+           0.28,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ],
+      "motion": {
+       "anchor": [
+        398,
+        470
+       ],
+       "position": [
+        398,
+        470
+       ],
+       "scale": [
+        [
+         0,
+         92
+        ],
+        [
+         0.22,
+         100,
+         "easeIn"
+        ]
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "type": "video",
+    "name": "gfx_over 1",
+    "clips": [
+     {
+      "src": "/home/vmiz/.claude/skills/opa-video-studio/assets/text-fx/gfx/bookmark_xam.png",
+      "at": 0.2,
+      "dur": 1.1,
+      "name": "Bookmark xám #6"
+     },
+     {
+      "src": "/home/vmiz/.claude/skills/opa-video-studio/assets/text-fx/gfx/bookmark_nhan.png",
+      "at": 1.3,
+      "dur": 0.8,
+      "name": "Bookmark màu nhấn #7"
+     }
+    ]
+   }
+  ]
+ },
+ "B8": {
+  "name": "Trượt lên mượt",
+  "python": "fx.slide_up_text('dựng mượt', 0.00, 2.1)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "Dựng mượt",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 125,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -40,
+      "name": "Chữ · Dựng mượt #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "motion": {
+       "position": [
+        [
+         0,
+         [
+          540,
+          1230
+         ]
+        ],
+        [
+         0.42,
+         [
+          540,
+          960
+         ],
+         "easeIn"
+        ]
+       ]
+      },
+      "opacity": [
+       [
+        0,
+        30
+       ],
+       [
+        0.252,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "directional_blur",
+        "params": {
+         "direction": 0,
+         "length": [
+          [
+           0,
+           40
+          ],
+          [
+           0.42,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           12
+          ],
+          [
+           0.336,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "wonder_glow",
+        "params": {
+         "threshold": 40,
+         "radius": 22,
+         "intensity": 40
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B9": {
+  "name": "Giả 3D xoay",
+  "python": "fx.swing3d('giả 3D', 0.00, 2.1)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "Giả 3D",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 125,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -40,
+      "name": "Chữ · Giả 3D #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 70,
+       "blur": 14,
+       "distance": 14
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.1,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "rotate_3d",
+        "params": {
+         "rot_y": [
+          [
+           0.0,
+           -22,
+           "bezier"
+          ],
+          [
+           0.8,
+           22,
+           "bezier"
+          ],
+          [
+           1.6,
+           -22,
+           "bezier"
+          ]
+         ],
+         "rot_x": 6,
+         "perspective": 60
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B10": {
+  "name": "Trượt xuống nhoè",
+  "python": "fx.slide_down_text('kỹ năng', 0.00, 2.1, y=330)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "Kỹ năng",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "Playfair Display",
+      "style": "Bold Italic",
+      "size": 190,
+      "color": "#F3C60F",
+      "align": "center",
+      "position": [
+       540,
+       330
+      ],
+      "tracking": -10,
+      "name": "Chữ · Kỹ năng #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "motion": {
+       "position": [
+        [
+         0,
+         [
+          540,
+          740
+         ]
+        ],
+        [
+         0.33,
+         [
+          540,
+          960
+         ],
+         "easeIn"
+        ]
+       ]
+      },
+      "opacity": [
+       [
+        0,
+        40
+       ],
+       [
+        0.1,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "directional_blur",
+        "params": {
+         "direction": 0,
+         "length": [
+          [
+           0,
+           80
+          ],
+          [
+           0.33,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "wonder_glow",
+        "params": {
+         "threshold": 40,
+         "radius": 22,
+         "intensity": 85
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B11": {
+  "name": "Phụ đề từng chữ",
+  "python": "fx.word_captions([('mỗi', 0.0), ('vết', 0.3), ('cắt', 0.55), ('đều', 0.8), ('có', 1.1), ('lý', 1.3), ('do', 1.45)], end=2.10, mode='color')",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "Mỗi",
+      "at": 0.0,
+      "dur": 1.1,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 66,
+      "color": [
+       [
+        0,
+        "#A855F7"
+       ],
+       [
+        0.25,
+        "#FFFFFF",
+        "easeIn"
+       ]
+      ],
+      "align": "left",
+      "position": [
+       333,
+       1400
+      ],
+      "tracking": -20,
+      "name": "Chữ · Mỗi #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        40
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           10
+          ],
+          [
+           0.2,
+           0
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "text": "lý",
+      "at": 1.2666666666666666,
+      "dur": 0.8333333333333335,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 66,
+      "color": [
+       [
+        0,
+        "#A855F7"
+       ],
+       [
+        0.25,
+        "#FFFFFF",
+        "easeIn"
+       ]
+      ],
+      "align": "left",
+      "position": [
+       521,
+       1400
+      ],
+      "tracking": -20,
+      "name": "Chữ · lý #6",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        40
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           10
+          ],
+          [
+           0.2,
+           0
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_low 2",
+    "clips": [
+     {
+      "text": "vết",
+      "at": 0.26666666666666666,
+      "dur": 0.8333333333333335,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 66,
+      "color": [
+       [
+        0,
+        "#A855F7"
+       ],
+       [
+        0.25,
+        "#FFFFFF",
+        "easeIn"
+       ]
+      ],
+      "align": "left",
+      "position": [
+       447,
+       1400
+      ],
+      "tracking": -20,
+      "name": "Chữ · vết #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        40
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           10
+          ],
+          [
+           0.2,
+           0
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "text": "do",
+      "at": 1.4333333333333333,
+      "dur": 0.6666666666666667,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 66,
+      "color": [
+       [
+        0,
+        "#A855F7"
+       ],
+       [
+        0.25,
+        "#FFFFFF",
+        "easeIn"
+       ]
+      ],
+      "align": "left",
+      "position": [
+       578,
+       1400
+      ],
+      "tracking": -20,
+      "name": "Chữ · do #7",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        40
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           10
+          ],
+          [
+           0.2,
+           0
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_low 3",
+    "clips": [
+     {
+      "text": "cắt",
+      "at": 0.5333333333333333,
+      "dur": 0.5666666666666668,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 66,
+      "color": [
+       [
+        0,
+        "#A855F7"
+       ],
+       [
+        0.25,
+        "#FFFFFF",
+        "easeIn"
+       ]
+      ],
+      "align": "left",
+      "position": [
+       543,
+       1400
+      ],
+      "tracking": -20,
+      "name": "Chữ · cắt #3",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        40
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           10
+          ],
+          [
+           0.2,
+           0
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_low 4",
+    "clips": [
+     {
+      "text": "đều",
+      "at": 0.7666666666666667,
+      "dur": 0.33333333333333337,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 66,
+      "color": [
+       [
+        0,
+        "#A855F7"
+       ],
+       [
+        0.25,
+        "#FFFFFF",
+        "easeIn"
+       ]
+      ],
+      "align": "left",
+      "position": [
+       640,
+       1400
+      ],
+      "tracking": -20,
+      "name": "Chữ · đều #4",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        40
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           10
+          ],
+          [
+           0.2,
+           0
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_low 5",
+    "clips": [
+     {
+      "text": "Có",
+      "at": 1.0666666666666667,
+      "dur": 1.0333333333333334,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 66,
+      "color": [
+       [
+        0,
+        "#A855F7"
+       ],
+       [
+        0.25,
+        "#FFFFFF",
+        "easeIn"
+       ]
+      ],
+      "align": "left",
+      "position": [
+       430,
+       1400
+      ],
+      "tracking": -20,
+      "name": "Chữ · Có #5",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        40
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           10
+          ],
+          [
+           0.2,
+           0
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B12": {
+  "name": "Chữ sau đầu",
+  "python": "fx.behind_head('EDIT', 0.00, 2.1, matte_src='<người_alpha.mov>', head_top=900, halo='#B05FFD')",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_behind 1",
+    "clips": [
+     {
+      "text": "EDIT",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "Bebas Neue",
+      "style": "Regular",
+      "size": 400,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       988
+      ],
+      "tracking": 10,
+      "name": "Chữ · EDIT #1",
+      "shadow": {
+       "color": "#B05FFD",
+       "opacity": 60,
+       "blur": 30,
+       "distance": 0
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.24,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           30
+          ],
+          [
+           0.4,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "crop",
+        "params": {
+         "bottom": 48.0,
+         "feather": 90
+        }
+       }
+      ],
+      "motion": {
+       "position": [
+        [
+         0,
+         [
+          540,
+          930
+         ]
+        ],
+        [
+         0.4,
+         [
+          540,
+          960
+         ],
+         "easeIn"
+        ]
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "type": "video",
+    "name": "matte 1",
+    "clips": [
+     {
+      "src": "<người_alpha.mov>",
+      "at": 0.0,
+      "in": 0.0,
+      "dur": 2.1,
+      "audio": false,
+      "name": "Người tách nền (che chữ) #2"
+     }
+    ]
+   }
+  ]
+ },
+ "B13": {
+  "name": "Chữ gắn tường",
+  "python": "fx.wall_text('CLONE', 'effect', 0.00, 2.1)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "CLONE",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 200,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       640,
+       330
+      ],
+      "tracking": -40,
+      "name": "Chữ · CLONE #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 55,
+       "blur": 18,
+       "distance": 14
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.03333333333333333,
+        50
+       ],
+       [
+        0.125,
+        55
+       ],
+       [
+        0.25,
+        100,
+        "easeIn"
+       ],
+       [
+        1.8,
+        100
+       ],
+       [
+        2.1,
+        0
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           8
+          ],
+          [
+           0.2125,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "rotate_3d",
+        "params": {
+         "rot_y": -24,
+         "rot_z": -6,
+         "perspective": 55
+        }
+       },
+       {
+        "effect": "directional_blur",
+        "params": {
+         "direction": 90,
+         "length": [
+          [
+           1.8,
+           0
+          ],
+          [
+           2.1,
+           60
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_top 1",
+    "clips": [
+     {
+      "text": "effect",
+      "at": 0.3,
+      "dur": 1.8,
+      "font": "Great Vibes",
+      "style": "Regular",
+      "size": 120,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       760,
+       420
+      ],
+      "tracking": 0,
+      "name": "Chữ · effect #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 55,
+       "blur": 18,
+       "distance": 14
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.03333333333333333,
+        50
+       ],
+       [
+        0.125,
+        55
+       ],
+       [
+        0.25,
+        100,
+        "easeIn"
+       ],
+       [
+        1.5,
+        100
+       ],
+       [
+        1.8,
+        0
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           8
+          ],
+          [
+           0.2125,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "rotate_3d",
+        "params": {
+         "rot_y": -24,
+         "rot_z": -6,
+         "perspective": 55
+        }
+       },
+       {
+        "effect": "directional_blur",
+        "params": {
+         "direction": 90,
+         "length": [
+          [
+           1.5,
+           0
+          ],
+          [
+           1.8,
+           60
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B14": {
+  "name": "Nghiêng theo vật + tràn khung",
+  "python": "fx.tilt_text('người xem', 0.00, 0.9, x=620, y=960); fx.punch_overflow('motion', 1.00, 1.1, punch_at=1.60, small='tạo ra')",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "tạo ra",
+      "at": 0.8666666666666667,
+      "dur": 1.2333333333333334,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 46,
+      "color": "#FFFFFF",
+      "align": "left",
+      "position": [
+       460,
+       1090
+      ],
+      "tracking": -20,
+      "name": "Chữ · tạo ra #3",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.1,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "người xem",
+      "at": 0.0,
+      "dur": 0.9,
+      "font": "SF Pro Display",
+      "style": "Semibold",
+      "size": 50,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       620,
+       960
+      ],
+      "tracking": -20,
+      "name": "Chữ · người xem #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "motion": {
+       "anchor": [
+        620,
+        944
+       ],
+       "position": [
+        620,
+        944
+       ],
+       "rotation": -15
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.08,
+        100
+       ]
+      ]
+     },
+     {
+      "text": "motion",
+      "at": 1.0,
+      "dur": 1.1,
+      "font": "Playfair Display",
+      "style": "Bold Italic",
+      "size": 190,
+      "color": "#F3C60F",
+      "align": "center",
+      "position": [
+       720,
+       1280
+      ],
+      "tracking": -10,
+      "name": "Chữ · motion #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "motion": {
+       "anchor": [
+        700,
+        1400
+       ],
+       "position": [
+        [
+         0,
+         [
+          700,
+          1520
+         ]
+        ],
+        [
+         0.4,
+         [
+          700,
+          1400
+         ],
+         "easeIn"
+        ]
+       ],
+       "scale": [
+        [
+         0,
+         100
+        ],
+        [
+         0.6000000000000001,
+         100,
+         "hold"
+        ],
+        [
+         0.7500000000000001,
+         140,
+         "easeIn"
+        ]
+       ]
+      },
+      "opacity": [
+       [
+        0,
+        30
+       ],
+       [
+        0.24,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "directional_blur",
+        "params": {
+         "direction": 0,
+         "length": [
+          [
+           0,
+           40
+          ],
+          [
+           0.4,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           12
+          ],
+          [
+           0.32000000000000006,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B15": {
+  "name": "Phát sáng 2",
+  "python": "fx.glow_text('glow text', 0.00, 2.1)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "glow text",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "Playfair Display",
+      "style": "Bold Italic",
+      "size": 130,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -10,
+      "name": "Chữ · glow text #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.18,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           20
+          ],
+          [
+           0.3,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "wonder_glow",
+        "params": {
+         "threshold": 40,
+         "radius": 22,
+         "intensity": [
+          [
+           0,
+           0
+          ],
+          [
+           0.6,
+           140.0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B16": {
+  "name": "Chữ mờ ảo",
+  "python": "fx.dreamy_blur('mờ ảo', 0.00, 2.1)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "mờ ảo",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "Playfair Display",
+      "style": "Bold Italic",
+      "size": 120,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -10,
+      "name": "Chữ · mờ ảo #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        40
+       ],
+       [
+        0.5,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           25
+          ],
+          [
+           0.5,
+           3,
+           "easeIn"
+          ]
+         ],
+         "dimensions": "Vertical"
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B17": {
+  "name": "Blend Overlay",
+  "python": "fx.overlay_text('blendmode', 0.00, 2.1, y=1500)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "blendmode",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 130,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       1500
+      ],
+      "tracking": -40,
+      "name": "Chữ · blendmode #1",
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        35
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": 12
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "blendmode",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 130,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       1500
+      ],
+      "tracking": -40,
+      "name": "Chữ · blendmode #2",
+      "blend": "overlay",
+      "motion": {
+       "anchor": [
+        540,
+        1453
+       ],
+       "position": [
+        540,
+        1453
+       ],
+       "scale": [
+        [
+         0,
+         100
+        ],
+        [
+         0.25,
+         100
+        ]
+       ]
+      },
+      "opacity": [
+       [
+        0,
+        20
+       ],
+       [
+        0.1,
+        60
+       ],
+       [
+        0.3,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "directional_blur",
+        "params": {
+         "direction": 0,
+         "length": [
+          [
+           0,
+           60
+          ],
+          [
+           0.3,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B18": {
+  "name": "Chữ gradient",
+  "python": "fx.gradient_word('tẻ nhạt', 0.00, 2.1, ['#E83CC8', '#7A3CF0', '#E02828'])",
+  "tracks": [
+   {
+    "type": "video",
+    "name": "text_img 1",
+    "clips": [
+     {
+      "src": "/home/vmiz/.claude/skills/opa-video-studio/assets/text-fx/gfx/gradient_0.png",
+      "at": 0.0,
+      "dur": 2.1,
+      "name": "Chữ gradient · tẻ nhạt #1",
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.2,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           20
+          ],
+          [
+           0.33,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B19": {
+  "name": "Gõ chữ trong khung chọn",
+  "python": "fx.typed_box('Cảm ơn', 0.00, 2.1, under='hẹn gặp lại.')",
+  "tracks": [
+   {
+    "type": "video",
+    "name": "gfx_under 1",
+    "clips": [
+     {
+      "src": "/home/vmiz/.claude/skills/opa-video-studio/assets/text-fx/gfx/select_box_1.png",
+      "at": 0.0,
+      "dur": 2.1,
+      "name": "Khung chọn chữ #2",
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.06,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "Hẹn gặp lại.",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 95,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       596
+      ],
+      "tracking": -40,
+      "name": "Chữ · Hẹn gặp lại. #3",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      }
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "Cảm ơn",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Bold",
+      "size": 110,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       475
+      ],
+      "tracking": -30,
+      "name": "Chữ · Cảm ơn #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "transition_in": {
+       "effect": "typewriter",
+       "frames": 14
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "B20": {
+  "name": "Pill kính lộ dần",
+  "python": "fx.glass_pill('về cách dùng & ý nghĩa', 0.00, 2.1)",
+  "tracks": [
+   {
+    "type": "video",
+    "name": "gfx_over 1",
+    "clips": [
+     {
+      "src": "/home/vmiz/.claude/skills/opa-video-studio/assets/text-fx/gfx/pill_0.png",
+      "at": 0.0,
+      "dur": 2.1,
+      "name": "Pill · về cách dùng & ý nghĩa #1",
+      "transition_in": {
+       "effect": "linear_wipe",
+       "frames": 24
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "B21": {
+  "name": "Thẻ UI + nhãn",
+  "python": "fx.ui_card('<clip.mp4>', 0.00, 2.1, src_in=3, label='clip chủ thể')",
+  "tracks": [
+   {
+    "type": "video",
+    "name": "card 1",
+    "clips": [
+     {
+      "src": "<clip.mp4>",
+      "at": 0.0,
+      "in": 3,
+      "dur": 2.1,
+      "audio": false,
+      "name": "Thẻ UI #1",
+      "motion": {
+       "position": [
+        540,
+        1060
+       ],
+       "scale": [
+        [
+         0,
+         42.71
+        ],
+        [
+         0.28,
+         52.08,
+         "easeIn"
+        ]
+       ]
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.12,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "rounded_crop",
+        "params": {
+         "radius": 69,
+         "border": 11.52,
+         "border_color": "#F3C60F"
+        }
+       },
+       {
+        "effect": "drop_shadow",
+        "params": {
+         "opacity": 70,
+         "distance": 16,
+         "softness": 50
+        }
+       },
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           20
+          ],
+          [
+           0.28,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "clip chủ thể",
+      "at": 0.1,
+      "dur": 2.0,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 60,
+      "color": "#F3C60F",
+      "align": "center",
+      "position": [
+       540,
+       1416
+      ],
+      "tracking": -40,
+      "name": "Chữ · clip chủ thể #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.10200000000000001,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           20
+          ],
+          [
+           0.17,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "B22": {
+  "name": "CTA Lưu lại",
+  "python": "fx.cta_save(0.00, 2.1, tail=[('để', 0.60), ('xem', 0.75), ('khi cần', 0.90)], click_at=0.70)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "nhớ",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 44,
+      "color": "#FFFFFF",
+      "align": "right",
+      "position": [
+       772,
+       350
+      ],
+      "tracking": -20,
+      "name": "Chữ · nhớ #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.1,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_low 2",
+    "clips": [
+     {
+      "text": "để",
+      "at": 0.6,
+      "dur": 1.5,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 44,
+      "color": "#FFFFFF",
+      "align": "left",
+      "position": [
+       318,
+       570
+      ],
+      "tracking": -20,
+      "name": "Chữ · để #3",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.08,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_low 3",
+    "clips": [
+     {
+      "text": "xem",
+      "at": 0.7333333333333333,
+      "dur": 1.3666666666666667,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 44,
+      "color": "#FFFFFF",
+      "align": "left",
+      "position": [
+       373,
+       570
+      ],
+      "tracking": -20,
+      "name": "Chữ · xem #4",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.08,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_low 4",
+    "clips": [
+     {
+      "text": "khi cần",
+      "at": 0.9,
+      "dur": 1.2000000000000002,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 44,
+      "color": "#FFFFFF",
+      "align": "left",
+      "position": [
+       459,
+       570
+      ],
+      "tracking": -20,
+      "name": "Chữ · khi cần #5",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.08,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "Lưu lại",
+      "at": 0.06666666666666667,
+      "dur": 2.033333333333333,
+      "font": "Great Vibes",
+      "style": "Regular",
+      "size": 200,
+      "color": "#D7A21A",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": 0,
+      "name": "Chữ · Lưu lại #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "motion": {
+       "position": [
+        [
+         0,
+         [
+          540,
+          1000
+         ]
+        ],
+        [
+         0.35,
+         [
+          540,
+          960
+         ],
+         "easeIn"
+        ]
+       ]
+      },
+      "opacity": [
+       [
+        0,
+        30
+       ],
+       [
+        0.21,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "directional_blur",
+        "params": {
+         "direction": 0,
+         "length": [
+          [
+           0,
+           40
+          ],
+          [
+           0.35,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           12
+          ],
+          [
+           0.27999999999999997,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "video",
+    "name": "gfx_over 1",
+    "clips": [
+     {
+      "src": "/home/vmiz/.claude/skills/opa-video-studio/assets/text-fx/gfx/cta_bookmark_xam.png",
+      "at": 0.3,
+      "dur": 0.39999999999999997,
+      "name": "Bookmark xám #6"
+     },
+     {
+      "src": "/home/vmiz/.claude/skills/opa-video-studio/assets/text-fx/gfx/cta_bookmark_nhan.png",
+      "at": 0.7,
+      "dur": 1.4000000000000001,
+      "name": "Bookmark màu nhấn #7"
+     }
+    ]
+   }
+  ]
+ },
+ "B23": {
+  "name": "Chữ diễn: gạch / đổi font / chớp / cong",
+  "python": "fx.strike_word('làm thủ công', 0.00, 0.55, strike_at=0.20, small='không cần'); fx.font_flip('fonts', 0.55, step=0.12); fx.flicker_text('FLICKER', 1.15, 0.5); fx.curved_caption('cũng như truy cập kho tài nguyên', 1.65, 0.6)",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "không cần",
+      "at": 0.0,
+      "dur": 0.5333333333333333,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 46,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       386
+      ],
+      "tracking": -20,
+      "name": "Chữ · không cần #3",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      }
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "làm thủ công",
+      "at": 0.0,
+      "dur": 0.5333333333333333,
+      "font": "Playfair Display",
+      "style": "Bold Italic",
+      "size": 120,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -10,
+      "name": "Chữ · làm thủ công #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.03333333333333333,
+        50
+       ],
+       [
+        0.1,
+        55
+       ],
+       [
+        0.2,
+        100,
+        "easeIn"
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           14
+          ],
+          [
+           0.17,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "text": "fonts",
+      "at": 0.5333333333333333,
+      "dur": 0.1333333333333333,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 150,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -40,
+      "name": "Chữ · fonts #4",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      }
+     },
+     {
+      "text": "fonts",
+      "at": 0.6666666666666666,
+      "dur": 0.13333333333333341,
+      "font": "Playfair Display",
+      "style": "Bold Italic",
+      "size": 150,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -10,
+      "name": "Chữ · fonts #5",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      }
+     },
+     {
+      "text": "fonts",
+      "at": 0.8,
+      "dur": 0.09999999999999998,
+      "font": "Great Vibes",
+      "style": "Regular",
+      "size": 150,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": 0,
+      "name": "Chữ · fonts #6",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      }
+     },
+     {
+      "text": "fonts",
+      "at": 0.9,
+      "dur": 0.13333333333333341,
+      "font": "Montserrat",
+      "style": "Black",
+      "size": 150,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -40,
+      "name": "Chữ · fonts #7",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      }
+     },
+     {
+      "text": "fonts",
+      "at": 1.0333333333333334,
+      "dur": 0.09999999999999987,
+      "font": "Playfair Display",
+      "style": "Regular",
+      "size": 150,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": 0,
+      "name": "Chữ · fonts #8",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      }
+     },
+     {
+      "text": "FLICKER",
+      "at": 1.1333333333333333,
+      "dur": 0.5333333333333334,
+      "font": "SF Pro Display",
+      "style": "Heavy",
+      "size": 170,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       500
+      ],
+      "tracking": -40,
+      "name": "Chữ · FLICKER #9",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0.0,
+        100,
+        "hold"
+       ],
+       [
+        0.0667,
+        0,
+        "hold"
+       ],
+       [
+        0.1333,
+        100,
+        "hold"
+       ],
+       [
+        0.2,
+        0,
+        "hold"
+       ],
+       [
+        0.2667,
+        100,
+        "hold"
+       ],
+       [
+        0.3333,
+        0,
+        "hold"
+       ],
+       [
+        0.4,
+        100,
+        "hold"
+       ],
+       [
+        0.4667,
+        0,
+        "hold"
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "video",
+    "name": "text_img 1",
+    "clips": [
+     {
+      "src": "/home/vmiz/.claude/skills/opa-video-studio/assets/text-fx/gfx/curved_9.png",
+      "at": 1.6666666666666667,
+      "dur": 0.5999999999999999,
+      "name": "Chữ cong · cũng như truy cập kh #10",
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.25,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "type": "video",
+    "name": "gfx_over 1",
+    "clips": [
+     {
+      "src": "/home/vmiz/.claude/skills/opa-video-studio/assets/text-fx/gfx/strike_1.png",
+      "at": 0.2,
+      "dur": 0.3333333333333333,
+      "name": "Vạch gạch chữ #2",
+      "transition_in": {
+       "effect": "linear_wipe",
+       "frames": 9
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "B24": {
+  "name": "Bố cục quay màn hình",
+  "python": "fx.tutorial_layout('bước một', 0.00, 2.1, captions=[('chọn layer dưới rồi bấm', 0.30)], keywords=[('ALT+G', 0.90)])",
+  "tracks": [
+   {
+    "type": "text",
+    "name": "text_low 1",
+    "clips": [
+     {
+      "text": "chọn layer dưới rồi bấm",
+      "at": 0.3,
+      "dur": 1.8,
+      "font": "SF Pro Display",
+      "style": "Medium",
+      "size": 48,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       1330
+      ],
+      "tracking": -20,
+      "name": "Chữ · chọn layer dưới rồi bấm #2",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      }
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text 1",
+    "clips": [
+     {
+      "text": "Bước một",
+      "at": 0.0,
+      "dur": 2.1,
+      "font": "SF Pro Display",
+      "style": "Heavy Italic",
+      "size": 120,
+      "color": "#FFFFFF",
+      "align": "center",
+      "position": [
+       540,
+       330
+      ],
+      "tracking": -35,
+      "name": "Chữ · Bước một #1",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      },
+      "opacity": [
+       [
+        0,
+        0
+       ],
+       [
+        0.15,
+        100
+       ]
+      ],
+      "effects": [
+       {
+        "effect": "gaussian_blur",
+        "params": {
+         "blurriness": [
+          [
+           0,
+           20
+          ],
+          [
+           0.25,
+           0,
+           "easeIn"
+          ]
+         ]
+        }
+       },
+       {
+        "effect": "wonder_glow",
+        "params": {
+         "threshold": 40,
+         "radius": 22,
+         "intensity": 70
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "text",
+    "name": "text_top 1",
+    "clips": [
+     {
+      "text": "ALT+G",
+      "at": 0.9,
+      "dur": 1.2000000000000002,
+      "font": "SF Pro Display",
+      "style": "Heavy Italic",
+      "size": 60,
+      "color": "#1E9E2A",
+      "align": "center",
+      "position": [
+       540,
+       1400
+      ],
+      "tracking": -35,
+      "name": "Chữ · ALT+G #3",
+      "shadow": {
+       "color": "#000000",
+       "opacity": 60,
+       "blur": 10,
+       "distance": 4
+      }
+     }
+    ]
+   }
+  ]
+ }
+}

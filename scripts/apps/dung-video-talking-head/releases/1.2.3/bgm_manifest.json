@@ -1,0 +1,52 @@
+{
+  "tracks": {
+    "cat-walk": {
+      "path": "bgm/cat-walk.wav",
+      "md5": "df6d5345c75578624132eb61b2ee2db3",
+      "source_url": "https://assets.mixkit.co/music/371/371.mp3",
+      "license": "Mixkit Stock Music Free License",
+      "license_checked_at": "2026-09-11",
+      "content_id_risk": "none",
+      "lufs": -11.85,
+      "loop_s": 114.23,
+      "selected": true,
+      "order": 1
+    },
+    "g-eazy-nba-type": {
+      "path": "bgm/g-eazy-nba-type.wav",
+      "md5": "8e29fdbc26569939c2e1fc9b86db300d",
+      "source_url": "https://assets.mixkit.co/music/403/403.mp3",
+      "license": "Mixkit Stock Music Free License",
+      "license_checked_at": "2026-09-11",
+      "content_id_risk": "none",
+      "lufs": -16.36,
+      "loop_s": 96.2085,
+      "selected": true,
+      "order": 2
+    },
+    "house-vibez": {
+      "path": "bgm/house-vibez.wav",
+      "md5": "42e9f3d5cc43b798e8fe5a759c7178a8",
+      "source_url": "https://assets.mixkit.co/music/745/745.mp3",
+      "license": "Mixkit Stock Music Free License",
+      "license_checked_at": "2026-09-11",
+      "content_id_risk": "none",
+      "lufs": -10.78,
+      "loop_s": 110.2371,
+      "selected": true,
+      "order": 3
+    },
+    "tonight-hiphop": {
+      "path": "bgm/tonight-hiphop.wav",
+      "md5": "c88243945f903b519704937d69452509",
+      "source_url": "https://assets.mixkit.co/music/841/841.mp3",
+      "license": "Mixkit Stock Music Free License",
+      "license_checked_at": "2026-09-11",
+      "content_id_risk": "none",
+      "lufs": -6.75,
+      "loop_s": 111.3034,
+      "selected": true,
+      "order": 4
+    }
+  }
+}

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Strip Media Metadata"
+  short_description: "Xoá metadata lộ nguồn tạo khỏi ảnh & clip"

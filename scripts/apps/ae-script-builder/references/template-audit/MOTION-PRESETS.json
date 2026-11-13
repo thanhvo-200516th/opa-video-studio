@@ -1,0 +1,1417 @@
+{
+  "evidence": "Trích native từ /media/vmiz/Over Powers/video AE/save/1.aep. Frame từ 0 tại 30 fps, pixel trong hệ gốc 2160x3840. Không coi raw value của mọi effect là phần trăm UI.",
+  "coordinateRule": "Khi đổi khổ cùng 9:16, q=outputWidth/2160; nhân các đại lượng pixel với q, giữ nguyên tỷ lệ phần trăm và góc, đổi frame theo thời gian giây. Không scale hai lần qua pre-comp.",
+  "fontIssue": "Manrope-Bold và Manrope-Regular đang là font substitute, trỏ times.ttf. Ảnh native kiểm chứng bố cục/chuyển động, chưa đúng kiểu chữ gốc.",
+  "recipes": [
+    {
+      "id": "R1",
+      "name": "Tiêu đề chính theo từ",
+      "sourceCompId": 141,
+      "sourceComp": "Text 1",
+      "sourceText": "Visual Graphics",
+      "fontRequested": "Manrope-Bold",
+      "sourceFontSize": 300,
+      "properties": [
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Start",
+          "matchName": "ADBE Text Percent Start",
+          "rawValue": 0,
+          "keys": [
+            {
+              "index": 1,
+              "time": 0,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 7.04681597e-06,
+                  "influence": 75.2169715011673
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 2,
+              "time": 1,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -1.076888678e-05,
+                  "influence": 75.1205431068497
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 3,
+              "time": 5.1,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -1.076888678e-05,
+                  "influence": 75.1205431068497
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 4,
+              "time": 6.1,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 7.04681597e-06,
+                  "influence": 75.2169715011673
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            }
+          ],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Advanced/Based On",
+          "matchName": "ADBE Text Range Type2",
+          "rawValue": 3,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Advanced/Shape",
+          "matchName": "ADBE Text Range Shape",
+          "rawValue": 1,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Position",
+          "matchName": "ADBE Text Position 3D",
+          "rawValue": [
+            0,
+            300,
+            0
+          ],
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Opacity",
+          "matchName": "ADBE Text Opacity",
+          "rawValue": 0,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Blur",
+          "matchName": "ADBE Text Blur",
+          "rawValue": [
+            128,
+            128
+          ],
+          "keys": [],
+          "expression": ""
+        }
+      ]
+    },
+    {
+      "id": "R2",
+      "name": "Nhãn phụ theo dòng",
+      "sourceCompId": 154,
+      "sourceComp": "Text 2",
+      "sourceText": "Motion Design",
+      "fontRequested": "Manrope-Regular",
+      "sourceFontSize": 96,
+      "properties": [
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Start",
+          "matchName": "ADBE Text Percent Start",
+          "rawValue": 0,
+          "keys": [
+            {
+              "index": 1,
+              "time": 0,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -1.108029062e-05,
+                  "influence": 75.3224538410263
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 2,
+              "time": 1,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -4.2336403e-06,
+                  "influence": 75.6638871276932
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 3,
+              "time": 4.16666666666667,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -4.2336403e-06,
+                  "influence": 75.6638871276932
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 4,
+              "time": 5.16666666666667,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -1.108029062e-05,
+                  "influence": 75.3224538410263
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            }
+          ],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Advanced/Based On",
+          "matchName": "ADBE Text Range Type2",
+          "rawValue": 4,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Advanced/Shape",
+          "matchName": "ADBE Text Range Shape",
+          "rawValue": 1,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Position",
+          "matchName": "ADBE Text Position 3D",
+          "rawValue": [
+            0,
+            64,
+            0
+          ],
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Opacity",
+          "matchName": "ADBE Text Opacity",
+          "rawValue": 0,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Blur",
+          "matchName": "ADBE Text Blur",
+          "rawValue": [
+            64,
+            64
+          ],
+          "keys": [],
+          "expression": ""
+        }
+      ]
+    },
+    {
+      "id": "R3",
+      "name": "Tiêu đề display theo ký tự",
+      "sourceCompId": 430,
+      "sourceComp": "Text 3",
+      "sourceText": "Minimalist",
+      "fontRequested": "Manrope-Bold",
+      "sourceFontSize": 360,
+      "properties": [
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Start",
+          "matchName": "ADBE Text Percent Start",
+          "rawValue": 0,
+          "keys": [
+            {
+              "index": 1,
+              "time": 0,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -1.107339115e-05,
+                  "influence": 75.2169715011673
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 2,
+              "time": 1,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -4.23364031e-06,
+                  "influence": 75.6026969993668
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 3,
+              "time": 5.06666666666667,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 5.16289346e-06,
+                  "influence": 20.1079424378029
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -1.40189428066151e-07,
+                  "influence": 100
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 4,
+              "time": 6.06666666666667,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -5.91049769e-06,
+                  "influence": 20.9928701961594
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            }
+          ],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Advanced/Based On",
+          "matchName": "ADBE Text Range Type2",
+          "rawValue": 1,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Advanced/Shape",
+          "matchName": "ADBE Text Range Shape",
+          "rawValue": 1,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Position",
+          "matchName": "ADBE Text Position 3D",
+          "rawValue": [
+            0,
+            256,
+            0
+          ],
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Opacity",
+          "matchName": "ADBE Text Opacity",
+          "rawValue": 0,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Blur",
+          "matchName": "ADBE Text Blur",
+          "rawValue": [
+            128,
+            128
+          ],
+          "keys": [],
+          "expression": ""
+        }
+      ]
+    },
+    {
+      "id": "R4",
+      "name": "Heading hai pha vào và ra riêng",
+      "sourceCompId": 631,
+      "sourceComp": "Text 4",
+      "sourceText": "Brand Promo\rBy Tortoha",
+      "fontRequested": "Manrope-Bold",
+      "sourceFontSize": 256,
+      "properties": [
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Start",
+          "matchName": "ADBE Text Percent Start",
+          "rawValue": 0,
+          "keys": [
+            {
+              "index": 1,
+              "time": 0,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -1.055953948e-05,
+                  "influence": 70.6364499176102
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 2,
+              "time": 1,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -4.23365156e-06,
+                  "influence": 70.5400215232925
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            }
+          ],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Advanced/Based On",
+          "matchName": "ADBE Text Range Type2",
+          "rawValue": 4,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Advanced/Shape",
+          "matchName": "ADBE Text Range Shape",
+          "rawValue": 1,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Position",
+          "matchName": "ADBE Text Position 3D",
+          "rawValue": [
+            0,
+            -128,
+            0
+          ],
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Opacity",
+          "matchName": "ADBE Text Opacity",
+          "rawValue": 0,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Blur",
+          "matchName": "ADBE Text Blur",
+          "rawValue": [
+            128,
+            128
+          ],
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 2/Selectors/Range Selector 1/End",
+          "matchName": "ADBE Text Percent End",
+          "rawValue": 0,
+          "keys": [
+            {
+              "index": 1,
+              "time": 5.73333333333333,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -6.3035434e-06,
+                  "influence": 70.0247751319962
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 2,
+              "time": 6.73333333333333,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -4.23363837e-06,
+                  "influence": 70.2989564979629
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            }
+          ],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 2/Selectors/Range Selector 1/Advanced/Based On",
+          "matchName": "ADBE Text Range Type2",
+          "rawValue": 4,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 2/Selectors/Range Selector 1/Advanced/Shape",
+          "matchName": "ADBE Text Range Shape",
+          "rawValue": 1,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 2/Properties/Position",
+          "matchName": "ADBE Text Position 3D",
+          "rawValue": [
+            0,
+            128,
+            0
+          ],
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 2/Properties/Opacity",
+          "matchName": "ADBE Text Opacity",
+          "rawValue": 0,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 2/Properties/Blur",
+          "matchName": "ADBE Text Blur",
+          "rawValue": [
+            128,
+            128
+          ],
+          "keys": [],
+          "expression": ""
+        }
+      ]
+    },
+    {
+      "id": "R5",
+      "name": "Nội dung theo dòng từ bên phải",
+      "sourceCompId": 644,
+      "sourceComp": "Text 5",
+      "sourceText": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean\rultricies placerat velit, sed vulputate neque sollicitudin et.",
+      "fontRequested": "Manrope-Regular",
+      "sourceFontSize": 64,
+      "properties": [
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Start",
+          "matchName": "ADBE Text Percent Start",
+          "rawValue": 0,
+          "keys": [
+            {
+              "index": 1,
+              "time": 0,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -5.18526615422843e-07,
+                  "influence": 60.7521699512558
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 2,
+              "time": 1,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -2.602157298e-05,
+                  "influence": 60.1735817039566
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 3,
+              "time": 4.5,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -2.602157298e-05,
+                  "influence": 60.1735817039566
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 4,
+              "time": 5.5,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -5.18526615422843e-07,
+                  "influence": 60.7521699512558
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            }
+          ],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Advanced/Based On",
+          "matchName": "ADBE Text Range Type2",
+          "rawValue": 4,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Selectors/Range Selector 1/Advanced/Shape",
+          "matchName": "ADBE Text Range Shape",
+          "rawValue": 1,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Position",
+          "matchName": "ADBE Text Position 3D",
+          "rawValue": [
+            128,
+            0,
+            0
+          ],
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Opacity",
+          "matchName": "ADBE Text Opacity",
+          "rawValue": 0,
+          "keys": [],
+          "expression": ""
+        },
+        {
+          "path": "/Text/Animators/Animator 1/Properties/Blur",
+          "matchName": "ADBE Text Blur",
+          "rawValue": [
+            64,
+            64
+          ],
+          "keys": [],
+          "expression": ""
+        }
+      ]
+    },
+    {
+      "id": "R6",
+      "name": "Scale cả tiêu đề tại cấp Scene 5",
+      "sceneId": 1278,
+      "layerIndex": 3,
+      "layer": "Title 6",
+      "properties": [
+        {
+          "path": "/Transform/Scale",
+          "matchName": "ADBE Scale",
+          "rawValue": [
+            100,
+            100,
+            100
+          ],
+          "keys": [
+            {
+              "index": 1,
+              "time": 3.23333333333333,
+              "value": [
+                100,
+                100,
+                100
+              ],
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                },
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                },
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -1.461775176e-05,
+                  "influence": 0.01
+                },
+                {
+                  "speed": -1.461775176e-05,
+                  "influence": 0.01
+                },
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 2,
+              "time": 5.73333333333333,
+              "value": [
+                60,
+                60,
+                100
+              ],
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -3.82377823626664e-07,
+                  "influence": 100
+                },
+                {
+                  "speed": -3.82377823626664e-07,
+                  "influence": 100
+                },
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -0.00018644596707,
+                  "influence": 100
+                },
+                {
+                  "speed": -0.00018644596707,
+                  "influence": 100
+                },
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 3,
+              "time": 6.73333333333333,
+              "value": [
+                0,
+                0,
+                100
+              ],
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -0.00048108353826,
+                  "influence": 15.1333287005183
+                },
+                {
+                  "speed": -0.00048108353826,
+                  "influence": 15.1333287005183
+                },
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                },
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                },
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            }
+          ],
+          "expression": ""
+        }
+      ],
+      "note": "Text source không có animator; chuyển động nằm trên layer pre-comp Title 6 ở Scene 5."
+    },
+    {
+      "id": "R7",
+      "name": "Chữ cuốn quanh ảnh bằng CC Cylinder",
+      "sceneId": 1533,
+      "layerIndices": [
+        11,
+        13
+      ],
+      "parameters": {
+        "sourceTitleCompSize": [
+          6000,
+          2160
+        ],
+        "anchor": [
+          3000,
+          1080,
+          0
+        ],
+        "mainLayerScale": [
+          210,
+          210,
+          100
+        ],
+        "cylinderRadiusPercent": 100,
+        "rotationX": 19,
+        "rotationZ": 31,
+        "twoRenderModes": [
+          2,
+          3
+        ],
+        "ambient": 200,
+        "diffuse": 0,
+        "specular": 0,
+        "glowRadius": 64,
+        "glowIntensity": 1,
+        "glowThresholdUI": 60,
+        "glowThresholdRaw": 153
+      },
+      "properties": [
+        {
+          "path": "/Effects/CC Cylinder 1/Rotation Y",
+          "matchName": "CC Cylinder-0010",
+          "rawValue": 0,
+          "keys": [
+            {
+              "index": 1,
+              "time": 0.6,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 1.89384716e-06,
+                  "influence": 15.4638399923401
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 2,
+              "time": 10.6,
+              "value": 360,
+              "inType": "6612",
+              "outType": "6612",
+              "inEase": [
+                {
+                  "speed": 36,
+                  "influence": 16.666666667
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            }
+          ],
+          "expression": ""
+        }
+      ],
+      "note": "Một lớp ở trước và một lớp ở sau layer ảnh. Hai giá trị Render 2/3 là enum gốc. Keys Rotation Y định nghĩa 0→360 từ f18 đến f318; scene chỉ dài 240 frame, không khẳng định trọn vòng hiện trên phim."
+    },
+    {
+      "id": "R8",
+      "name": "Bóng mềm thực sự của chữ Scene 5",
+      "sceneId": 1278,
+      "layers": [
+        "Title 1",
+        "Title 3",
+        "Title 6"
+      ],
+      "parameters": {
+        "shadowColor": [
+          0,
+          0,
+          0
+        ],
+        "opacityUI_percent": 30,
+        "opacityRaw_0to255": 76.5,
+        "directionDegrees": 135,
+        "distanceSourcePx": 8,
+        "softnessSourcePx": 128,
+        "shadowOnly": false
+      },
+      "note": "Dùng ADBE Drop Shadow, nối controller Text Shadow; không gán mặc định bóng này cho toàn bộ text."
+    },
+    {
+      "id": "R9",
+      "name": "Nhãn kính Scene 1",
+      "sceneId": 167,
+      "titleLayerIndex": 7,
+      "strokeLayerIndex": 8,
+      "adjustmentLayerIndex": 9,
+      "matteLayerIndex": 10,
+      "parameters": {
+        "rectSizeSource": [
+          1024,
+          256
+        ],
+        "roundnessSource": 128,
+        "tintUI_percent": 6,
+        "gaussianBlurSource": 128,
+        "bevelSize": 5,
+        "bevelAngleDegrees": 90,
+        "bevelAltitudeDegrees": 30,
+        "highlightOpacity_percent": 75,
+        "shadowOpacity_percent": 50,
+        "shadowBlendModeRaw": 5,
+        "highlightBlendModeRaw": 11
+      },
+      "opacityKeys": [
+        {
+          "path": "/Transform/Opacity",
+          "matchName": "ADBE Opacity",
+          "rawValue": 0,
+          "keys": [
+            {
+              "index": 1,
+              "time": 1.83333333333333,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -4.2336161e-06,
+                  "influence": 75.6026969993668
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 2,
+              "time": 2.83333333333333,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -1.107330382e-05,
+                  "influence": 75.0241027916031
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 3,
+              "time": 6,
+              "value": 100,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -1.107330382e-05,
+                  "influence": 75.0241027916031
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 4,
+              "time": 7,
+              "value": 0,
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -4.2336161e-06,
+                  "influence": 75.6026969993668
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            }
+          ],
+          "expression": ""
+        }
+      ],
+      "note": "Layer 8 và 9 parent vào Title 2. Gaussian Blur và Tint nằm trên adjustment layer 9, dùng alpha matte layer 10. Layer Styles Bevel and Emboss bật ở stroke; Drop Shadow của stroke tắt."
+    },
+    {
+      "id": "R10",
+      "name": "Khung ảnh mở bằng kích thước mask",
+      "sceneId": 167,
+      "maskLayerIndex": 6,
+      "properties": [
+        {
+          "path": "/Contents/Rectangle 1/Contents/Rectangle Path 1/Size",
+          "matchName": "ADBE Vector Rect Size",
+          "rawValue": [
+            0,
+            0
+          ],
+          "keys": [
+            {
+              "index": 1,
+              "time": 2,
+              "value": [
+                0,
+                0
+              ],
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                },
+                {
+                  "speed": 0,
+                  "influence": 33.333333
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -0.00015403570046,
+                  "influence": 15.2362571800308
+                },
+                {
+                  "speed": -0.00015403570046,
+                  "influence": 15.2362571800308
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 2,
+              "time": 3,
+              "value": [
+                2500,
+                4180
+              ],
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": -4.127456333e-05,
+                  "influence": 100
+                },
+                {
+                  "speed": -4.127456333e-05,
+                  "influence": 100
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -0.00015403570046,
+                  "influence": 28.1627399085802
+                },
+                {
+                  "speed": -0.00015403570046,
+                  "influence": 28.1627399085802
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 3,
+              "time": 5.5,
+              "value": [
+                2500,
+                4180
+              ],
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0,
+                  "influence": 33.0181268209488
+                },
+                {
+                  "speed": 0,
+                  "influence": 36.7820213366782
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": -0.00010787345269,
+                  "influence": 100
+                },
+                {
+                  "speed": -0.00040258724653,
+                  "influence": 100
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            },
+            {
+              "index": 4,
+              "time": 6.5,
+              "value": [
+                0,
+                1024
+              ],
+              "inType": "6613",
+              "outType": "6613",
+              "inEase": [
+                {
+                  "speed": 0.00037104123658,
+                  "influence": 15.4878348752416
+                },
+                {
+                  "speed": 0.0003883261279,
+                  "influence": 15.245696966306
+                }
+              ],
+              "outEase": [
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                },
+                {
+                  "speed": 0,
+                  "influence": 16.666666667
+                }
+              ],
+              "temporalAutoBezier": false,
+              "temporalContinuous": false
+            }
+          ],
+          "expression": ""
+        }
+      ],
+      "note": "Easing vào có Out Influence khoảng 15.236%, In Influence 100%; khác đường cong 75/75 của chữ."
+    }
+  ],
+  "scene1Timing": {
+    "headlineSourceLocalFrames": [
+      0,
+      30,
+      153,
+      183
+    ],
+    "headlineSceneOffsetFrame": 27,
+    "headlineSceneFrames": [
+      27,
+      57,
+      180,
+      210
+    ],
+    "subtitleSourceLocalFrames": [
+      0,
+      30,
+      125,
+      155
+    ],
+    "subtitleSceneOffsetFrame": 55,
+    "subtitleSceneFrames": [
+      55,
+      85,
+      180,
+      210
+    ],
+    "glassOpacitySceneFrames": [
+      55,
+      85,
+      180,
+      210
+    ],
+    "imageMaskSizeSceneFrames": [
+      60,
+      90,
+      165,
+      195
+    ],
+    "imageLayerStartSceneFrame": 67
+  },
+  "scene1Placement": {
+    "headlineTitleAnchor": [
+      1920,
+      1080,
+      0
+    ],
+    "headlineTitlePosition": [
+      1080,
+      2952,
+      0
+    ],
+    "headlineTitleScale": [
+      75,
+      75,
+      100
+    ],
+    "headlineEffectiveFontNative": 225,
+    "headlineEffectiveFont1080wide": 112.5,
+    "subtitleTitleAnchor": [
+      1920,
+      1080,
+      0
+    ],
+    "subtitleTitlePosition": [
+      1080,
+      3340,
+      0
+    ],
+    "subtitleTitleScale": [
+      100,
+      100,
+      100
+    ],
+    "subtitleEffectiveFontNative": 96,
+    "subtitleEffectiveFont1080wide": 48,
+    "sourceTextAnchor": [
+      0,
+      0,
+      0
+    ],
+    "sceneCenter": [
+      1080,
+      1920
+    ]
+  },
+  "easingTransfer": {
+    "headlineApproxCubicBezier": [
+      0.752169715,
+      0,
+      0.248794569,
+      1
+    ],
+    "imageMaskApproxCubicBezier": [
+      0.152362572,
+      0,
+      0,
+      1
+    ],
+    "warning": "Hai cubic-bezier là chuẩn hóa gần đúng của đoạn điển hình; số speed gần 0 được làm tròn về 0. Muốn khớp AE dùng keys inEase/outEase gốc hoặc raw/native-samples.json. Không áp một preset cho tất cả thuộc tính."
+  },
+  "sourceIssues": [
+    "6 expression errors trong file working vì hai bộ template, 3 lỗi mỗi bộ. Scene 3, 6, 8: Bevel Angle gọi controller Title 2 / Angle Glow không tồn tại.",
+    "Không có file âm thanh trong Music comp; không có MP4 mẫu trong các thư mục được cung cấp.",
+    "Motion Blur của các scene đã kiểm là tắt; blur chữ là Text Animator Blur, không phải shutter motion blur."
+  ]
+}

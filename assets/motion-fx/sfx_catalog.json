@@ -1,0 +1,425 @@
+{
+ "_doc": "Loại SFX → file ứng viên (đường dẫn tương đối theo gốc trong 'roots'). align: peak = đỉnh rơi đúng mốc, onset = tiếng bắt đầu đúng mốc. tier: big / mid / soft → mức đỉnh (xem 'levels'). Chọn lần lượt, không lặp file trong cùng video khi còn file khác. Nguồn: TNEDIT/02_SFX và 'sfx trends' (Mixkit, ShotCraft, tổng hợp). max_dur: cắt đuôi dài (click dày như ô lưới cách 0,07 s không chồng quá nhiều track). Cue cùng 'group' dùng chung 1 file như mẫu 1cho. 'with' = loại tiếng chồng thêm cùng mốc. File chọn bằng so phổ với tiếng cắt từ reel mẫu (1cho.mejia, Newbie Edit) ngày 2026-11-04, lọc theo tên nhóm; đường dẫn tuyệt đối được chấp nhận. 'bed': tiếng nền kéo dài (charge, riser, sparkle, leak) — không bị loại khi trùng mốc với tiếng nhấn. 'transition': tiếng chuyển cảnh dùng mức 'transition'. 'max_pre': đỉnh không được cách đầu tiếng quá n giây (cắt bớt đầu swell dài — light leak từng vang trước 2 s). Luật đồng bộ (đo bản xuất 2026-11-04): tiếng KHÔNG được bắt đầu trước khi hình bắt đầu đổi — chuyển cảnh tức thời (flash, cắt) thì tiếng tấn công đúng khung đổi; overlay dâng dần (leak, burn) thì tiếng bắt đầu cùng overlay.",
+ "roots": {
+  "HMC": "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/sfx hmc",
+  "TR": "/home/vmiz/Thanh/Media/TNEDIT/sfx trends",
+  "SC": "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/ShotCraft_SFX",
+  "MK": "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/TikTok_TalkingHead_Mixkit_Gon_48k",
+  "PR": "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/Thu_Vien_SFX_PR",
+  "LO": "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/Lorus"
+ },
+ "levels": {
+  "_doc": "đỉnh mong muốn (dBFS): [lúc đang nói, lúc im lặng]; 'transition' = tiếng chuyển cảnh, gần như không giảm khi đang nói (bị nhạc + giọng che, người dùng chê 'không khớp' 2026-11-04)",
+  "big": [
+   -12,
+   -7
+  ],
+  "mid": [
+   -16,
+   -11
+  ],
+  "soft": [
+   -21,
+   -16
+  ],
+  "transition": [
+   -6,
+   -4
+  ]
+ },
+ "kinds": {
+  "type": {
+   "tier": "soft",
+   "align": "onset",
+   "trim": true,
+   "why": "chuỗi tick cho một đợt chữ gõ (không tick từng ký tự)",
+   "files": [
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/sfx hmc/05_go_chu/go_chu_ky_thuat_so_02.mp3",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/TikTok_TalkingHead_Mixkit_Day_Du/08_Typing_Click/typing_electronic_short_01.wav",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/TikTok_TalkingHead_Mixkit_Day_Du/08_Typing_Click/typing_electronic_device_01.wav",
+    "SC:text/typewriter-digital.mp3",
+    "TR:06_Camera_Paper_Typing_Foley/72_Mechanical_Keyboard_Burst.wav",
+    "SC:text/keyboard.mp3",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/sfx hmc/05_go_chu/go_chu_ky_thuat_so_01.wav"
+   ]
+  },
+  "untype": {
+   "tier": "soft",
+   "align": "onset",
+   "why": "xoá ngược chữ: vút đi xuống ngắn",
+   "files": [
+    "PR:SFX_Whoosh_Explainer_video_pops_whoosh_light_pop_3005.wav",
+    "TR:02_Whooshes_Swishes_WhipPans/19_Whip_Pan_Camera_Swish.wav",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/ProdByViet_Free_SFX/pop + woosh.MP3",
+    "SC:transition/wind-swoosh-short.mp3"
+   ],
+   "max_dur": 0.45
+  },
+  "pen": {
+   "tier": "soft",
+   "align": "onset",
+   "trim": true,
+   "why": "chữ viết tay lộ trái → phải",
+   "files": [
+    "SC:text/write-fast.mp3",
+    "SC:text/pen-write-paper.mp3",
+    "TR:06_Camera_Paper_Typing_Foley/77_Highlighter_Marker_Swipe.wav",
+    "SC:text/marker-pen-line.mp3",
+    "SC:text/write-blackboard.mp3",
+    "SC:text/chalk-line.mp3",
+    "SC:text/pencil-write-short.mp3"
+   ]
+  },
+  "key_hit": {
+   "tier": "mid",
+   "align": "peak",
+   "why": "từ khoá to rơi xuống",
+   "files": [
+    "HMC:03_bum_va_cham/va_cham_bat_logo_01.wav",
+    "HMC:03_bum_va_cham/va_cham_bat_logo_02.wav",
+    "HMC:04_ting_chuong/bup_ting_hien_the_01.wav",
+    "HMC:04_ting_chuong/bup_ting_hien_the_02.wav",
+    "HMC:04_ting_chuong/bup_tram_hien_khung_01.wav",
+    "SC:text/typewriter-hit-single.mp3",
+    "SC:text/typewriter-hit-soft.mp3",
+    "TR:04_UI_Pops_Clicks_Notifications/50_Social_App_Ping_Knock.wav",
+    "LO:Ding_Pops_SFX/Pop 1.mp3",
+    "PR:SFX_Impact_Wood_hard_hit_2182.wav",
+    "TR:01_Impacts_Booms_SubDrops/05_Punch_Body_Impact_Hit.wav",
+    "PR:SFX_Impact_Shot_light_energy_flowing_2589.wav",
+    "PR:SFX_Impact_Dramatic_metal_explosion_impact_1687.wav",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/ProdByViet_Free_SFX/synth hit.MP3",
+    "SC:impact/metal-spring-hit.mp3"
+   ],
+   "max_dur": 0.7
+  },
+  "sparkle": {
+   "tier": "soft",
+   "align": "onset",
+   "why": "chữ đứng yên phát sáng, nút CTA",
+   "files": [
+    "HMC:04_ting_chuong/chuong_lap_lanh_01.wav",
+    "HMC:04_ting_chuong/chuong_lap_lanh_02.mp3",
+    "HMC:04_ting_chuong/lap_lanh_anh_sang_01.wav",
+    "HMC:04_ting_chuong/lap_lanh_anh_sang_02.wav",
+    "HMC:04_ting_chuong/ting_chuong_kim_loai_01.wav",
+    "SC:light/sparkle-poof-hit.mp3",
+    "TR:05_Dings_Chimes_Money/59_Crystal_Ding_Echo_Chime.wav",
+    "SC:ui/chime-crystal.mp3",
+    "SC:light/sparkle-touch.mp3",
+    "PR:SFX_Whoosh_Magic_sparkle_whoosh_2350.wav"
+   ],
+   "bed": true
+  },
+  "word_click": {
+   "tier": "mid",
+   "align": "onset",
+   "why": "mỗi từ hiện = một click (kiểu 1cho); mỗi click một file khác (người dùng chốt 2026-11-04 lần 10) — đã bỏ các bản trùng tiếng (so phổ < 0,08); bỏ Pop 4 / Pop 5 (đỉnh bị cắt bằng — méo); lần 15: phụ đề 'từng từ nảy + click' cần nhiều click → dùng chung mọi file click (dải, lưới), bộ chọn ưu tiên file chưa dùng",
+   "files": [
+    "SC:mech/lock-quick.mp3",
+    "LO:Ding_Pops_SFX/Pop 2.wav",
+    "MK:02_pop/pop_light_explainer_04.wav",
+    "TR:04_UI_Pops_Clicks_Notifications/55_App_Icon_Rubber_Thock.wav",
+    "LO:Ding_Pops_SFX/Bubble Pop.wav",
+    "MK:02_pop/pop_dry_soft_02.wav",
+    "SC:ui/pop.mp3",
+    "PR:SFX_Pop_Soap_bubble_sound_2925.wav",
+    "SC:paper/paper-staple.mp3",
+    "SC:transition/transition-snap.mp3",
+    "SC:ui/switch-click-quick.mp3",
+    "TR:04_UI_Pops_Clicks_Notifications/51_UI_Toggle_Switch_Snap.wav",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/KobeMedia/SFX_Chuyen_Canh/Camera_03.wav",
+    "SC:camera/camera-lens-shutter.mp3",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/ProdByViet_Free_SFX/finger snap.MP3",
+    "SC:mech/metal-drop-scifi-small.mp3",
+    "SC:camera/click-camera.mp3",
+    "PR:SFX_UI_Click_Fast_double_click_on_mouse_275.wav",
+    "TR:04_UI_Pops_Clicks_Notifications/46_Mouse_Single_Click_Clean.wav",
+    "MK:04_click/click_mouse_hard_01.wav",
+    "PR:SFX_UI_Select_Interface_device_click_2577.wav",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/ProdByViet_Free_SFX/digital camera.MP3",
+    "SC:text/pen-click-twice.mp3",
+    "SC:ui/switch-tap.mp3",
+    "SC:ui/ui-click-tone.mp3",
+    "PR:SFX_UI_Click_Modern_technology_select_3124.wav"
+   ],
+   "max_dur": 0.18
+  },
+  "bar_click": {
+   "tier": "mid",
+   "align": "onset",
+   "why": "mỗi dải dọc bật ra; mỗi click một file khác (người dùng chốt 2026-11-04 lần 10) — đã bỏ các bản trùng tiếng (so phổ < 0,08)",
+   "files": [
+    "SC:paper/paper-staple.mp3",
+    "SC:transition/transition-snap.mp3",
+    "SC:ui/switch-click-quick.mp3",
+    "TR:04_UI_Pops_Clicks_Notifications/51_UI_Toggle_Switch_Snap.wav",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/KobeMedia/SFX_Chuyen_Canh/Camera_03.wav",
+    "SC:camera/camera-lens-shutter.mp3",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/ProdByViet_Free_SFX/finger snap.MP3",
+    "SC:mech/metal-drop-scifi-small.mp3"
+   ],
+   "max_dur": 0.18
+  },
+  "grid_click": {
+   "tier": "mid",
+   "align": "onset",
+   "why": "mỗi ô lưới bật ra (click cơ khí); mỗi click một file khác (người dùng chốt 2026-11-04 lần 10) — đã bỏ các bản trùng tiếng (so phổ < 0,08)",
+   "files": [
+    "SC:camera/click-camera.mp3",
+    "PR:SFX_UI_Click_Fast_double_click_on_mouse_275.wav",
+    "TR:04_UI_Pops_Clicks_Notifications/46_Mouse_Single_Click_Clean.wav",
+    "MK:04_click/click_mouse_hard_01.wav",
+    "PR:SFX_UI_Select_Interface_device_click_2577.wav",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/ProdByViet_Free_SFX/digital camera.MP3",
+    "SC:text/pen-click-twice.mp3",
+    "SC:ui/switch-tap.mp3",
+    "SC:ui/ui-click-tone.mp3",
+    "PR:SFX_UI_Click_Modern_technology_select_3124.wav"
+   ],
+   "max_dur": 0.09
+  },
+  "charge": {
+   "tier": "mid",
+   "align": "onset",
+   "trim": true,
+   "why": "tiếng nạp điện vút lên trước hiệu ứng lớn",
+   "files": [
+    "SC:data/power-up-static.mp3",
+    "TR:03_Risers_Swells_Tension/41_Electric_Charge_Power_Up.wav",
+    "TR:03_Risers_Swells_Tension/34_Tonal_Synth_Sweep_Riser.wav",
+    "MK:05_riser/riser_magic_whip_02.wav",
+    "TR:03_Risers_Swells_Tension/33_Reverse_Vocal_Reverb_Swell.wav"
+   ],
+   "bed": true
+  },
+  "flash_hit": {
+   "tier": "big",
+   "align": "peak",
+   "why": "flash trắng ở chỗ nối — cú to nhất",
+   "files": [
+    "HMC:03_bum_va_cham/bum_tram_chuyen_canh_01.mp3",
+    "HMC:03_bum_va_cham/bum_tram_chuyen_canh_02.wav",
+    "HMC:01_vut_gio_chuyen_canh/vut_gio_kem_chop_sang_01.wav",
+    "HMC:01_vut_gio_chuyen_canh/vut_gio_kem_chop_sang_02.wav",
+    "TR:01_Impacts_Booms_SubDrops/03_Soft_Low_End_Thud.wav",
+    "MK:06_impact/impact_bass_short_01.wav",
+    "SC:impact/bass-hit-short.mp3",
+    "SC:impact/hit-blow.mp3",
+    "TR:01_Impacts_Booms_SubDrops/04_Vine_Boom_Heavy_Bass.wav",
+    "TR:01_Impacts_Booms_SubDrops/07_Heartbeat_Single_Thump.wav",
+    "MK:06_impact/impact_futuristic_bass_02.wav",
+    "SC:impact/bass-hit-futuristic.mp3"
+   ],
+   "max_dur": 0.8,
+   "with": "shutter",
+   "transition": true
+  },
+  "data_beep": {
+   "tier": "soft",
+   "align": "onset",
+   "why": "chấm / nhãn dữ liệu nhảy",
+   "files": [
+    "HMC:08_dac_biet/bip_cong_nghe_giam_dan_01.wav",
+    "HMC:08_dac_biet/bip_cong_nghe_giam_dan_02.wav",
+    "TR:04_UI_Pops_Clicks_Notifications/58_Radar_Pulse_Ping_Wake.wav",
+    "SC:ui/ui-notify-tech.mp3",
+    "SC:ui/ui-click-tone.mp3"
+   ],
+   "max_dur": 0.25
+  },
+  "whoosh": {
+   "tier": "big",
+   "align": "peak",
+   "why": "zoom blur, whip, slide ở điểm cắt",
+   "files": [
+    "HMC:01_vut_gio_chuyen_canh/vut_gio_chuyen_canh_nhanh_01.wav",
+    "HMC:01_vut_gio_chuyen_canh/vut_gio_chuyen_canh_nhanh_02.mp3",
+    "HMC:01_vut_gio_chuyen_canh/vut_gio_chuyen_canh_nhanh_03.wav",
+    "HMC:01_vut_gio_chuyen_canh/vut_lia_may_nhanh_01.wav",
+    "HMC:01_vut_gio_chuyen_canh/vut_lia_may_nhanh_02.wav",
+    "HMC:01_vut_gio_chuyen_canh/vut_ngan_khung_truot_vao_01.wav",
+    "HMC:01_vut_gio_chuyen_canh/vut_ngan_khung_truot_vao_02.wav",
+    "LO:Woosh_SFX/Whoosh 1/Whoosh 1 Low, Fast.wav",
+    "LO:Woosh_SFX/Whoosh 1/Whoosh 4 Low, Fast.wav",
+    "MK:07_swipe/swipe_tech_slide_03.wav",
+    "LO:Woosh_SFX/Whoosh 1/Whoosh 2 Low, Fast.wav",
+    "LO:Woosh_SFX/Whoosh 1/Whoosh 5 High, Fast.wav",
+    "TR:04_UI_Pops_Clicks_Notifications/56_Dropdown_Menu_Expand_Swish.wav",
+    "PR:SFX_Whoosh_Cinematic_tunnel_reverb_woosh_1486.wav",
+    "SC:transition/whoosh-big.mp3",
+    "SC:transition/wind-woosh-throw.mp3",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/TikTok_TalkingHead_Mixkit_Day_Du/01_Whoosh_Transition/whoosh_air_sweep_short_01.wav",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/KobeMedia/SFX_Whoosh/_ Whoosh 21.wav",
+    "TR:02_Whooshes_Swishes_WhipPans/17_Snap_Whoosh_Micro_Swish.wav",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/KobeMedia/SFX_Whoosh/Swoosh_22.wav",
+    "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/TikTok_TalkingHead_Mixkit_Day_Du/01_Whoosh_Transition/whoosh_long_air_sweep_01.wav",
+    "LO:Woosh_SFX/Whoosh 1/Whoosh 3 Zoom in.wav",
+    "PR:SFX_Whoosh_Arrow_whoosh_1491.wav",
+    "PR:SFX_Swoosh_Flying_fast_swoosh_1469.wav",
+    "TR:02_Whooshes_Swishes_WhipPans/28_Metallic_Blade_Sweep_Whoosh.wav",
+    "MK:01_whoosh/whoosh_cinematic_wind_03.wav"
+   ],
+   "max_dur": 0.9,
+   "transition": true
+  },
+  "boom_pre": {
+   "tier": "big",
+   "align": "peak",
+   "offset": -0.08,
+   "why": "tiếng trầm ngay đầu whip (trước 0,25 s bị nghe lệch, 2026-11-04)",
+   "files": [
+    "TR:01_Impacts_Booms_SubDrops/01_Sub_Bass_Drop_Clean.wav",
+    "SC:impact/bass-hit-short.mp3",
+    "TR:03_Risers_Swells_Tension/40_Reverse_Sub_Impact_Suck.wav"
+   ],
+   "transition": true
+  },
+  "leak": {
+   "tier": "mid",
+   "align": "peak",
+   "why": "light leak / film burn: đỉnh tiếng swell trùng khung sáng nhất",
+   "files": [
+    "SC:light/light-transition-magic.mp3",
+    "TR:02_Whooshes_Swishes_WhipPans/18_Deep_Bass_Whoosh_Cinematic.wav",
+    "SC:transition/swoosh-slow.mp3"
+   ],
+   "bed": true,
+   "transition": true
+  },
+  "glitch": {
+   "tier": "mid",
+   "align": "onset",
+   "why": "glitch 1 lần làm điểm nhấn; chỉ giữ file to nhất ngay đầu (≤ 0,06 s) — bản stutter đỉnh trễ 0,19 s làm lệch qa_sync 2026-11-04",
+   "files": [
+    "HMC:06_nhieu_ky_thuat_so/nhieu_ky_thuat_so_chuyen_canh_01.mp3",
+    "HMC:06_nhieu_ky_thuat_so/nhieu_ky_thuat_so_chuyen_canh_02.wav",
+    "HMC:06_nhieu_ky_thuat_so/tach_nhieu_gat_01.mp3",
+    "HMC:06_nhieu_ky_thuat_so/tach_nhieu_gat_02.mp3",
+    "MK:10_glitch/glitch_digital_break_01.wav",
+    "MK:10_glitch/glitch_scifi_02.wav"
+   ],
+   "max_dur": 0.4,
+   "offset": -0.08,
+   "transition": true
+  },
+  "pop": {
+   "tier": "mid",
+   "align": "onset",
+   "why": "pill / thẻ / nhãn bật vào",
+   "files": [
+    "HMC:04_ting_chuong/bup_ting_hien_the_03.mp3",
+    "HMC:04_ting_chuong/bup_tram_hien_khung_02.wav",
+    "TR:04_UI_Pops_Clicks_Notifications/43_Clean_Bubble_Pop_A4.wav",
+    "SC:ui/pop.mp3",
+    "MK:02_pop/pop_dry_soft_02.wav",
+    "SC:ui/ui-popup-dry.mp3"
+   ],
+   "max_dur": 0.3
+  },
+  "riser": {
+   "tier": "mid",
+   "align": "onset",
+   "trim": true,
+   "why": "dồn trước chuỗi cắt tăng tốc",
+   "files": [
+    "HMC:02_tu_luc_cao_trao/tieng_dien_tu_vut_len_01.mp3",
+    "HMC:02_tu_luc_cao_trao/tieng_dien_tu_vut_len_02.wav",
+    "HMC:02_tu_luc_cao_trao/tieng_on_tu_luc_ngan_01.wav",
+    "HMC:02_tu_luc_cao_trao/tieng_on_tu_luc_ngan_02.mp3",
+    "TR:03_Risers_Swells_Tension/31_Short_White_Noise_Riser_06s.wav",
+    "MK:05_riser/riser_trailer_short_01.wav"
+   ],
+   "bed": true
+  },
+  "shutter": {
+   "tier": "soft",
+   "align": "onset",
+   "max_dur": 0.5,
+   "why": "lớp màn trập chồng lên flash (mẫu 1cho: thump + shutter)",
+   "files": [
+    "HMC:07_may_anh_chop_sang/man_trap_may_anh_01.mp3",
+    "HMC:07_may_anh_chop_sang/man_trap_may_anh_02.wav",
+    "TR:06_Camera_Paper_Typing_Foley/69_Modern_Mirrorless_Shutter.wav",
+    "MK:08_shutter/shutter_camera_click_01.wav",
+    "MK:08_shutter/shutter_dslr_02.wav",
+    "MK:08_shutter/shutter_vintage_03.wav",
+    "SC:camera/camera-shutter-vintage.mp3",
+    "TR:06_Camera_Paper_Typing_Foley/70_Vintage_Film_Camera_Flash.wav",
+    "SC:camera/camera-lens-shutter.mp3",
+    "SC:camera/click-camera.mp3"
+   ],
+   "transition": true
+  },
+  "film": {
+   "tier": "mid",
+   "align": "onset",
+   "offset": -0.25,
+   "max_dur": 0.75,
+   "why": "cuộn phim cũ / máy chiếu (overlay film roll)",
+   "files": [
+    "SC:film/projector-spin-antique.mp3",
+    "TR:06_Camera_Paper_Typing_Foley/80_8mm_Film_Projector_Spin.wav"
+   ],
+   "transition": true
+  },
+  "suck_in": {
+   "tier": "big",
+   "align": "peak",
+   "max_pre": 0.4,
+   "transition": true,
+   "why": "tiếng hút / vút dồn vào đúng điểm cắt (đỉnh ở khung sáng nhất) — để nghe rõ chuyển cảnh",
+   "files": [
+    "TR:03_Risers_Swells_Tension/32_Reverse_Cymbal_Suck_In.wav",
+    "MK:05_riser/riser_reverse_hit_03.wav",
+    "TR:03_Risers_Swells_Tension/40_Reverse_Sub_Impact_Suck.wav",
+    "TR:02_Whooshes_Swishes_WhipPans/24_Swoop_Up_Ascending_Zoom.wav"
+   ]
+  }
+ },
+ "opening": {
+  "_doc": "SFX mở đầu khung 0 (rules.md mục 7): mỗi video một cặp khác — sổ luân phiên rotation.py cấp chỉ số, không có thì theo tên video",
+  "pairs": [
+   [
+    "TR:03_Risers_Swells_Tension/41_Electric_Charge_Power_Up.wav",
+    "SC:ui/switch-click-quick.mp3"
+   ],
+   [
+    "TR:02_Whooshes_Swishes_WhipPans/17_Snap_Whoosh_Micro_Swish.wav",
+    "TR:04_UI_Pops_Clicks_Notifications/45_Crisp_UI_Tick_E6.wav"
+   ],
+   [
+    "TR:07_Glitches_Cyber_Interrupts/81_Short_Digital_Glitch_Stutter.wav",
+    "SC:scifi/hitech-bleep.mp3"
+   ],
+   [
+    "SC:camera/camera-lens-shutter.mp3",
+    "SC:light/sparkle-touch.mp3"
+   ],
+   [
+    "TR:06_Camera_Paper_Typing_Foley/72_Mechanical_Keyboard_Burst.wav",
+    "TR:01_Impacts_Booms_SubDrops/03_Soft_Low_End_Thud.wav"
+   ],
+   [
+    "SC:data/sweep-digital.mp3",
+    "SC:ui/ui-select-click.mp3"
+   ],
+   [
+    "HMC:01_vut_gio_chuyen_canh/vut_ngan_khung_truot_vao_01.wav",
+    "HMC:04_ting_chuong/bup_ting_hien_the_01.wav"
+   ],
+   [
+    "HMC:01_vut_gio_chuyen_canh/vut_lia_may_nhanh_01.wav",
+    "HMC:03_bum_va_cham/va_cham_bat_logo_01.wav"
+   ],
+   [
+    "HMC:06_nhieu_ky_thuat_so/tach_nhieu_gat_01.mp3",
+    "HMC:04_ting_chuong/ting_chuong_kim_loai_01.wav"
+   ],
+   [
+    "HMC:07_may_anh_chop_sang/man_trap_may_anh_01.mp3",
+    "HMC:03_bum_va_cham/bum_tram_chuyen_canh_01.mp3"
+   ]
+  ]
+ }
+}

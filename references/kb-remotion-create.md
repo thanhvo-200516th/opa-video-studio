@@ -1,0 +1,119 @@
+# kb-remotion-create — toàn văn tài liệu của nguồn `remotion-create`
+
+> Trong `opa-video-studio`: mọi chỗ nhắc tới skill/mô-đun khác ("nạp X", "dùng skill X", `modules/X/MODULE.md`) = đọc `references/kb-X.md` trong chính skill này. Code / dữ liệu của nguồn này (nếu có) nằm ở `scripts/apps/remotion-create/` (riêng nguồn lõi `master-video-edit`: `scripts/`, `assets/`, `tests/`). Nội dung dưới đây giữ NGUYÊN VĂN bản gốc; luật hiện hành và cách giải mâu thuẫn nằm ở `references/rules-full.md` + `rules.json`.
+
+<!-- ===== file: remotion-create/SKILL.md ===== -->
+
+---
+name: remotion-create
+description: Create a new Remotion video
+version: 4.0.539
+---
+
+These are instructions for making a new Remotion project and composition.  
+If this is not the next task, see Remotion Best Practices
+
+## Scaffold a project
+
+If a project already exists, skip this.
+Ensure Node.js and Git is installed, and the current folder is appropriate for starting a new project.
+
+Inspect the current folder, including hidden files, before choosing where to scaffold.
+
+### Empty folder
+
+If it is empty, or contains only disposable operating-system metadata such as `.DS_Store`, create the project directly in the current folder.
+Remove only those disposable metadata files first, since `create-video` rejects non-empty folders.
+Do not treat all hidden files as disposable: files such as `.env` and directories such as `.git` are meaningful contents.
+
+Scaffold in existing folder:
+
+```bash
+npx create-video@latest --yes --blank --no-tailwind .
+npm i
+```
+
+### Non-empty folder
+
+If the current folder contains meaningful contents and no project already exists, scaffold into a new subfolder.
+Replace `my-video` with a suitable project name.
+
+```bash
+npx create-video@latest --yes --blank --no-tailwind my-video
+cd my-video
+npm i
+```
+
+## Open the preview before building the video
+
+As soon as the project can run, open Remotion Studio in the browser before writing or changing the composition. For a new project, do this immediately after scaffolding and installing dependencies. For an existing project, do it before editing the video. Keep Studio running while you work so the user can see changes as they appear and steer the result.
+
+## Designing a video
+
+Keep the scaffold and add React Markup.
+Follow Remotion React Markup Best Practices and [Video Layout Rules](video-layout.md) for video-first layout and text sizing guidance.
+
+Before writing the root that registers `<Composition>` or `<Still>` elements,
+follow Compositions and stills.
+
+## Is this a timeline of clips?
+
+If the video arranges multiple video or audio clips on a timeline, follow
+Video editing before writing the
+timeline. Give every clip that should be edited independently its own authored
+JSX node.
+
+## Is this a multi-scene video?
+
+If this is a video with multiple subsequent scenes, follow guidance at Multi-scene videos.
+
+## Interactivity Best Practices
+
+By structuring the React Markup following Remotion Interactivity Best Practices, you allow the user to make edits in the Studio which write back to code.
+
+## TailwindCSS
+
+If Tailwind is requested, see [tailwind.md](tailwind.md) for using TailwindCSS in Remotion.
+
+## Follow-up
+
+The video creation process has finished.
+For follow-up prompts, use Remotion Best Practices
+
+<!-- craft-handoff:start -->
+## Mở và sửa tiếp trong FilmCraft / EffectCraft
+
+Khi user muốn sửa tiếp trong FilmCraft hoặc EffectCraft, không giao một MP4 phẳng: viết timeline spec rồi dùng skill `craft-handoff` dựng project gốc (`.fcproj` / `.ecproj`) có đủ track, clip, keyframe, chữ, effect và SFX. Với skill này: mỗi `<Sequence>` / phần tử thành một clip: `<Video>`/`<Audio>`/`<Img>` đặt file gốc kèm in/dur, phần vẽ bằng React render ProRes 4444 nền trong suốt. Chi tiết: `craft-handoff/references/skills-map.md`.
+<!-- craft-handoff:end -->
+
+<!-- ===== /file: remotion-create/SKILL.md ===== -->
+
+<!-- ===== file: remotion-create/tailwind.md ===== -->
+
+---
+name: tailwind
+description: Using TailwindCSS in Remotion.
+metadata:
+---
+
+You can and should use TailwindCSS in Remotion, if TailwindCSS is installed in the project.
+
+Don't use `transition-*` or `animate-*` classes - always animate using the `useCurrentFrame()` hook.
+
+Tailwind must be installed and enabled first in a Remotion project - see https://www.remotion.dev/docs/tailwind.
+
+<!-- ===== /file: remotion-create/tailwind.md ===== -->
+
+<!-- ===== file: remotion-create/video-layout.md ===== -->
+
+You are designing a video, not a webpage.
+
+- Decide what the viewer should notice first in each scene. Build the frame around that one thing.
+- Keep important content inside a generous safe area. For 1080px-wide videos, keep key text at least 80px from the sides and 100px from the top and bottom.
+- Do not add redundant elements.
+- For 1080px-wide compositions, use these rough minimums:
+  - Main headline: 84px
+  - Important supporting text: 44px
+- Scale those values with the composition width.
+
+<!-- ===== /file: remotion-create/video-layout.md ===== -->

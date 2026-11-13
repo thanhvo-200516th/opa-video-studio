@@ -1,0 +1,36 @@
+{
+  "name": "craft-handoff demo",
+  "width": 1080, "height": 1920, "fps": 25,
+  "tracks": [
+    {"type": "video", "name": "V1 A-roll", "clips": [
+      {"src": "/home/vmiz/Thanh/Media/Footage_Mau_Thu_Nghiem/api hegen/kb 3.mp4", "name": "Hook", "at": 0.0, "in": 0.0, "dur": 4.0,
+       "motion": {"scale": [[0, 100], [0.4, 112, "easeIn"], [4.0, 115]]}},
+      {"src": "/home/vmiz/Thanh/Media/Footage_Mau_Thu_Nghiem/api hegen/kb 3.mp4", "name": "Y2", "at": 4.0, "in": 10.0, "dur": 4.0,
+       "transition_in": {"effect": "cross_dissolve", "frames": 8}},
+      {"src": "/home/vmiz/Thanh/Media/Footage_Mau_Thu_Nghiem/api hegen/kb 3.mp4", "name": "Y3", "at": 8.0, "in": 30.0, "dur": 4.0,
+       "motion": {"scale": [[0, 118], [0.3, 104, "easeIn"]]},
+       "effects": [{"effect": "lumetri", "params": {"exposure": [[0, 0.6], [0.5, 0]]}}]}
+    ]},
+    {"type": "video", "name": "V2 PiP", "clips": [
+      {"src": "/home/vmiz/Thanh/Media/Footage_Mau_Thu_Nghiem/api hegen/a huy.png", "name": "PiP anh", "at": 4.5, "dur": 3.0,
+       "motion": {"scale": 25, "position": [[0, [820, 2100]], [0.4, [820, 1500], "easeIn"]]},
+       "opacity": [[0, 0], [0.3, 100], [2.7, 100], [3.0, 0]],
+       "effects": [{"effect": "drop_shadow", "params": {}}]}
+    ]},
+    {"type": "text", "name": "V3 Title", "clips": [
+      {"text": "TƯ DUY AI", "at": 0.4, "dur": 3.2, "font": "Be Vietnam Pro", "style": "ExtraBold", "size": 130,
+       "color": "#FFD43B", "align": "center", "position": [540, 520],
+       "stroke": {"color": "#000000", "width": 8},
+       "motion": {"scale": [[0, 80], [0.35, 100, "easeIn"]]},
+       "opacity": [[0, 0], [0.2, 100], [3.0, 100], [3.2, 0]]}
+    ]},
+    {"type": "audio", "name": "A1 Voice", "clips": []},
+    {"type": "audio", "name": "A2 SFX", "clips": [
+      {"src": "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/ShotCraft_SFX/data/whoosh-electric.mp3", "at": 3.85, "gain_db": -8, "dur": 0.6},
+      {"src": "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/ShotCraft_SFX/ui/pop.mp3", "at": 4.5, "gain_db": -10},
+      {"src": "/home/vmiz/Thanh/Media/TNEDIT/02_SFX/ShotCraft_SFX/data/whoosh-electric.mp3", "at": 7.85, "gain_db": -8}
+    ]}
+  ],
+  "captions": {"srt": "/home/vmiz/.claude/skills/craft-handoff/examples/demo.srt"},
+  "markers": [{"at": 4.0, "name": "Cut 2"}, {"at": 8.0, "name": "Cut 3"}]
+}

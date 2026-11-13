@@ -1,0 +1,448 @@
+{
+  "schema": "edit/1.1",
+  "hook": {
+    "text": "20 LẦN",
+    "color": "warn",
+    "hit_word": 7
+  },
+  "blocks": [
+    {
+      "id": "b1",
+      "top": [
+        0,
+        3
+      ],
+      "hero": [
+        3,
+        5
+      ],
+      "bottom": null,
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b2",
+      "top": [
+        5,
+        7
+      ],
+      "hero": [
+        7,
+        9
+      ],
+      "bottom": null,
+      "style": "stomp",
+      "color": "warn",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b3",
+      "top": null,
+      "hero": [
+        9,
+        14
+      ],
+      "bottom": [
+        14,
+        21
+      ],
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {
+        "18": "NĂM"
+      },
+      "reveal": false
+    },
+    {
+      "id": "b4",
+      "top": [
+        21,
+        27
+      ],
+      "hero": [
+        27,
+        32
+      ],
+      "bottom": null,
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b5",
+      "top": [
+        32,
+        36
+      ],
+      "hero": [
+        36,
+        40
+      ],
+      "bottom": null,
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b6",
+      "top": null,
+      "hero": [
+        40,
+        44
+      ],
+      "bottom": [
+        44,
+        49
+      ],
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b7",
+      "top": [
+        49,
+        52
+      ],
+      "hero": [
+        52,
+        55
+      ],
+      "bottom": null,
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b8",
+      "top": [
+        55,
+        62
+      ],
+      "hero": [
+        62,
+        64
+      ],
+      "bottom": null,
+      "style": "stomp",
+      "color": "warn",
+      "accent": null,
+      "display": {},
+      "reveal": false,
+      "hero_row": true
+    },
+    {
+      "id": "b9",
+      "top": [
+        64,
+        65
+      ],
+      "hero": [
+        65,
+        67
+      ],
+      "bottom": null,
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b10",
+      "top": [
+        76,
+        80
+      ],
+      "hero": [
+        80,
+        82
+      ],
+      "bottom": [
+        82,
+        88
+      ],
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b11",
+      "top": [
+        88,
+        93
+      ],
+      "hero": [
+        93,
+        95
+      ],
+      "bottom": [
+        95,
+        98
+      ],
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {
+        "91": "BA"
+      },
+      "reveal": false
+    },
+    {
+      "id": "b12",
+      "top": [
+        98,
+        106
+      ],
+      "hero": [
+        106,
+        108
+      ],
+      "bottom": [
+        108,
+        113
+      ],
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b13",
+      "top": [
+        113,
+        123
+      ],
+      "hero": [
+        123,
+        127
+      ],
+      "bottom": null,
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b14",
+      "top": [
+        127,
+        129
+      ],
+      "hero": [
+        129,
+        133
+      ],
+      "bottom": null,
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b15",
+      "top": null,
+      "hero": [
+        133,
+        136
+      ],
+      "bottom": [
+        136,
+        147
+      ],
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b16",
+      "top": [
+        147,
+        153
+      ],
+      "hero": [
+        153,
+        156
+      ],
+      "bottom": null,
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    },
+    {
+      "id": "b17",
+      "top": [
+        156,
+        159
+      ],
+      "hero": [
+        159,
+        162
+      ],
+      "bottom": null,
+      "style": "script",
+      "color": "ink",
+      "accent": null,
+      "display": {},
+      "reveal": false
+    }
+  ],
+  "steps": {
+    "title": "NẾU MỖI ẢNH",
+    "items": [
+      {
+        "range": [
+          67,
+          69
+        ],
+        "label": "Đổi màu"
+      },
+      {
+        "range": [
+          69,
+          72
+        ],
+        "label": "Đổi hình dáng"
+      },
+      {
+        "range": [
+          72,
+          76
+        ],
+        "label": "Đổi phong cách"
+      }
+    ]
+  },
+  "shots": [
+    {
+      "cut_at_word": 0,
+      "s0": 1.0,
+      "s1": 1.04,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 7,
+      "s0": 1.16,
+      "s1": 1.2,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 14,
+      "s0": 1.0,
+      "s1": 1.04,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 21,
+      "s0": 1.16,
+      "s1": 1.2,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 36,
+      "s0": 1.0,
+      "s1": 1.04,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 49,
+      "s0": 1.0,
+      "s1": 1.04,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 64,
+      "s0": 1.18,
+      "s1": 1.22,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 76,
+      "s0": 1.16,
+      "s1": 1.2,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 88,
+      "s0": 1.0,
+      "s1": 1.04,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 98,
+      "s0": 1.0,
+      "s1": 1.04,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 113,
+      "s0": 1.16,
+      "s1": 1.2,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 127,
+      "s0": 1.0,
+      "s1": 1.04,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 133,
+      "s0": 1.0,
+      "s1": 1.04,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "cut_at_word": 147,
+      "s0": 1.06,
+      "s1": 1.2,
+      "x": 0.0,
+      "y": 0.0
+    }
+  ],
+  "cta": {
+    "range": [
+      147,
+      162
+    ],
+    "label": "Bình luận",
+    "keyword": "5 TÀI SẢN"
+  },
+  "broll": []
+}

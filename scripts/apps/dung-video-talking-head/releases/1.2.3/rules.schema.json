@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dung-video-talking-head/releases/1.2.3/rules.schema.json",
+  "title": "Bo luat dung-video-talking-head 1.2.3",
+  "type": "object",
+  "required": ["version", "params", "sources"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "params": {
+      "type": "object",
+      "required": [
+        "fps", "sr", "audio", "sfx", "presets", "default_preset", "loudness",
+        "voice", "bgm", "end", "text", "safe_zone", "mapping", "xcorr_max_ms",
+        "budgets", "models", "batch",
+        "face",
+        "plan",
+        "broll"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "fps": {"type": "number"},
+        "sr": {"type": "number"},
+        "audio": {"type": "object"},
+        "sfx": {"type": "object"},
+        "presets": {"type": "object"},
+        "default_preset": {"type": "string"},
+        "loudness": {"type": "object"},
+        "voice": {"type": "object"},
+        "bgm": {"type": "object"},
+        "end": {"type": "object"},
+        "text": {"type": "object"},
+        "safe_zone": {"type": "object"},
+        "mapping": {"type": "object"},
+        "xcorr_max_ms": {"type": "number"},
+        "budgets": {"type": "object"},
+        "models": {"type": "object"},
+        "batch": {"type": "object"},
+        "face": {"type": "object"},
+        "plan": {"type": "object"},
+        "broll": {"type": "object"}
+      }
+    },
+    "sources": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["label", "confidence"],
+        "additionalProperties": false,
+        "properties": {
+          "label": {"type": "string", "minLength": 1},
+          "confidence": {"enum": ["high", "medium", "low"]}
+        }
+      }
+    }
+  }
+}
