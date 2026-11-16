@@ -385,5 +385,169 @@
     "glow_text": "Chữ phát sáng khi nói về glow (chữ minh hoạ chính hiệu ứng)",
     "strobe_grade": "Đổi 2 kiểu màu của cùng clip mỗi 4–5 khung rồi chậm dần trước khi lộ kết quả",
     "fake_3d_text": "Chữ nghiêng phối cảnh rotateY −15°, rotateZ −5°"
+  },
+  "nov_2026_updates": {
+    "_studied_videos": [
+      "7706183278461570356 (2026-11-09, 1440x1080 @ 24fps, 61.14s, 279.2 WPM, shot_median 3.21s)",
+      "7707653827016674580 (2026-11-13, 1440x1080 @ 30fps, 57.21s, 297.2 WPM, shot_median 1.20s)"
+    ],
+    "_study_doc": "references/dviet-slow-text-study.md",
+    "canvas_evolution": {
+      "storytelling_4x3": {
+        "w": 1440,
+        "h": 1080,
+        "fps": 24
+      },
+      "tutorial_4x3": {
+        "w": 1440,
+        "h": 1080,
+        "fps": 30
+      }
+    },
+    "typography_shift": {
+      "rule": "100% Unified Sans-Serif nén ngang (loại bỏ hoàn toàn Playfair Display Bold Italic & Great Vibes script ở cả 2 video 11/2026).",
+      "scale_x_pct": [
+        78,
+        85
+      ],
+      "tracking_condensed": [
+        -45,
+        -70
+      ],
+      "case": "lower",
+      "context_px_on_1080h": [
+        61,
+        79
+      ],
+      "keyword_px_on_1080h": [
+        108,
+        140
+      ],
+      "card_keyword_px_on_1080h": 212,
+      "keyword_to_context_ratio": [
+        1.8,
+        3.2
+      ],
+      "watermark_bg": {
+        "size_px_on_1080h": [
+          280,
+          360
+        ],
+        "opacity_pct": [
+          5,
+          10
+        ],
+        "blur_px": [
+          4,
+          8
+        ],
+        "note": "Chữ tiếng Việt cỡ đại mờ chìm làm nền cho motion-graphic cards ('cắt', 'cắt cứng', 'âm thanh', 'khớp hình')."
+      }
+    },
+    "palette_nov_2026": {
+      "story_amber_dark": "#E7BC11",
+      "story_yellow_sun": "#FAE616",
+      "story_sun_highlight": "#F5CE88",
+      "tech_mint_neon": "#3EED9C",
+      "tech_mint_glow": "#45EDA0",
+      "dark_card_bg": "#072816",
+      "light_card_bg": "#E6ECD6",
+      "light_card_ink": "#347A53"
+    },
+    "lighting_and_depth": {
+      "halation_instead_of_shadow": "Bỏ drop shadow đen (#000000); dùng Wonder Glow / Optical Halation cùng màu chữ (radius 14–22px, intensity 30–45) kể cả chữ trắng nhẹ.",
+      "peripheral_lens_blur": "Mờ xuyên tâm 4 góc mạnh + vignette tối từ ngoài rìa ~55% tâm khung.",
+      "negative_space_placement": "Chữ talking head dời khỏi ngực giữa sang vùng trống âm bên trái/phải mặt (x=12–42% hoặc 58–88%, y=22–52%).",
+      "curved_and_3d_ring": "Chữ uốn cung tròn ôm đầu (7706183 t=17.2–19.3s, 7707653 t=0.8–3.2s) hoặc vòng 3D xoay quanh đỉnh đầu (7707653 t=43.0–43.7s).",
+      "depth_occlusion": "Chữ nhấn đặt sau lưng chủ thể rotoscope hoặc bị vật tiền cảnh (thân cây) lướt qua che khuất (7706183 t=13.9–15.8s, 35.4–36.2s)."
+    },
+    "text_motion_new": {
+      "typewriter_glitch_cursor": {
+        "dur": 0.5,
+        "short_dur": 0.2,
+        "note": "Giải mã ký tự ngẫu nhiên + con trỏ | nhấp nháy ('âm thanh' 0.50s ở t=22.88s, 'effect' 0.20s ở t=5.10s)"
+      },
+      "vertical_echo_stack": {
+        "slide_in": 0.25,
+        "echo_hold": 0.75,
+        "note": "Nhân bản xếp chồng 3–4 lớp lên trên minh họa nghĩa đen từ khóa ('chồng lên' ở t=24.13s)"
+      },
+      "blur_out_clean": {
+        "dur": 0.17,
+        "note": "Gaussian blur + opacity -> 0 thay cho hard cut"
+      },
+      "particle_shatter_out": {
+        "dur": 0.42,
+        "note": "Tan thành hạt trước khi chuyển cảnh (7707653 t=2.83–3.25s)"
+      }
+    },
+    "audio_nov_2026": {
+      "story_lufs_I": -11.3,
+      "tutorial_motion_lufs_I": -16.7,
+      "tutorial_lra": 2.0,
+      "tutorial_true_peak": -3.1,
+      "note": "Video hướng dẫn motion graphics mới giảm loudness xuống -16.7 LUFS dịu tai hơn mức -10.7..-13.8 LUFS trước 10/2026."
+    }
+  },
+  "slow_text": {
+    "_principle": "Slow Text của @__dviet không giảm WPM nói (vẫn ~279 WPM), mà tách nhịp chữ khỏi nhịp âm tiết: gom thành cụm 2–3 tầng giữ lâu 1.5–2.7s tại 1 điểm neo, vào/ra bằng opacity ramp hoặc staggered letter 0.25–0.50s, cross-dissolve chồng pha và giữ chữ sống xuyên qua điểm cắt cảnh.",
+    "speaking_wpm_story": 279.2,
+    "shot_median_s": 3.21,
+    "shot_max_s": 15.71,
+    "phrase_dwell_s": {
+      "median": 2.25,
+      "range": [
+        1.5,
+        2.7
+      ],
+      "note": "Tăng mạnh so với 1.3s trung vị trước 10/2026; loại bỏ caption 1–3 từ nhảy từng nhịp."
+    },
+    "in_animations": {
+      "slow_opacity_bloom": {
+        "dur": 0.38,
+        "range": [
+          0.33,
+          0.45
+        ],
+        "opacity_from": 0.15,
+        "gaussian_blur_from": 14,
+        "slide_px": 0,
+        "ease": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "examples": [
+          "7706183 t=3.17–3.58s ('chán', 0.42s)",
+          "7706183 t=25.63–25.97s ('tia hy vọng', 0.33s đồng bộ vệt nắng)"
+        ]
+      },
+      "staggered_letter_random": {
+        "dur": 0.33,
+        "range": [
+          0.25,
+          0.42
+        ],
+        "char_stagger_s": 0.025,
+        "order": "random",
+        "gaussian_blur_from": 8,
+        "examples": [
+          "7706183 t=52.00–53.67s ('mình chỉ chắc' 0.25s, 'một điều' 0.33s, 'từ giờ' 0.42s)"
+        ]
+      }
+    },
+    "out_animations": {
+      "cross_dissolve_swap": {
+        "overlap_dur": [
+          0.25,
+          0.42
+        ],
+        "note": "Cụm cũ mờ dần (opacity 100->0 + blur 10px) chồng lên cụm mới hiện vào, thay cho hard swap."
+      },
+      "ghost_bg_fade": {
+        "dur": 0.5,
+        "note": "Từ khóa phủ định giữ mờ lùi về nền trong 0.50s khi câu tiếp theo xuất hiện (7707653 t=7.80–8.30s 'không.')."
+      }
+    },
+    "cross_cut_persistence": {
+      "enabled": true,
+      "note": "Giữ cụm chữ sống xuyên qua hard cut / whip cut (7706183 t=19.33s 'cơn nhức đầu', t=54.83–55.80s 'những sản phẩm') để triệt tiêu cảm giác cắt gắt."
+    }
   }
 }
