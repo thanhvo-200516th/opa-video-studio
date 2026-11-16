@@ -190,7 +190,7 @@ def main() -> None:
     items, _ = run_checks(m, sp)
     h5 = next(r for r in items if r["id"] == "broll_h5")
     assert h5["status"] == "WARN" and h5["scenes"] == [3], h5          # tiếng Việt → chỉ WARN
-    m["segments"][2]["broll_prompt"] = "Medium shot of a relaxed Vietnamese business owner shaking hands with the founder in a bright meeting room. Warm daylight"
+    m["segments"][2]["broll_prompt"] = "Medium shot of a relaxed Vietnamese business owner shaking hands with the founder, seen over the shoulder, in a bright meeting room. Warm daylight"
     items, _ = run_checks(m, sp)
     assert status(items, "broll_h5") == "OK" and status(items, "script_source") == "OK", items
     with tempfile.TemporaryDirectory() as td:

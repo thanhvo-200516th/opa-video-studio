@@ -19,7 +19,7 @@ import render_muse_broll as rmb  # noqa: E402
 TTS3 = "Anh em nhìn cách bọn mình vận hành. Minh và khối kỹ thuật tập trung tối đa vào việc rèn giũa sản phẩm sao cho sắc bén nhất."
 ANCHOR3 = "Minh và khối kỹ thuật tập trung tối đa vào việc rèn giũa sản phẩm"
 GOOD3 = ("Slow push-in on a young Vietnamese engineering team in a bright modern office, three colleagues shoulder to shoulder at monitors, "
-         "intensely focused on sharpening a product. Screens angled away, only a soft glow visible. Warm daylight, shallow depth of field.")
+         "intensely focused on sharpening a product, the monitors blurred and out of focus in the foreground. Warm daylight, shallow depth of field.")
 
 
 def ff(args: list[str]) -> None:
@@ -72,12 +72,27 @@ def main() -> None:
     }
     for text, why in bad.items():
         assert bf.lint_prompt(text), (why, text)
-    assert bf.lint_prompt("A designer in a bright modern office reviews a product box with warm daylight, shallow focus.") == []
+    assert bf.lint_prompt("A Vietnamese designer in a bright modern office reviews a product box with warm daylight, shallow focus.") == []
+    # v3.1 (Flow 2026-11-14): "angled away" không đủ — Flow vẫn vẽ logo; người nói / founder không lộ mặt; bảng trắng / giấy phải mờ
+    flow_bad = {
+        "Three engineers at monitors in a bright office, screens angled away with a soft glow, warm daylight, shallow focus.": "màn hình",
+        "A founder in a dark polo talks calmly with a client across a wooden table in a bright modern office.": "người nói",
+        "A team brainstorms around a whiteboard in a bright modern office, warm daylight, handheld camera, shallow focus.": "màn hình",
+        "A failed project desk transitions from chaos to two men shaking hands in a bright modern office, warm light.": "một cảnh",
+        "A busy kitchen crew plates dishes, picture-in-picture of the host in the corner, warm light, slow push-in.": "một cảnh",
+        "A tired young woman rubs her eyes at a cluttered desk late at night, warm lamp light, slow push-in.": "Vietnamese",
+    }
+    for text, why in flow_bad.items():
+        assert any(why in p for p in bf.lint_prompt(text)), (why, bf.lint_prompt(text))
+    assert bf.lint_prompt("A Vietnamese founder seen from behind, over the shoulder, listens to a client across a wooden table in a bright office.") == []
     assert bf.lint_prompt(GOOD3, TTS3, "một câu không có trong lời cảnh") and bf.lint_prompt(GOOD3, TTS3, None)
     assert bf.lint_prompt(GOOD3, TTS3, "minh và KHỐI kỹ thuật, tập trung tối đa") == []      # chuẩn hoá hoa/thường/dấu câu
     assert bf.core_of(f"{GOOD3} ({rmb.BROLL_STRICT_SUFFIX_EN})") == GOOD3
     assert [bf.request_seconds(v) for v in (7.31, 9.74, 5.67, 1.0)] == [8, 10, 6, 2]
-    print("ok  lint H5 + request_seconds")
+    assert [bf.flow_seconds(v) for v in (7.31, 9.74, 5.67, 18.02, 1.0)] == [8, 11, 6, 15, 3]
+    assert bf.flow_credits(8, 2) == 48 and bf.flow_credits(10, 1) == 30          # 720p 3 tín dụng/s, nâng 1080p miễn phí ≤ 10 s
+    assert bf.flow_credits(15, 2) == 2 * 60 + 5                                    # 11–15 s: 6 tín dụng/s, nâng 1080p 1 tín dụng/s
+    print("ok  lint H5 + request_seconds + flow_seconds / flow_credits")
 
     # --- render_muse_broll vá
     with tempfile.TemporaryDirectory() as td:
@@ -136,6 +151,31 @@ def main() -> None:
         assert GOOD3 in (f / "00_BANG_PHAN_CANH.md").read_text(encoding="utf-8")
         assert not rmb.h5_problems([(f, i3)]) and rmb.h5_problems([(f, i4)])
         print("ok  prepare: dry-run / lint chặn / sao lưu / viết lại prompts + manifest")
+
+        # --- prepare --source flow: ghi đúng nguồn, giây theo mức Flow
+        newp4 = root / "p4.json"
+        newp4.write_text(json.dumps([{"seq": 4, "prompt": GOOD3, "anchor_quote": ANCHOR3}], ensure_ascii=False), encoding="utf-8")
+        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newp4), "--source", "flow", "--backup-root", str(backup_root)],
+                           capture_output=True, text=True)
+        assert r.returncode == 0, r.stdout + r.stderr
+        i4 = json.loads((f / "prompts_muse_veo_broll.json").read_text(encoding="utf-8"))[1]
+        m4 = json.loads((f / "00_storyboard_manifest.json").read_text(encoding="utf-8"))["segments"][1]
+        assert i4["source"] == "flow" and m4["broll_source"] == "flow" and i4["duration_target_sec"] == 3, (i4, m4)
+        assert i4["prompt_full"] == GOOD3                                           # Flow: gõ lõi prompt, không nối đuôi "NO text…"
+        r = subprocess.run([*cli, "plan", str(f), "--engine", "flow"], capture_output=True, text=True)
+        assert r.returncode == 0 and "Flow" in r.stdout and "tín dụng" in r.stdout, r.stdout + r.stderr
+        # --- prepare --keep-clips: chỉ ghi prompt cuối vào manifest / prompts, clip đang dùng giữ nguyên
+        make_clip(f / "04_b-roll-10.mp4", "testsrc", 3)
+        GOOD4 = GOOD3.replace("Slow push-in", "Gentle handheld drift")
+        newk = root / "pk.json"
+        newk.write_text(json.dumps([{"seq": 4, "prompt": GOOD4, "anchor_quote": ANCHOR3}], ensure_ascii=False), encoding="utf-8")
+        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newk), "--source", "flow", "--keep-clips",
+                            "--backup-root", str(backup_root)], capture_output=True, text=True)
+        assert r.returncode == 0, r.stdout + r.stderr
+        assert (f / "04_b-roll-10.mp4").exists(), "keep-clips đã chuyển clip đi"
+        m4 = json.loads((f / "00_storyboard_manifest.json").read_text(encoding="utf-8"))["segments"][1]
+        assert m4["visual_direction"] == GOOD4 and m4["broll_source"] == "flow", m4
+        print("ok  prepare --source flow + plan --engine flow")
 
         # --- verify (lib giả để khỏi quét thư viện thật)
         lib = root / "lib"

@@ -23,7 +23,7 @@ import subprocess
 import time
 from pathlib import Path
 
-BIN_DIR = Path(os.environ.get("CRAFT_BIN_DIR", "/home/vmiz/.local/bin"))
+BIN_DIR = Path(os.environ.get("CRAFT_BIN_DIR", str(Path.home() / ".local/bin")))
 DEFAULT_DISPLAY = os.environ.get("CRAFT_DISPLAY", ":93")
 START_TIMEOUT_S = 60
 TICKS_PER_SECOND = 254_016_000_000          # FilmCraft time unit (same as Premiere)
@@ -47,16 +47,18 @@ def ensure_display(display: str = DEFAULT_DISPLAY) -> str:
     """Start a Xephyr server on `display` unless an X server already answers there."""
     if Path(f"/tmp/.X11-unix/X{display.lstrip(':')}").exists():
         return display
-    if not shutil.which("Xephyr"):
-        raise CraftError(f"no X server on {display} and Xephyr is not installed")
-    subprocess.Popen(["setsid", "Xephyr", display, "-screen", "1280x800", "-ac", "-title", "craft-handoff"],
+    server = os.environ.get("CRAFT_X_SERVER") or ("Xephyr" if shutil.which("Xephyr") else "Xvfb")   # Xvfb: server/Docker không màn hình
+    if not shutil.which(server):
+        raise CraftError(f"no X server on {display} and {server} is not installed")
+    extra = ["-title", "craft-handoff"] if server == "Xephyr" else []
+    subprocess.Popen(["setsid", server, display, "-screen", *(["1280x800"] if server == "Xephyr" else ["0", "1280x800x24"]), "-ac", *extra],
                      stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                      start_new_session=True)
     for _ in range(50):
         if Path(f"/tmp/.X11-unix/X{display.lstrip(':')}").exists():
             return display
         time.sleep(0.1)
-    raise CraftError(f"Xephyr did not start on {display}")
+    raise CraftError(f"{server} did not start on {display}")
 
 
 class Craft:

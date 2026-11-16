@@ -3,15 +3,16 @@ name: opa-video-studio
 description: >-
   Skill DUY NHẤT, tự đủ, cho mọi việc edit video của người dùng: dựng / sửa video talking head và video
   thương hiệu trên FilmCraft (.fcproj) hoặc EffectCraft (.ecproj); phân tích kịch bản tách A-Roll (HeyGen)
-  / B-Roll (Muse, không giọng không chữ) thành thư mục đánh số 01_a-roll-1.mp4, 02_b-roll-1.mp4 + báo cáo;
+  / B-Roll (Muse / Google Flow MCP, không giọng không chữ) thành thư mục đánh số 01_a-roll-1.mp4, 02_b-roll-1.mp4 + báo cáo;
+  tìm B-roll kho TNEDIT/06_B-Roll + Pexels/Pixabay/Mixkit bằng CLIP (auto-footage);
   phụ đề 2 dòng, 24 hiệu ứng chữ, chữ sau đầu, chuyển cảnh theo điểm cắt, zoom, nhấn từ khoá nỗi đau,
   SFX mở đầu, nhạc nền, cân mức âm thanh (giọng −3…−5 dBFS, nhạc thấp hơn giọng 15–20 LU, SFX −8…−12 dBFS),
   tách phông xanh, nền studio, chạy theo lô 5 video; kèm kho kiến thức Remotion, HyperFrames, After Effects,
   motion graphics, phim 3D, montage, cắt short, thumbnail, học style kênh mẫu; xuất bảng phân cảnh dựng
   (Edit Blueprint) cho editor dựng tay trên Premiere Pro / After Effects / CapCut. Dùng khi người dùng gọi
   "opa-video-studio", "master-video-edit", "dviet", hoặc nhờ dựng / sửa / edit video, thêm phụ đề, hiệu ứng
-  chữ, chuyển cảnh, SFX, nhạc nền, phân tích kịch bản A-roll B-roll.
-version: 3.0.0
+  chữ, chuyển cảnh, SFX, nhạc nền, phân tích kịch bản A-roll B-roll, tìm / tạo B-roll.
+version: 3.2.0
 standalone: true
 ---
 
@@ -81,26 +82,26 @@ Thông số / ngoại lệ nguyên văn của từng mục dưới đây nằm �
 | Mã | Việc | Dấu hiệu | Làm theo | Đọc thêm (`references/`) |
 |---|---|---|---|---|
 | A | Footage người nói → project FilmCraft | file quay thật (C00xx, IMG_), "dựng talking head" | mục 3 (quy trình chuẩn) | `kb-talking-head-premiere.md`, `kb-dviet-viral-text-audio-edit.md`, `kb-facecammaxxing.md` (VFX quanh người, `scripts/facecam.py`) |
-| B | Video người nói AI (HeyGen) hoặc dự án HyperFrames | file HeyGen, link Studio | mục 3 nếu dựng FilmCraft; HyperFrames theo kb | `kb-hyperframes*.md`, `kb-talking-head-recut.md`, `kb-embedded-captions.md` |
+| B | Video người nói AI (HeyGen) hoặc dự án HyperFrames | file HeyGen, link Studio | mục 3 nếu dựng FilmCraft; HyperFrames theo kb | `kb-hyperframes*.md`, `kb-hyperframes-studio.md`, `kb-hyperframes-registry.md`, `kb-hyperframes-audio.md`, `kb-talking-head-recut.md`, `kb-embedded-captions.md` |
 | C | Lô HeyGen kiểu đã duyệt, giao đội OPA | "lô tiếp theo", "giao OPA" | `kb-opa-delegate.md`; bắt buộc giữ A1 với đội OPA (không render MP4 trước duyệt) | `kb-dung-video-talking-head.md` |
 | D | Promo / explainer không footage | chỉ chữ, ảnh, nhạc, giọng đọc | chọn 1 công cụ theo kb | `kb-hyperframes.md`, `kb-general-video.md`, `kb-remotion-best-practices.md`, `kb-kinetic-typography.md`, `kb-kinetic-reel.md`, `kb-motion-director.md`, `kb-video-talkcraft.md`, `kb-anything2explainer.md`, `kb-manim-video.md` |
 | E | Video sản phẩm từ trang web | URL, landing page | Remotion | `kb-remotion-best-practices.md`, `kb-remotion-25d-motion.md`, `kb-remotion-saas.md` |
 | F | Phim 3D mascot / nhân vật | "3D", mascot OPA | three.js | `kb-mascot-film-3d.md`, `kb-blender-motion-state-inspection.md` |
 | G | Motion graphics AE / EffectCraft | `.jsx`, `.aep`, `.ecproj`, intro logo | ExtendScript / EffectCraft | `kb-ae-script-builder.md`, `kb-ae-template-customizer.md` (cần AE Windows), `kb-ae-logo-intro-reveal.md`, `kb-omni-flash-motion-director.md`, `kb-sketch-to-mobile-ui.md` |
 | H | Sửa bản đã giao | gửi MP4 / project, chỉ lỗi | mục 8 (A3, G6) | — |
-| I | Âm thanh | ồn, vang, nhỏ to, SFX, nhạc | mục 6 | `kb-motion-sfx-audio-mastering.md`, `kb-audio-jingle.md` (nhạc AI, trả phí — hỏi trước) |
+| I | Âm thanh | ồn, vang, nhỏ to, SFX, nhạc | mục 6 | `kb-motion-sfx-audio-mastering.md`, `kb-hyperframes-audio.md` (khi mix âm thanh dự án HyperFrames), `kb-audio-jingle.md` (nhạc AI, trả phí — hỏi trước) |
 | J | Phụ đề / caption | "thêm phụ đề" | FilmCraft: `text_fx` `word_captions` / `MotionFX.captions2` | `kb-remotion-captions.md`, `kb-embedded-captions.md` |
 | K | Cắt, ghép, nén, đổi khung, tải nguồn | trim, concat, 9:16 | ffmpeg | `kb-video-editing.md`, `kb-ffmpeg.md`, `kb-video-download.md`, `kb-video-use.md` |
 | L | Sửa trong OpenChatCut | "trong OpenChatCut" | MCP `openchatcut` (kiểm kết nối trước; hỏng thì báo) | `kb-openchatcut.md`, `kb-talking-head-guide.md` |
 | M | Học style từ kênh / video mẫu | link TikTok / YouTube | `scripts/style_analysis/` | `kb-master-video-edit.md` › style-analysis.md, `kb-video-understand.md`, `kb-storyboard-shot-breakdown.md` |
-| N | Ảnh / clip AI, thumbnail, GIF | B-roll, thumbnail | Muse mặc định (mục 5) | `kb-codex-imagegen.md` (dự phòng, cần đồng ý), `kb-video-thumbnail-generator.md`, `kb-fal-ai-media.md` / `kb-video-shortform.md` (trả phí — hỏi trước) |
+| N | Ảnh / clip AI, B-roll kho / stock, thumbnail, GIF | B-roll, tìm footage, thumbnail | tìm B-roll kho `TNEDIT/06_B-Roll` + Pexels/Pixabay/Mixkit bằng CLIP (`scripts/apps/auto-footage/scripts/footage.py`, venv `~/.venvs/footage/bin/python`, `kb-auto-footage.md`) hoặc tạo AI bằng Muse mặc định (mục 5); Muse hỏng → Google Flow (MCP `google-flow` hoặc trình duyệt Cindy) theo `flow-broll.md` | `flow-broll.md`, `kb-auto-footage.md`, `kb-codex-imagegen.md` (dự phòng, cần đồng ý), `kb-video-thumbnail-generator.md`, `kb-fal-ai-media.md` / `kb-video-shortform.md` (trả phí — hỏi trước) |
 | O | Video dài / livestream / nhiều clip → clip ngắn, montage | podcast, "cắt short", nhạc nhịp | theo kb | `kb-long-video-to-shorts.md`, `kb-livestream-to-clips.md`, `kb-multi-clips-to-reels.md`, `kb-beat-sync-montage.md`, `kb-batch-montage-variants.md`, `kb-news-rough-cut.md`, `kb-ecommerce-product-montage.md` |
 | P | Kịch bản quảng cáo, motion graphic, nhân vật 2D, BĐS | "kịch bản quảng cáo", "chèn motion" | theo kb | `kb-product-ad-video-script.md`, `kb-motion-graphic-placement.md`, `kb-character-2d.md`, `kb-real-estate-video-editing.md`, `kb-motion-presets-vi.md` |
 | Q | Kịch bản / brief → A-Roll & B-Roll, thư mục đánh số, báo cáo 10 bước | gửi kịch bản / spec | mục 2 | `kb-master-video-edit.md` › aroll-broll-workflow.md, `kb-script-aroll-broll-analyzer.md`, `kb-heygen-veo-broll-video.md` |
 | R | Kế hoạch nội dung / kịch bản thương hiệu cá nhân | "lịch đăng", "4 trụ cột" | theo kb |
 | S | Bảng phân cảnh dựng (Edit Blueprint) / shotlist cho Premiere, After Effects, CapCut | "bảng phân cảnh", "shotlist", "edit script", "dựng trên Premiere / CapCut" | quy trình 7 bước trong `references/visual-motion-system.md` (mục CORE INSTRUCTIONS), đầu ra 5 phần A–E | `references/visual-motion-system.md` | `kb-personal-brand-video-engine.md`, `kb-remotion-vietnamese-reel-expert.md` |
 
-Khác (khi việc cần): `kb-painted-animation.md`, `kb-lemo-opuscar.md`, `kb-ui-demo.md`, `kb-synthetic-screen-recording.md`, `kb-media-use.md`, `kb-videodb.md`, `kb-remotion*.md`, `kb-hyperframes-*.md`, `kb-opa-design-system-chatbot.md`, `kb-craft-handoff.md` (bộ ghi `.fcproj`), `kb-strip-media-metadata.md`. Danh mục đủ 76 kb: `references/kb-INDEX.md`. Code của kb nằm ở `scripts/apps/<tên>/`; khi kb ghi đường dẫn cũ (`~/.claude/skills/<x>/…`, `modules/<x>/…`) thì đổi thành `scripts/apps/<x>/…` hoặc `references/kb-<x>.md`.
+Khác (khi việc cần): `kb-auto-footage.md`, `kb-painted-animation.md`, `kb-lemo-opuscar.md`, `kb-ui-demo.md`, `kb-synthetic-screen-recording.md`, `kb-media-use.md`, `kb-videodb.md`, `kb-remotion*.md`, `kb-hyperframes-*.md`, `kb-hyperframes-audio.md`, `kb-hyperframes-registry.md`, `kb-hyperframes-studio.md`, `kb-opa-design-system-chatbot.md`, `kb-craft-handoff.md` (bộ ghi `.fcproj`), `kb-strip-media-metadata.md`. Danh mục đủ 80 kb: `references/kb-INDEX.md`. Code của kb nằm ở `scripts/apps/<tên>/`; khi kb ghi đường dẫn cũ (`~/.claude/skills/<x>/…`, `modules/<x>/…`) thì đổi thành `scripts/apps/<x>/…` hoặc `references/kb-<x>.md`.
 
 Footage người nói không bao giờ đi đường D, E hay F.
 
@@ -114,10 +115,10 @@ Chi tiết nguyên văn: `references/rules-details.md` › SKILL §2, SKILL §2.
 5. B-roll Muse: prompt trong `prompts_muse_veo_broll.json` phải đạt H5 (tiếng Anh 8–60 từ, có `anchor_quote` trích đúng lời cảnh) — prompt tiếng Việt hoặc "Clip thư viện: …" bị `render_muse_broll.py` từ chối: agent viết lại theo 5b. `$PY scripts/broll_fix.py ready` (Muse không sẵn sàng → báo, dừng, D3) → `$PY scripts/analyze_and_scaffold.py render-broll <thư mục> --dry-run` trước — **lệnh này mặc định CHẠY THẬT**, bỏ `--dry-run` khi đã xem bảng. Không dùng `render-all`.
 5b. **Tự tạo lại B-roll sai kịch bản** (D9 — người dùng đã đồng ý dùng Muse cho việc này, không hỏi lại): khi `scene_check` FAIL `script_source` / `broll_h5`, hoặc prompt không đạt H5. Mỗi dòng một lệnh, đọc kết quả rồi mới gọi lệnh sau; làm TRƯỚC bước tăng tốc (§3 bước 4 — làm sau thì tăng tốc lại riêng file đó):
    1. `$PY scripts/broll_fix.py ready` — lỗi (Muse hỏng) → bước 5 dùng Google Flow theo D3
-   2. `$PY scripts/broll_fix.py plan <thư mục video> [--speed 1.10]` → in cảnh lỗi, độ dài giọng, số giây cần xin Muse, lời kịch bản, khung prompt.
+   2. `$PY scripts/broll_fix.py plan <thư mục video> [--speed 1.10] [--engine flow]` → in cảnh lỗi, độ dài giọng, số giây cần xin (Flow: kèm tín dụng x2), lời kịch bản, khung prompt.
    3. Agent viết `broll_new_prompts.json` (H5, từ CHÍNH lời của cảnh) → `$PY scripts/broll_fix.py lint <thư mục video> --prompts broll_new_prompts.json` (0 lỗi).
    4. `$PY scripts/broll_fix.py prepare <thư mục video> --prompts broll_new_prompts.json` (`--dry-run` để xem trước) → sao lưu file cũ vào `~/.cache/opa-video-studio/backup/`, cập nhật prompts + manifest.
-   5. `$PY scripts/render_muse_broll.py <thư mục video> --shot <STT>_b-roll-<M>.mp4` (một cảnh mỗi lệnh; độ dài lấy theo giọng). Muse hỏng (D3): tạo trong Google Flow bằng trình duyệt Cindy (cùng prompt, 9:16, độ dài ≥ giọng, tài khoản đã đăng nhập, không mua thêm), tải bản gốc vào `<thư mục video>/_google_raw/`, rồi `$PY scripts/broll_fix.py normalize _google_raw/<file> <thư mục video>/<STT>_b-roll-<M>.mp4 --mark flow`.
+   5. `$PY scripts/render_muse_broll.py <thư mục video> --shot <STT>_b-roll-<M>.mp4` (một cảnh mỗi lệnh; độ dài lấy theo giọng). Muse hỏng (D3): **làm đúng `references/flow-broll.md`** — `plan --engine flow` (giây + tín dụng, so số dư) → `prepare --source flow` → ưu tiên gọi MCP `google-flow` (`flow_list_accounts` → `flow_inspect_account` → `flow_generate_video` với `model: "omni-flash"`, `aspectRatio: "9:16"`, `outputs: 2`, `upscale: "none"` → `flow_job_status` → chọn bản bằng mắt → `flow_upscale_video` 1080p → `flow_download_job` vào `<thư mục video>/_google_raw/`) hoặc dùng trình duyệt Cindy (Omni 1.2 Flash, 9:16, 720p, x2, gõ lõi prompt → chọn bản bằng bảng kiểm bằng mắt → tải "1080p Đã tăng độ phân giải" vào `<thư mục video>/_google_raw/`) → `$PY scripts/broll_fix.py normalize _google_raw/<file> <thư mục video>/<STT>_b-roll-<M>.mp4 [--mark flow]`.
    6. `$PY scripts/broll_fix.py verify <thư mục video> --scenes 3,4,5 [--speed 1.10]` → mở `qa/broll_check_sheet.jpg` xem: đúng nội dung lời, không chữ / logo; ghi "đã nhìn" vào báo cáo. Hỏng → tạo lại 1 lần; vẫn hỏng → báo.
    7. `scene_check` lại (0 FAIL).
 6. Cổng 05.5: `$PY scripts/analyze_and_scaffold.py validate "<thư mục tổng>" --check-media` — thiếu file thì báo đúng tên và dừng (G3).
@@ -141,7 +142,7 @@ Mỗi bước MỘT lệnh; đọc kết quả rồi mới sang bước sau; ⏸
 | 10 | `$PY scripts/audio_levels.py plan W/<mã>.craft.json` (F3; tự hạ SFX chồng nhau) | `W/<mã>.levels.craft.json` — MỌI lệnh sau dùng file `.levels` |
 | 11 | `$PY scripts/spec_lint.py W/<mã>.levels.craft.json --words W/words_tl.json` | 0 HARD (SOFT ghi báo cáo) |
 | 12 | `$PY scripts/scene_check.py --manifest V/00_storyboard_manifest.json --spec W/<mã>.levels.craft.json --words W/words_tl.json --transcripts O/transcripts --review W/scene_review.md` | 0 FAIL (D14, D9; FAIL `script_source` → §2 bước 5b) |
-| 13 | `$PY scripts/edit_rules.py audit W/<mã>.levels.craft.json --words W/words_tl.json --manifest V/00_storyboard_manifest.json` (tự đọc `W/pain.json`). CẢNH BÁO "nói liền > 8 s" (D1): thêm cảnh chèn đúng lời đoạn đó theo D1 (B-roll đúng cảnh → không có thì §2 bước 5b tạo bằng Muse); Muse không sẵn sàng → giữ CẢNH BÁO, ghi bàn giao | dòng `Tổng: 0 LỖI …` (12 tiêu chí) |
+| 13 | `$PY scripts/edit_rules.py audit W/<mã>.levels.craft.json --words W/words_tl.json --manifest V/00_storyboard_manifest.json` (tự đọc `W/pain.json`). CẢNH BÁO "nói liền > 8 s" (D1): thêm cảnh chèn đúng lời đoạn đó theo D1 — có thể tìm trong kho `TNEDIT/06_B-Roll` + stock bằng `~/.venvs/footage/bin/python scripts/apps/auto-footage/scripts/footage.py` (chỉ lấy clip stock chung khớp lời ≥ 0,28, cấm lấy clip gắn mã kịch bản khác theo D9, chuẩn hoá bằng `broll_fix.py normalize`) hoặc tạo mới theo §2 bước 5b (Muse / Google Flow); không sẵn sàng → giữ CẢNH BÁO, ghi bàn giao | dòng `Tổng: 0 LỖI …` (12 tiêu chí) |
 | 14 | `$PY scripts/apps/craft-handoff/tools/fc_build_fast.py W/<mã>.levels.craft.json O/<MÃ>.fcproj --report W/fc_build_report.json` (dự phòng `fc_build.py`) | `"ok": true`, `"mismatches": {}` |
 | 15 | `$PY scripts/contact_sheet.py times W/<mã>.levels.craft.json --full --out O/qa/times.txt` rồi `$PY scripts/fc_fast_qa.py O/<MÃ>.fcproj --frames-dir O/qa/frames --fps 30 --times-file O/qa/times.txt --wav O/qa/mix.wav` (gồm dải tối mép trên B12 + limiter) | khung + `mix.wav` |
 | 16 | `$PY scripts/contact_sheet.py sheet W/<mã>.levels.craft.json O/qa/frames O/qa/contact_sheet.jpg --full` → XEM ảnh | đủ dấu, không đè mặt / dấu, không lộ phông, phụ đề không chồng |
@@ -162,11 +163,12 @@ Chi tiết nguyên văn: `references/rules-details.md` › SKILL §4, CHUNG (lư
 - Đo đỉnh đầu / cằm trên ảnh lưới khung trước khi chọn `key_y`, `cap_y`, `head_top`; mặt thấp: `chest_y_pct` = cằm + 4.
 - Hồ sơ @__dviet (chỉ khi người dùng chọn, P1–P5): `references/dviet-style.json` + `kb-master-video-edit.md` › dviet-style-guide.md; `FX(accent="#F4C40C")` một màu nhấn.
 
-### 5. Ảnh / clip AI (Muse)
-- Muse chạy local `http://127.0.0.1:18610/v1`, khoá ở `~/.config/muse/env` (không ghi vào project). Ảnh: `$PY scripts/muse_gen.py image "prompt" --size 9:16 -o x.png [--ref a.jpg] [--transparent]` (~30 s, 1152×2048). Video: `$PY scripts/muse_gen.py video "prompt" --size 9:16 --seconds 5 [--first-frame a.png] -o x.mp4` (1–2 phút, 720×1280 hoặc 704×1248, có tiếng nền → tắt tiếng, scale 1080×1920 theo `build_kit.broll_scale`). Luôn đo lại file ra.
-- Giữ nhân vật qua cảnh: khung mặt làm `--ref` cho ảnh, ảnh đó làm `--first-frame` cho video; xem kỹ giây đầu (có clip để nội dung màn hình biến mất rồi dựng lại → cắt đoạn đó).
-- Chuyển cảnh bằng hình AI (chưa chạy thử trên video thật): khung cuối cảnh A làm `--first-frame`, prompt biến đổi sang cảnh B, đặt clip vào V2 ở chỗ nối.
-- Muse không `ready` (`/readyz`): dùng Google Flow trong trình duyệt đã đăng nhập (D3, §2 bước 5b.5), xoá dấu bằng `broll_fix.py normalize --mark flow`; không có cả hai thì báo người dùng, không chuyển sang dịch vụ trả phí khác.
+### 5. Ảnh / clip AI & B-roll (Muse, Auto-Footage, Google Flow)
+- **Muse local** (`http://127.0.0.1:18610/v1`, khoá ở `~/.config/muse/env`, không ghi vào project). Ảnh: `$PY scripts/muse_gen.py image "prompt" --size 9:16 -o x.png [--ref a.jpg] [--transparent]` (~30 s, 1152×2048). Video: `$PY scripts/muse_gen.py video "prompt" --size 9:16 --seconds 5 [--first-frame a.png] -o x.mp4` (1–2 phút, 720×1280 hoặc 704×1248, có tiếng nền → tắt tiếng, scale 1080×1920 theo `build_kit.broll_scale`). Luôn đo lại file ra.
+- **Giữ nhân vật qua cảnh**: khung mặt làm `--ref` cho ảnh, ảnh đó làm `--first-frame` cho video; xem kỹ giây đầu (có clip để nội dung màn hình biến mất rồi dựng lại → cắt đoạn đó). Chuyển cảnh bằng hình AI: khung cuối cảnh A làm `--first-frame`, prompt biến đổi sang cảnh B, đặt clip vào V2 ở chỗ nối.
+- **Tìm / tạo B-roll bằng `auto-footage`** (`F=~/.venvs/footage/bin/python; AF=scripts/apps/auto-footage/scripts/footage.py`, chi tiết `references/kb-auto-footage.md`): tìm CLIP trong kho `TNEDIT/06_B-Roll` + Pexels/Pixabay/Mixkit bằng `$F $AF search "mô tả tiếng Anh"`; chia cảnh từ video/kịch bản bằng `$F $AF draft <nguồn> -o scenes.json` rồi `$F $AF run scenes.json -o <out_dir>`; tạo nhanh 1 cảnh bằng `$F $AF make "mô tả" --kind image|video|both [--animate] [--seconds N] -o <out_dir>`.
+- **Muse không `ready` (`/readyz`) → Google Flow (D3, §2 bước 5b.5, `references/flow-broll.md`)**: ưu tiên gọi MCP `google-flow` (`flow_list_accounts` → `flow_inspect_account` → `flow_generate_video` → `flow_job_status` → chọn bản bằng mắt → `flow_upscale_video` 1080p → `flow_download_job`) hoặc dùng trình duyệt Cindy đã đăng nhập, chuẩn hoá + xoá dấu bằng `$PY scripts/broll_fix.py normalize <in> <out> [--mark flow]`; không có cả hai thì báo người dùng, không chuyển sang dịch vụ trả phí khác.
+- **Xoá metadata lộ nguồn (A5)**: `$PY scripts/apps/strip-media-metadata/scripts/strip_metadata.py <file>` (`references/kb-strip-media-metadata.md`).
 
 ### 6. Âm thanh (việc I và mọi video)
 - Mức: F3 — `$PY scripts/audio_levels.py plan SPEC.craft.json` đặt gain (SFX chồng nhau tự hạ cả cụm để đỉnh cộng dồn vẫn trong −8…−12 dBFS); `$PY scripts/audio_levels.py stems SPEC.levels.craft.json OUT/` (stem xấp xỉ từ spec) rồi `$PY scripts/audio_levels.py check MIX.wav --stems OUT/` (thoát 1 sai, 2 chưa kiểm). LUFS / true peak lấy từ `mix.wav` thật của FilmCraft. Khi giọng và SFX đỉnh trùng lúc, tổng có thể vượt −1,5 dBTP → dời SFX vào khoảng ngừng lời.

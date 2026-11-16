@@ -3,9 +3,10 @@
 
     PY=~/.venvs/video-skills/bin/python
     $PY broll_fix.py ready                                        # chỉ GET /readyz; chưa sẵn sàng → báo D3, mã thoát 1, KHÔNG dùng dịch vụ khác
-    $PY broll_fix.py plan    <thư mục kịch bản> [--speed 1.10]     # liệt kê cảnh B-roll cần làm lại + độ dài tiếng + giây cần xin
+    $PY broll_fix.py plan    <thư mục kịch bản> [--speed 1.10] [--engine muse|flow] [--outputs 2]   # cảnh B-roll + giây cần xin (+ tín dụng Flow)
     $PY broll_fix.py lint    <thư mục> --prompts broll_new_prompts.json
-    $PY broll_fix.py prepare <thư mục> --prompts broll_new_prompts.json [--dry-run] [--backup-root DIR]
+    $PY broll_fix.py prepare <thư mục> --prompts broll_new_prompts.json [--source muse|flow] [--keep-clips] [--dry-run] [--backup-root DIR]
+                                                                  # --keep-clips: tạo lại cảnh xong → ghi prompt cuối, giữ clip
     $PY broll_fix.py verify  <thư mục> --scenes 3,4,5 [--speed 1.10] [--out-dir DIR]
     $PY broll_fix.py normalize <file tải về> <thư mục>/NN_b-roll-M.mp4 [--mark flow]   # clip tạo ngoài Muse (Google Flow…) → chuẩn skill
 
@@ -16,7 +17,12 @@ broll_new_prompts.json = [{"seq": 3, "prompt": "<câu tiếng Anh H5>", "anchor_
 Không gọi API nào ngoại trừ `ready` (GET /readyz). Bước render do `render_muse_broll.py <thư mục> --shot NN_b-roll-M.mp4` làm.
 
 lint (H5): lõi prompt 8–60 chữ tiếng Anh, không dấu tiếng Việt; cấm text/caption/subtitle/sign/logo/number/chart/dashboard/UI/chat/app/
-brand/label/poster/"writing on paper"; màn hình/laptop chỉ khi có away/glow/blurred/out of focus; anchor_quote nằm trong tts_text.
+brand/label/poster/"writing on paper"; màn hình / laptop / tivi / bảng trắng / giấy tờ chỉ khi ghi out of frame / out of focus / blurred / blank
+("angled away", "soft glow" KHÔNG đủ: Flow 2026-11-13 vẫn vẽ logo DELL, dashboard); founder / CEO / người nói / narrator chỉ khi không lộ mặt
+(from behind, over the shoulder, hands, silhouette, face out of frame) — không có ảnh tham chiếu thì AI vẽ người lạ (A4); một clip một cảnh liền
+(cấm transition from/to, cut to, montage, PiP, overlay — mô hình tách đôi clip / vẽ ghi chú hậu kỳ); có người → ghi "Vietnamese";
+anchor_quote nằm trong tts_text.
+Flow (D3, references/flow-broll.md): Omni 1.2 Flash 720p, 3–15 s, 3 tín dụng/s (11–15 s: 6/s), nâng 1080p miễn phí ≤ 10 s (1/s phần vượt).
 verify: 1080x1920 30 fps, không có tiếng, đủ dài so với tiếng, khác mọi clip thư viện + B-roll khác (media_reuse.SAME),
          ghi qa/broll_check_sheet.jpg (10/30/50/70/90 %) — người làm PHẢI xem ảnh này (chữ/logo/đúng lời) rồi ghi lại.
 """
@@ -43,8 +49,19 @@ BACKUP_ROOT = Path.home() / ".cache" / "opa-video-studio" / "backup"
 
 BANNED_RE = re.compile(r"\b(?:texts?|captions?|subtitles?|signs?|logos?|numbers?|charts?|dashboards?|ui|chat|apps?|labels?|posters?"
                        r"|brands?|brand names?)\b|writing on paper", re.I)
-SCREEN_RE = re.compile(r"\b(?:screens?|monitors?|laptops?|computers?|tablets?|phones?|tv)\b", re.I)
-SCREEN_OK_RE = re.compile(r"\b(?:away|glow|glowing|blurred|out of focus)\b", re.I)
+SCREEN_RE = re.compile(r"\b(?:screens?|monitors?|laptops?|computers?|tablets?|phones?|tvs?|televisions?|displays?|whiteboards?|"
+                       r"documents?|papers?|notebooks?|newspapers?)\b", re.I)
+SCREEN_OK_RE = re.compile(r"\b(?:out of frame|out of focus|blurred|defocused|blank)\b", re.I)
+SPEAKER_RE = re.compile(r"\b(?:founders?|ceos?|narrators?|speakers?|presenters?|hosts?)\b", re.I)
+FACELESS_RE = re.compile(r"\b(?:from behind|back view|over[- ]the[- ]shoulder|silhouetted?|hands? only|face out of frame|"
+                         r"face not visible|cropped (?:at|below) the (?:chin|shoulders))\b", re.I)
+PERSON_RE = re.compile(r"\b(?:man|men|woman|women|person|people|guy|boy|girl|couple|family|colleagues?|team|crew|staff|crowd|"
+                       r"engineers?|designers?|customers?|clients?|owners?|founders?|investors?|chefs?|cooks?|workers?|students?|"
+                       r"diners?|buyers?|agents?|brokers?|creators?|entrepreneurs?|businessman|businesswoman)\b", re.I)
+MULTI_SHOT_RE = re.compile(r"\b(?:transitions?(?:ing)? (?:from|to|into)|cuts? (?:to|between)|montage|split[- ]screen|"
+                           r"before[- ]and[- ]after|picture[- ]in[- ]picture|pip|overlay)\b", re.I)
+FLOW_MIN_SEC, FLOW_MAX_SEC, FLOW_BASE_SEC = 3, 15, 10   # Omni 1.2 Flash trên gói Pro (thanh trượt 3–15 s)
+FLOW_RATE, FLOW_RATE_LONG = 3, 6                         # tín dụng / giây ở 720p: ≤ 10 s, phần 11–15 s
 
 
 def _norm(text: str) -> str:
@@ -81,7 +98,13 @@ def lint_prompt(core: str, tts_text: str | None = None, anchor: str | None = Non
     if banned:
         problems.append("chứa từ cấm: " + ", ".join(banned))
     if SCREEN_RE.search(core) and not SCREEN_OK_RE.search(core):
-        problems.append("có màn hình/laptop nhưng không ghi away/glow/blurred/out of focus")
+        problems.append("có màn hình / laptop / bảng / giấy nhưng không ghi out of frame / out of focus / blurred / blank")
+    if PERSON_RE.search(core) and "vietnamese" not in core.lower():
+        problems.append("có người nhưng chưa ghi Vietnamese (kênh Việt — không ghi thì AI ra người phương Tây)")
+    if MULTI_SHOT_RE.search(core):
+        problems.append("nhiều cảnh / ghi chú hậu kỳ trong một clip (transition, cut, montage, PiP, overlay) — một clip một cảnh liền")
+    if SPEAKER_RE.search(core) and not FACELESS_RE.search(core):
+        problems.append("có founder / người nói nhưng không giấu mặt (from behind / over the shoulder / hands / silhouette)")
     if tts_text is not None:
         a = _norm(anchor or "")
         if not a:
@@ -95,6 +118,19 @@ def request_seconds(voice_len: float | None, fallback: float = 4.0) -> int:
     """Giây xin Muse: ceil(tiếng + 0,3), kẹp 2–10 (Muse tối đa 10 s)."""
     base = fallback if not voice_len else voice_len + VOICE_PAD
     return max(MIN_MUSE_SEC, min(MAX_MUSE_SEC, math.ceil(base - 1e-9)))
+
+
+def flow_seconds(voice_len: float | None, fallback: float = 4.0) -> int:
+    """Giây đặt trên thanh trượt Flow: ceil(tiếng + 0,3), kẹp 3–15."""
+    base = fallback if not voice_len else voice_len + VOICE_PAD
+    return max(FLOW_MIN_SEC, min(FLOW_MAX_SEC, math.ceil(base - 1e-9)))
+
+
+def flow_credits(secs: int, outputs: int = 2) -> int:
+    """Tín dụng Flow: mỗi bản tạo (720p) + nâng 1080p cho bản được chọn (miễn phí ≤ 10 s, 1/s phần vượt)."""
+    extra = max(0, secs - FLOW_BASE_SEC)
+    gen = min(secs, FLOW_BASE_SEC) * FLOW_RATE + extra * FLOW_RATE_LONG
+    return outputs * gen + extra
 
 
 def probe(path: Path) -> dict:
@@ -158,16 +194,28 @@ def _status_of(seg: dict) -> str:
 
 def cmd_plan(args) -> int:
     folder = Path(args.folder)
+    flow, total = args.engine == "flow", 0
     for seq, seg in sorted(segments(folder).items()):
         v = voice_len(folder, seg)
         clip = folder / (seg.get("files") or {}).get("video_file", "")
         cl = duration_of(clip) if clip.is_file() else 0.0
-        req = request_seconds(v, float(seg.get("duration_sec") or 4.0))
+        fallback = float(seg.get("duration_sec") or 4.0)
+        if flow:
+            req = flow_seconds(v, fallback)
+            cost = flow_credits(req, args.outputs)
+            total += cost
+            ask = f"Flow {req}s x{args.outputs} = {cost} tín dụng"
+            short = v + VOICE_PAD > FLOW_MAX_SEC
+        else:
+            req = request_seconds(v, fallback)
+            ask = f"xin Muse {req}s"
+            short = v + VOICE_PAD > MAX_MUSE_SEC
         print(f"cảnh {seq} ({seg['role_id']}): tiếng {v:.2f}s → {v / args.speed:.2f}s ở {args.speed}x · clip hiện {cl:.2f}s · "
-              f"xin Muse {req}s → {req / args.speed:.2f}s sau tăng tốc" + (" (Muse tối đa 10s: tiếng dài hơn thì cảnh hụt)"
-                                                                         if v + VOICE_PAD > MAX_MUSE_SEC else ""))
+              f"{ask} → {req / args.speed:.2f}s sau tăng tốc" + (" (vượt mức tối đa: tách 2 cảnh chèn)" if short else ""))
         print(f"    prompt hiện tại: {_status_of(seg)}")
         print(f"    tts_text: {seg.get('tts_text', '')}")
+    if flow:
+        print(f"Tổng Flow (mọi cảnh B-roll, x{args.outputs}): {total} tín dụng — so với số dư trên Flow trước khi tạo; thiếu thì báo, KHÔNG mua (D3).")
     return 0
 
 
@@ -215,13 +263,16 @@ def _stale_files(folder: Path, video_file: str) -> list[Path]:
     return found
 
 
-def build_item(old: dict, entry: dict, voice: float, backup: Path) -> dict:
+def build_item(old: dict, entry: dict, voice: float, backup: Path, source: str = "muse") -> dict:
     import render_muse_broll as rmb
     core = entry["prompt"].strip()
+    fallback = float(old.get("duration_target_sec", 4.0))
+    flow = source == "flow"
     item = {k: v for k, v in old.items() if k != "prompt_vi"}
-    item.update({"prompt_core": core, "prompt_full": f"{core} ({rmb.BROLL_STRICT_SUFFIX_EN})",
-                 "anchor_quote": entry["anchor_quote"], "duration_target_sec": request_seconds(voice, float(old.get("duration_target_sec", 4.0))),
-                 "source": "muse", "regen_of": old.get("prompt_full") or old.get("prompt_vi"), "backup": str(backup)})
+    item.update({"prompt_core": core, "prompt_full": core if flow else f"{core} ({rmb.BROLL_STRICT_SUFFIX_EN})",
+                 "anchor_quote": entry["anchor_quote"],
+                 "duration_target_sec": flow_seconds(voice, fallback) if flow else request_seconds(voice, fallback),
+                 "source": source, "regen_of": old.get("prompt_full") or old.get("prompt_vi"), "backup": str(backup)})
     return item
 
 
@@ -246,7 +297,7 @@ def cmd_prepare(args) -> int:
     if missing:
         print(f"[BROLL FAIL] prompts_muse_veo_broll.json không có cảnh {missing}", file=sys.stderr)
         return 2
-    moves = {e["seq"]: _stale_files(folder, segs[e["seq"]]["files"]["video_file"]) for e in new}
+    moves = {e["seq"]: [] if args.keep_clips else _stale_files(folder, segs[e["seq"]]["files"]["video_file"]) for e in new}
     print(f"{'[DRY-RUN] ' if args.dry_run else ''}sao lưu vào {backup}")
     for seq, files in moves.items():
         print(f"  cảnh {seq}: chuyển {len(files)} file cũ " + ", ".join(p.name for p in files))
@@ -263,8 +314,8 @@ def cmd_prepare(args) -> int:
             shutil.move(str(p), str(dest))
     by_seq = {e["seq"]: e for e in new}
     today = time.strftime("%Y-%m-%d")
-    new_items = [build_item(i, by_seq[i["seq_index"]], voice_len(folder, segs[i["seq_index"]]), backup) if i.get("seq_index") in by_seq else i
-                 for i in items]
+    new_items = [build_item(i, by_seq[i["seq_index"]], voice_len(folder, segs[i["seq_index"]]), backup, args.source)
+                 if i.get("seq_index") in by_seq else i for i in items]
     full_by_seq = {i["seq_index"]: i["prompt_full"] for i in new_items if i.get("seq_index") in by_seq}
     old_vd = {s: segs[s].get("visual_direction") for s in by_seq}
     new_segments = []
@@ -276,7 +327,7 @@ def cmd_prepare(args) -> int:
         hist = list(s.get("regen_history") or []) + [{"date": today, "reason": "D9 cảnh thư viện kịch bản khác → tạo mới từ lời cảnh (H5)",
                                                        "old_prompt": s.get("broll_prompt"), "backup": str(backup)}]
         new_segments.append({**s, "broll_prompt": full_by_seq[s["seq_index"]], "visual_direction": e["prompt"].strip(),
-                             "broll_source": "muse", "regen_history": hist})
+                             "broll_source": args.source, "regen_history": hist})
     _save(prompts_p, new_items)
     _save(manifest_p, {**manifest, "segments": new_segments})
     if md_p.exists():
@@ -285,7 +336,9 @@ def cmd_prepare(args) -> int:
             if old and old in text:
                 text = text.replace(old, by_seq[seq]["prompt"].strip())
         md_p.write_text(text, encoding="utf-8")
-    print("Đã cập nhật prompts_muse_veo_broll.json + manifest. Kế tiếp: render_muse_broll.py <thư mục> --shot <NN_b-roll-M.mp4> cho từng cảnh.")
+    nxt = ("tạo trong Google Flow theo references/flow-broll.md, rồi normalize (--mark flow khi bản tải về có dấu)" if args.source == "flow"
+           else "render_muse_broll.py <thư mục> --shot <NN_b-roll-M.mp4> cho từng cảnh")
+    print(f"Đã cập nhật prompts_muse_veo_broll.json + manifest (nguồn {args.source}). Kế tiếp: {nxt}.")
     return 0
 
 
@@ -298,6 +351,9 @@ def cmd_normalize(args) -> int:
     if not raw.is_file():
         print(f"LỖI: không thấy {raw}")
         return 1
+    vs = next((x for x in probe(raw).get("streams", []) if x.get("codec_type") == "video"), {})
+    if int(vs.get("width") or 0) < 1080:
+        print(f"CẢNH BÁO: bản tải về {vs.get('width')}x{vs.get('height')} < 1080 — Flow: tải lại mục '1080p Đã tăng độ phân giải' (miễn phí ≤ 10 s)")
     vf = "scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos,crop=1080:1920,fps=30"
     if args.mark:
         vf += "," + MARKS[args.mark]
@@ -410,6 +466,8 @@ def main() -> int:
     p = sub.add_parser("plan")
     p.add_argument("folder")
     p.add_argument("--speed", type=float, default=1.10)
+    p.add_argument("--engine", choices=("muse", "flow"), default="muse")
+    p.add_argument("--outputs", type=int, default=2, help="số bản Flow mỗi cảnh (x1–x4), mặc định x2")
     p.set_defaults(fn=cmd_plan)
     p = sub.add_parser("lint")
     p.add_argument("folder")
@@ -419,6 +477,9 @@ def main() -> int:
     p.add_argument("folder")
     p.add_argument("--prompts", required=True)
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--source", choices=("muse", "flow"), default="muse")
+    p.add_argument("--keep-clips", action="store_true",
+                   help="chỉ ghi prompt cuối vào manifest / prompts (sau khi đã tạo lại cảnh), không chuyển clip đang dùng")
     p.add_argument("--backup-root", default=str(BACKUP_ROOT))
     p.set_defaults(fn=cmd_prepare)
     p = sub.add_parser("verify")

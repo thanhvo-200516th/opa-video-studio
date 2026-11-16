@@ -33,12 +33,14 @@ def note(level: str, item: str, detail: str = "") -> None:
 
 def check_apps() -> None:
     """Mọi công cụ lõi vendored trong scripts/apps/ có thật (thay cho kiểm skill anh em)."""
-    core = ["craft-handoff/tools/fc_build.py", "craft-handoff/tools/craftctl.py",
+    core = ["craft-handoff/tools/fc_build.py", "craft-handoff/tools/craftctl.py", "craft-handoff/tools/fc_export.py",
             "talking-head-premiere/scripts/audit_sfx.py", "dviet-viral-text-audio-edit/scripts/clean_and_master_voice.py",
             "motion-sfx-audio-mastering/scripts/master.py", "motion-sfx-audio-mastering/scripts/audio/qa_audio.py",
             "facecammaxxing/scripts/fcm.py", "ae-script-builder/templates/du-an-ae/tools/ec.py",
             "ae-script-builder/templates/du-an-ae/build/lib.jsx", "ae-template-customizer/scripts/parse_aep_timings.py",
-            "video-use/helpers/transcribe.py", "video-understand/scripts/understand_video.py"]
+            "video-use/helpers/transcribe.py", "video-understand/scripts/understand_video.py",
+            "auto-footage/scripts/footage.py", "auto-footage/scripts/selftest.py",
+            "strip-media-metadata/scripts/strip_metadata.py", "hyperframes-audio/scripts/carve.mjs"]
     for rel in core:
         note("OK" if (APPS / rel).is_file() else "LỖI", f"scripts/apps/{rel}")
     nested = [str(p) for p in ROOT.rglob("SKILL.md") if p != ROOT / "SKILL.md"]
