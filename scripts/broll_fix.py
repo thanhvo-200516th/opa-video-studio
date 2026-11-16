@@ -10,14 +10,14 @@
     $PY broll_fix.py verify  <thư mục> --scenes 3,4,5 [--speed 1.10] [--out-dir DIR]
     $PY broll_fix.py normalize <file tải về> <thư mục>/NN_b-roll-M.mp4 [--mark flow]   # clip tạo ngoài Muse (Google Flow…) → chuẩn skill
 
-normalize (v2.8): 1080x1920, 30 fps, KHÔNG tiếng, x264 CRF 12 BT.709; `--mark flow` xoá dấu ngôi sao của Google Flow ở góc dưới phải
+normalize (v2.8+): 1080x1920, 30 fps, KHÔNG tiếng, x264 CRF 12 BT.709; tự cắt viền trắng/đen/đồng màu ≥ 2 % từ khung đầu (1.2.2 F3: `trim_uniform_borders`) trước khi scale; `--mark flow` xoá dấu ngôi sao của Google Flow ở góc dưới phải
 (đo trên khung 1080x1920: x≈860–940, y≈1700–1780) bằng `delogo`. Chạy sau `prepare` (file cũ đã được sao lưu), trước `verify`.
 
 broll_new_prompts.json = [{"seq": 3, "prompt": "<câu tiếng Anh H5>", "anchor_quote": "<đoạn nguyên văn của tts_text>"}, …]
 Không gọi API nào ngoại trừ `ready` (GET /readyz). Bước render do `render_muse_broll.py <thư mục> --shot NN_b-roll-M.mp4` làm.
 
-lint (H5): lõi prompt 8–60 chữ tiếng Anh, không dấu tiếng Việt; cấm text/caption/subtitle/sign/logo/number/chart/dashboard/UI/chat/app/
-brand/label/poster/"writing on paper"; màn hình / laptop / tivi / bảng trắng / giấy tờ chỉ khi ghi out of frame / out of focus / blurred / blank
+lint (H5 + 1.2.2–1.2.3 F2): lõi prompt 8–60 chữ tiếng Anh, không dấu tiếng Việt; cấm text/caption/subtitle/sign/logo/number/chart/dashboard/UI/chat/app/
+brand/label/poster/"writing on paper"/notes/checklist/checkbox/written/bullet/handwritten/handwriting/chatting/message/messaging/texting/side-by-side/comparison/graph/metrics/analytics/statistics/engagement/tên nền tảng & hãng (youtube/tiktok/facebook/instagram/iphone/macbook/apple/samsung/google); màn hình / laptop / tivi / bảng trắng / giấy tờ chỉ khi ghi out of frame / out of focus / blurred / blank
 ("angled away", "soft glow" KHÔNG đủ: Flow 2026-11-13 vẫn vẽ logo DELL, dashboard); founder / CEO / người nói / narrator chỉ khi không lộ mặt
 (from behind, over the shoulder, hands, silhouette, face out of frame) — không có ảnh tham chiếu thì AI vẽ người lạ (A4); một clip một cảnh liền
 (cấm transition from/to, cut to, montage, PiP, overlay — mô hình tách đôi clip / vẽ ghi chú hậu kỳ); có người → ghi "Vietnamese";
@@ -47,8 +47,15 @@ SUFFIX_MARK = " (Pure visual"      # phần đuôi cố định BROLL_STRICT_SUF
 SHEET_PCTS = (0.10, 0.30, 0.50, 0.70, 0.90)
 BACKUP_ROOT = Path.home() / ".cache" / "opa-video-studio" / "backup"
 
-BANNED_RE = re.compile(r"\b(?:texts?|captions?|subtitles?|signs?|logos?|numbers?|charts?|dashboards?|ui|chat|apps?|labels?|posters?"
-                       r"|brands?|brand names?)\b|writing on paper", re.I)
+BANNED_RE = re.compile(
+    r"\b(?:texts?|captions?|subtitles?|signs?|logos?|numbers?|charts?|dashboards?|ui|chat|apps?|labels?|posters?"
+    r"|brands?|brand names?"
+    r"|notes?|checklists?|checkbox(?:es)?|written|bullets?|handwritten|handwriting"
+    r"|chatting|messages?|messaging|texting"
+    r"|side-by-side|comparison|graphs?|metrics|analytics|statistics|engagement"
+    r"|youtube|tiktok|facebook|instagram|iphone|macbook|apple|samsung|google)\b|writing on paper",
+    re.I,
+)
 SCREEN_RE = re.compile(r"\b(?:screens?|monitors?|laptops?|computers?|tablets?|phones?|tvs?|televisions?|displays?|whiteboards?|"
                        r"documents?|papers?|notebooks?|newspapers?)\b", re.I)
 SCREEN_OK_RE = re.compile(r"\b(?:out of frame|out of focus|blurred|defocused|blank)\b", re.I)
@@ -346,6 +353,58 @@ def cmd_prepare(args) -> int:
 MARKS = {"flow": "delogo=x=845:y=1685:w=110:h=110"}   # dấu ngôi sao Google Flow, toạ độ trên khung 1080x1920
 
 
+def border_crop_box(img, min_px: int = 8, std_max: float = 3.0, jump: float = 30.0,
+                    min_frac: float = 0.02) -> tuple[int, int, int, int]:
+    """Dò dải viền trắng/đen/đồng màu ở 4 mép (1.2.2 F3). Trả hộp crop (x0, y0, x1, y1); viền < min_frac (2 %) thì giữ nguyên."""
+    import numpy as np
+
+    rgb = np.asarray(img.convert("RGB"), dtype=np.float32)
+
+    def band(lines: "np.ndarray") -> int:
+        dim = len(lines)
+        ref = lines[0].mean(axis=0)
+        n = 0
+        for row in lines:
+            if float(row.std(axis=0).max()) < std_max and float(np.abs(row.mean(axis=0) - ref).max()) < max(std_max * 2.0, 6.0):
+                n += 1
+            else:
+                break
+        if n < min_px or n < dim * min_frac or n + min_px > dim or n > dim * 0.25:
+            return 0
+        border_rgb = lines[:n].mean(axis=(0, 1))
+        next_block = lines[n:n + min_px]
+        edge_diff = float(np.abs(next_block - border_rgb).max(axis=-1).mean())
+        return n if edge_diff > jump else 0
+
+    top, bottom = band(rgb), band(rgb[::-1])
+    side = rgb.transpose(1, 0, 2)
+    left, right = band(side), band(side[::-1])
+    return (left, top, img.width - right, img.height - bottom)
+
+
+def trim_uniform_borders(img, min_px: int = 8, std_max: float = 3.0, jump: float = 30.0,
+                         min_frac: float = 0.02):
+    """Cắt viền trắng/đen/đồng màu quanh khung hình (1.2.2 F3); giữ nguyên khi không có viền hoặc viền < min_frac (2 %)."""
+    box = border_crop_box(img, min_px=min_px, std_max=std_max, jump=jump, min_frac=min_frac)
+    if box == (0, 0, img.width, img.height):
+        return img
+    return img.crop(box)
+
+
+def _first_frame(path: Path):
+    import io
+    from PIL import Image
+
+    r = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-frames:v", "1", "-f", "image2pipe", "-vcodec", "png", "-"],
+                       capture_output=True)
+    if r.returncode != 0 or not r.stdout:
+        return None
+    try:
+        return Image.open(io.BytesIO(r.stdout)).convert("RGB")
+    except OSError:
+        return None
+
+
 def cmd_normalize(args) -> int:
     raw, out = Path(args.raw), Path(args.out)
     if not raw.is_file():
@@ -354,17 +413,29 @@ def cmd_normalize(args) -> int:
     vs = next((x for x in probe(raw).get("streams", []) if x.get("codec_type") == "video"), {})
     if int(vs.get("width") or 0) < 1080:
         print(f"CẢNH BÁO: bản tải về {vs.get('width')}x{vs.get('height')} < 1080 — Flow: tải lại mục '1080p Đã tăng độ phân giải' (miễn phí ≤ 10 s)")
-    vf = "scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos,crop=1080:1920,fps=30"
+    filters = []
+    first = _first_frame(raw)
+    trimmed = None
+    if first is not None:
+        x0, y0, x1, y1 = border_crop_box(first)
+        if (x0, y0, x1, y1) != (0, 0, first.width, first.height):
+            cw, ch = x1 - x0, y1 - y0
+            filters.append(f"crop={cw}:{ch}:{x0}:{y0}")
+            trimmed = f"đã cắt viền ({first.width}x{first.height} → {cw}x{ch})"
+    filters.append("scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos,crop=1080:1920,fps=30")
     if args.mark:
-        vf += "," + MARKS[args.mark]
-    vf += ",setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709"
+        filters.append(MARKS[args.mark])
+    filters.append("setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709")
+    vf = ",".join(filters)
     cmd = ["ffmpeg", "-v", "error", "-y", "-i", str(raw), "-an", "-vf", vf, "-c:v", "libx264", "-crf", "12", "-preset", "slow",
            "-pix_fmt", "yuv420p", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-movflags", "+faststart", str(out)]
     r = subprocess.run(cmd, capture_output=True, text=True, stdin=subprocess.DEVNULL)
     if r.returncode != 0 or not out.is_file():
         print(f"LỖI ffmpeg: {r.stderr.strip()[-400:]}")
         return 1
-    print(f"OK {out.name}: 1080x1920 30 fps, không tiếng{', đã xoá dấu ' + args.mark if args.mark else ''} ({duration_of(out):.2f} s)")
+    notes = [x for x in (trimmed, f"đã xoá dấu {args.mark}" if args.mark else None) if x]
+    suffix = f", {', '.join(notes)}" if notes else ""
+    print(f"OK {out.name}: 1080x1920 30 fps, không tiếng{suffix} ({duration_of(out):.2f} s)")
     return 0
 
 

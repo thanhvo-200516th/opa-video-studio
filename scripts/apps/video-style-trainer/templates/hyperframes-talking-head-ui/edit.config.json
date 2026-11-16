@@ -1,0 +1,49 @@
+{
+  "template_id": "hyperframes-talking-head-ui",
+  "engine": "hyperframes",
+  "aspect_ratio": "9:16",
+  "resolution": [1080, 1920],
+  "fps": 30,
+  "easing": "ease-in-out",
+  "text_speed_scale": 1.2,
+  "hook_window_sec": 10,
+  "motion": {
+    "easing": "ease-in-out",
+    "cubic_bezier": [0.42, 0.0, 0.58, 1.0],
+    "forbid_linear": true,
+    "text_speed_scale": 1.2
+  },
+  "hook": {
+    "hook_window_sec": 10,
+    "fake_camera": true
+  },
+  "fake_camera": {
+    "enabled": true,
+    "window_sec": 10,
+    "pattern": "zoom_in_out",
+    "min_scale": 1.0,
+    "max_scale": 1.12,
+    "easing": "ease-in-out",
+    "cycle_sec": 3.5
+  },
+  "typography": {
+    "scale": 1.15,
+    "base_size_px": 56,
+    "keyword_size_px": 68,
+    "word_by_word": true,
+    "keyword_highlight": true,
+    "highlight_colors": ["#FFD43B", "#38BDF8", "#FB7185", "#4ADE80"],
+    "mobile_mute_readable": true
+  },
+  "face_safe_zone": {
+    "enabled": true,
+    "x_range": [0.22, 0.78],
+    "y_range": [0.16, 0.56],
+    "padding_px": 36
+  },
+  "media": {
+    "talking_head_src": "assets/talking-head.mp4",
+    "bgm_src": "assets/sfx/bgm.mp3",
+    "ui_sfx_src": "assets/sfx/pop.wav"
+  }
+}

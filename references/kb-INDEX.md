@@ -1,6 +1,6 @@
-# Danh mục kho kiến thức (80 tài liệu kb-*.md) của opa-video-studio
+# Danh mục kho kiến thức (81 tài liệu kb-*.md) của opa-video-studio
 
-Tổng cộng **80** tài liệu `references/kb-<nguồn>.md` — mỗi file là toàn văn tài liệu của một nguồn (giữ nguyên văn). Code / dữ liệu chạy được ở `scripts/apps/<nguồn>/` nếu có. Mô tả dưới đây chép nguyên từ frontmatter / dòng đầu của nguồn.
+Tổng cộng **81** tài liệu `references/kb-<nguồn>.md` — mỗi file là toàn văn tài liệu của một nguồn (giữ nguyên văn). Code / dữ liệu chạy được ở `scripts/apps/<nguồn>/` nếu có. Mô tả dưới đây chép nguyên từ frontmatter / dòng đầu của nguồn.
 
 | kb | Nhóm | Code chạy được | Mô tả gốc |
 |---|---|---|---|
@@ -79,6 +79,7 @@ Tổng cộng **80** tài liệu `references/kb-<nguồn>.md` — mỗi file là
 | [`kb-video-download`](kb-video-download.md) | Mô-đun cũ | — | name: video-download |
 | [`kb-video-editing`](kb-video-editing.md) | Skill được gọi | — | AI-assisted video editing workflows for cutting, structuring, and augmenting real footage. Covers the full pipeline from raw capture through FFmpeg, Remotion, ElevenLabs, fal.ai, and final polish in Descript or CapCut. Use when the user wants to edit video, cu |
 | [`kb-video-shortform`](kb-video-shortform.md) | Skill được gọi | `scripts/apps/video-shortform/` | Short-form video generation skill — 3-10 second clips for product reveals, motion teasers, ambient loops. Defaults to Seedance 2 but works the same with Kling 3 / 4, Veo 3 or Sora 2. Output is one MP4 saved to the project folder. When the workspace also ships  |
+| [`kb-video-style-trainer`](kb-video-style-trainer.md) | Skill được gọi | `scripts/apps/video-style-trainer/` | Huấn luyện và đóng gói skill edit video mới từ video mẫu theo quy trình 5 Phase + 4 Round Feedback Loop (chuẩn Thơ EDITOR @lopphovlog): đo máy (`probe`), sinh khung skill portable (`scaffold` kèm template HyperFrames `talking-head-ui-hyperframes`), ghi đè feedback ảnh chụp màn hình (`feedback`), và kiểm tra portability (`lint-skill`). |
 | [`kb-video-talkcraft`](kb-video-talkcraft.md) | Mô-đun cũ | `scripts/apps/video-talkcraft/` | name: video-talkcraft |
 | [`kb-video-thumbnail-generator`](kb-video-thumbnail-generator.md) | Mô-đun cũ | — | name: video-thumbnail-generator |
 | [`kb-video-understand`](kb-video-understand.md) | Mô-đun cũ | `scripts/apps/video-understand/` | name: video-understand |

@@ -2,6 +2,8 @@
 
 > Trong `opa-video-studio`: mọi chỗ nhắc tới skill/mô-đun khác ("nạp X", "dùng skill X", `modules/X/MODULE.md`) = đọc `references/kb-X.md` trong chính skill này. Code / dữ liệu của nguồn này (nếu có) nằm ở `scripts/apps/dung-video-talking-head/` (riêng nguồn lõi `master-video-edit`: `scripts/`, `assets/`, `tests/`). Nội dung dưới đây giữ NGUYÊN VĂN bản gốc; luật hiện hành và cách giải mâu thuẫn nằm ở `references/rules-full.md` + `rules.json`.
 
+> **Ranh giới áp dụng (`dung-video-talking-head v1.2.3`):** nguồn này thuộc luồng **Remotion + Hermes Kanban trên Windows (việc C)**. Khi dựng hoặc port cải tiến vào dây chuyền **`opa-video-studio` trên Linux**, luôn giữ nguyên luật **A1** (không xuất MP4 trước khi duyệt), **D3** (dùng Muse cục bộ hoặc Google Flow thay cho 9router trả phí), **D4** (tốc độ 1.10x / 1.05x / 1.0x, video < 45 s giữ 1.0x), **B15** (không dải tối dưới phụ đề).
+
 <!-- ===== file: dung-video-talking-head/SKILL.md ===== -->
 
 ---

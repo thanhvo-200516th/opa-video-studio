@@ -1,0 +1,101 @@
+{
+  "preset_id": "talking-head-ui-hyperframes",
+  "name": "Talking Head UI (HyperFrames Viral Style)",
+  "source_reference": "@lopphovlog/video/7706795032463936769",
+  "engine": "hyperframes",
+  "aspect_ratio": "9:16",
+  "resolution": [1080, 1920],
+  "fps": 30,
+  "easing": "ease-in-out",
+  "text_speed_scale": 1.2,
+  "hook_window_sec": 10,
+  "motion": {
+    "easing": "ease-in-out",
+    "cubic_bezier": [0.42, 0.0, 0.58, 1.0],
+    "forbid_linear": true,
+    "text_speed_scale": 1.2,
+    "word_pop_ms": 260,
+    "ui_enter_ms": 360,
+    "ui_exit_ms": 280
+  },
+  "hook": {
+    "hook_window_sec": 10,
+    "fake_camera": true,
+    "min_cuts_in_hook": 3,
+    "require_kinetic_caption_from_0s": true
+  },
+  "fake_camera": {
+    "enabled": true,
+    "window_sec": 10,
+    "pattern": "zoom_in_out",
+    "min_scale": 1.0,
+    "max_scale": 1.12,
+    "easing": "ease-in-out",
+    "cycle_sec": 3.5,
+    "pan_px": [0, -12]
+  },
+  "typography": {
+    "font_family": "'Inter', 'Montserrat', 'Noto Sans', sans-serif",
+    "scale": 1.15,
+    "base_size_px": 56,
+    "keyword_size_px": 68,
+    "font_weight": 800,
+    "tracking_em": 0.02,
+    "line_height": 1.16,
+    "word_by_word": true,
+    "keyword_highlight": true,
+    "highlight_colors": ["#FFD43B", "#38BDF8", "#FB7185", "#4ADE80"],
+    "default_color": "#FFFFFF",
+    "stroke_px": 3,
+    "stroke_color": "#0F172A",
+    "shadow": "0 8px 24px rgba(0, 0, 0, 0.55)",
+    "max_lines": 2,
+    "max_words_per_chunk": 5,
+    "mobile_mute_readable": true,
+    "caption_zone_y_range": [0.64, 0.84]
+  },
+  "pacing": {
+    "target_cuts_per_10s": [2.5, 4.5],
+    "median_shot_sec": 2.4,
+    "ui_beat_interval_sec": [2.5, 4.0],
+    "max_static_sec": 2.5
+  },
+  "ui_elements": {
+    "types": ["icon_badge", "glass_card", "orbit_nodes", "stat_pill", "callout_arrow"],
+    "max_concurrent": 2,
+    "avoid_face_overlap": true,
+    "preferred_zones": ["lower_third_above_caption", "upper_corner_left", "upper_corner_right"],
+    "glass_card_style": {
+      "backdrop_blur_px": 14,
+      "background": "rgba(15, 23, 42, 0.68)",
+      "border": "1px solid rgba(255, 255, 255, 0.22)",
+      "border_radius_px": 20
+    }
+  },
+  "face_safe_zone": {
+    "enabled": true,
+    "x_range": [0.22, 0.78],
+    "y_range": [0.16, 0.56],
+    "padding_px": 36,
+    "strict_no_overlap": true,
+    "rule": "Khong dat phu de, UI card, icon hay orbit node de len vung khuon mat nguoi noi."
+  },
+  "transitions": {
+    "allowed": ["flash_cam", "smooth_wipe", "punch_zoom"],
+    "easing": "ease-in-out",
+    "duration_ms": 260
+  },
+  "audio": {
+    "voice_target_dbfs": [-5.0, -3.0],
+    "bgm_below_voice_lu": [-22.0, -17.0],
+    "sfx_peak_dbfs": [-12.0, -8.0],
+    "sfx_on_ui_beat": true,
+    "sfx_on_transition": true
+  },
+  "portable_assets": {
+    "bundle_fonts": true,
+    "bundle_sfx": true,
+    "relative_assets_dir": "assets",
+    "forbid_absolute_paths": true
+  }
+}

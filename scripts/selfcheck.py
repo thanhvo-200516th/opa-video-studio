@@ -40,7 +40,10 @@ def check_apps() -> None:
             "ae-script-builder/templates/du-an-ae/build/lib.jsx", "ae-template-customizer/scripts/parse_aep_timings.py",
             "video-use/helpers/transcribe.py", "video-understand/scripts/understand_video.py",
             "auto-footage/scripts/footage.py", "auto-footage/scripts/selftest.py",
-            "strip-media-metadata/scripts/strip_metadata.py", "hyperframes-audio/scripts/carve.mjs"]
+            "strip-media-metadata/scripts/strip_metadata.py", "hyperframes-audio/scripts/carve.mjs",
+            "video-style-trainer/scripts/style_trainer.py",
+            "dung-video-talking-head/releases/1.2.3/scripts/stage.py",
+            "dung-video-talking-head/releases/1.2.3/scripts/make_cards.py"]
     for rel in core:
         note("OK" if (APPS / rel).is_file() else "LỖI", f"scripts/apps/{rel}")
     nested = [str(p) for p in ROOT.rglob("SKILL.md") if p != ROOT / "SKILL.md"]

@@ -12,7 +12,7 @@ description: >-
   (Edit Blueprint) cho editor dựng tay trên Premiere Pro / After Effects / CapCut. Dùng khi người dùng gọi
   "opa-video-studio", "master-video-edit", "dviet", hoặc nhờ dựng / sửa / edit video, thêm phụ đề, hiệu ứng
   chữ, chuyển cảnh, SFX, nhạc nền, phân tích kịch bản A-roll B-roll, tìm / tạo B-roll.
-version: 3.2.0
+version: 3.3.0
 standalone: true
 ---
 
@@ -93,7 +93,7 @@ Thông số / ngoại lệ nguyên văn của từng mục dưới đây nằm �
 | J | Phụ đề / caption | "thêm phụ đề" | FilmCraft: `text_fx` `word_captions` / `MotionFX.captions2` | `kb-remotion-captions.md`, `kb-embedded-captions.md` |
 | K | Cắt, ghép, nén, đổi khung, tải nguồn | trim, concat, 9:16 | ffmpeg | `kb-video-editing.md`, `kb-ffmpeg.md`, `kb-video-download.md`, `kb-video-use.md` |
 | L | Sửa trong OpenChatCut | "trong OpenChatCut" | MCP `openchatcut` (kiểm kết nối trước; hỏng thì báo) | `kb-openchatcut.md`, `kb-talking-head-guide.md` |
-| M | Học style từ kênh / video mẫu | link TikTok / YouTube | `scripts/style_analysis/` | `kb-master-video-edit.md` › style-analysis.md, `kb-video-understand.md`, `kb-storyboard-shot-breakdown.md` |
+| M | Học style từ kênh / video mẫu | link TikTok / YouTube, "train skill edit video", "nhân bản style" | đo máy (`scripts/style_analysis/`) + huấn luyện đóng gói skill portable qua `scripts/apps/video-style-trainer/scripts/style_trainer.py` (`probe` → `scaffold` → `feedback` 4 vòng kèm screenshot → `lint-skill`) | `kb-video-style-trainer.md`, `kb-master-video-edit.md` › style-analysis.md, `kb-video-understand.md`, `kb-storyboard-shot-breakdown.md` |
 | N | Ảnh / clip AI, B-roll kho / stock, thumbnail, GIF | B-roll, tìm footage, thumbnail | tìm B-roll kho `TNEDIT/06_B-Roll` + Pexels/Pixabay/Mixkit bằng CLIP (`scripts/apps/auto-footage/scripts/footage.py`, venv `~/.venvs/footage/bin/python`, `kb-auto-footage.md`) hoặc tạo AI bằng Muse mặc định (mục 5); Muse hỏng → Google Flow (MCP `google-flow` hoặc trình duyệt Cindy) theo `flow-broll.md` | `flow-broll.md`, `kb-auto-footage.md`, `kb-codex-imagegen.md` (dự phòng, cần đồng ý), `kb-video-thumbnail-generator.md`, `kb-fal-ai-media.md` / `kb-video-shortform.md` (trả phí — hỏi trước) |
 | O | Video dài / livestream / nhiều clip → clip ngắn, montage | podcast, "cắt short", nhạc nhịp | theo kb | `kb-long-video-to-shorts.md`, `kb-livestream-to-clips.md`, `kb-multi-clips-to-reels.md`, `kb-beat-sync-montage.md`, `kb-batch-montage-variants.md`, `kb-news-rough-cut.md`, `kb-ecommerce-product-montage.md` |
 | P | Kịch bản quảng cáo, motion graphic, nhân vật 2D, BĐS | "kịch bản quảng cáo", "chèn motion" | theo kb | `kb-product-ad-video-script.md`, `kb-motion-graphic-placement.md`, `kb-character-2d.md`, `kb-real-estate-video-editing.md`, `kb-motion-presets-vi.md` |
@@ -101,7 +101,7 @@ Thông số / ngoại lệ nguyên văn của từng mục dưới đây nằm �
 | R | Kế hoạch nội dung / kịch bản thương hiệu cá nhân | "lịch đăng", "4 trụ cột" | theo kb |
 | S | Bảng phân cảnh dựng (Edit Blueprint) / shotlist cho Premiere, After Effects, CapCut | "bảng phân cảnh", "shotlist", "edit script", "dựng trên Premiere / CapCut" | quy trình 7 bước trong `references/visual-motion-system.md` (mục CORE INSTRUCTIONS), đầu ra 5 phần A–E | `references/visual-motion-system.md` | `kb-personal-brand-video-engine.md`, `kb-remotion-vietnamese-reel-expert.md` |
 
-Khác (khi việc cần): `kb-auto-footage.md`, `kb-painted-animation.md`, `kb-lemo-opuscar.md`, `kb-ui-demo.md`, `kb-synthetic-screen-recording.md`, `kb-media-use.md`, `kb-videodb.md`, `kb-remotion*.md`, `kb-hyperframes-*.md`, `kb-hyperframes-audio.md`, `kb-hyperframes-registry.md`, `kb-hyperframes-studio.md`, `kb-opa-design-system-chatbot.md`, `kb-craft-handoff.md` (bộ ghi `.fcproj`), `kb-strip-media-metadata.md`. Danh mục đủ 80 kb: `references/kb-INDEX.md`. Code của kb nằm ở `scripts/apps/<tên>/`; khi kb ghi đường dẫn cũ (`~/.claude/skills/<x>/…`, `modules/<x>/…`) thì đổi thành `scripts/apps/<x>/…` hoặc `references/kb-<x>.md`.
+Khác (khi việc cần): `kb-auto-footage.md`, `kb-video-style-trainer.md`, `kb-painted-animation.md`, `kb-lemo-opuscar.md`, `kb-ui-demo.md`, `kb-synthetic-screen-recording.md`, `kb-media-use.md`, `kb-videodb.md`, `kb-remotion*.md`, `kb-hyperframes-*.md`, `kb-hyperframes-audio.md`, `kb-hyperframes-registry.md`, `kb-hyperframes-studio.md`, `kb-opa-design-system-chatbot.md`, `kb-craft-handoff.md` (bộ ghi `.fcproj`), `kb-strip-media-metadata.md`. Danh mục đủ 81 kb: `references/kb-INDEX.md`. Code của kb nằm ở `scripts/apps/<tên>/`; khi kb ghi đường dẫn cũ (`~/.claude/skills/<x>/…`, `modules/<x>/…`) thì đổi thành `scripts/apps/<x>/…` hoặc `references/kb-<x>.md`.
 
 Footage người nói không bao giờ đi đường D, E hay F.
 

@@ -1,0 +1,831 @@
+syllable	count	class	lists	contexts
+một	249	LEAD		#1: ảnh này. Cùng một sản phẩm, cùng || #1: sản phẩm, cùng một bối cảnh, nhưng || #2: Một shop nhỏ không
+không	208	LEAD	warn	#1: AI trông giả, không phải vì công || #1: mình có thể không gọi tên được || #1: này rõ, AI không còn phải đoán
+có	173	FN		#1: phải. Mắt mình có thể không gọi || #2: sản phẩm tốt có thể mở ra || #3: kem, bố cục có khoảng thở, sản
+và	164	LEAD		#1: xạ ra sao, và camera đang đứng || #1: vùng bóng đổ và phần tiếp xúc || #2: dọc cho Reels và một banner quảng
+tôi	145	FN	pronouns	#1: ảnh đó giả. Tôi sửa bằng cách || #1: nào. Sau đó tôi tạo lại hai || #2: một ảnh gốc, tôi tạo ảnh hero
+các	138	LEAD		#1: công cụ dở. ... Các bác đang bỏ || #1: “sang trọng” giống các bác. Hãy cho || #1: ÁNH SÁNG nếu các bác muốn nhận
+bác	135	FN	pronouns	#1: cụ dở. ... Các bác đang bỏ quên || #1: trọng” giống các bác. Hãy cho nó || #1: SÁNG nếu các bác muốn nhận khung
+ai	113	FN	pronouns	#1: 90% ảnh AI trông giả, không || #1: tin này rõ, AI không còn phải || #1: với mặt bàn. AI không tự hiểu
+là	109	LEAD		#2: quyết không phải là tạo thật nhiều || #2: nhận ra đó là cùng một thương || #3: đẹp và sang” là lý do AI
+ảnh	108	C	units	#1: 90% ảnh AI trông giả, || #1: sáng. Nhìn hai ảnh này. Cùng một || #1: bối cảnh, nhưng ảnh bên trái sáng
+sản	98	C		#1: này. Cùng một sản phẩm, cùng một || #2: lần. ... Một ảnh sản phẩm tốt có || #2: khóa ba thứ: sản phẩm phải giữ
+làm	92	C		#2: lựa chọn. Người làm marketing quyết định || #3: Brief “làm cho đẹp và || #4: Ảnh nền trắng làm tốt một việc:
+thể	90	C		#1: Mắt mình có thể không gọi tên || #2: phẩm tốt có thể mở ra năm || #4: giữ nhiệt có thể xuất hiện trên
+nếu	85	LEAD		#1: luận ÁNH SÁNG nếu các bác muốn || #2: thật nhiều ảnh. Nếu mỗi ảnh đổi || #2: 5 TÀI SẢN nếu muốn nhận thứ
+công	81	C		#1: không phải vì công cụ dở. ... Các || #9: đổi kích thước, công dụng, thành phần || #13: Video giới thiệu công nghệ có thể
+tạo	80	C		#1: Sau đó tôi tạo lại hai bản || #2: ảnh gốc, tôi tạo ảnh hero cho || #2: không phải là tạo thật nhiều ảnh.
+phẩm	79	C		#1: Cùng một sản phẩm, cùng một bối || #2: Một ảnh sản phẩm tốt có thể || #2: ba thứ: sản phẩm phải giữ nguyên,
+để	75	LEAD		#1: lại hai bản để so sánh. Khi || #1: nó tiêu chí để diễn tả. Bình || #3: Bình luận BRIEF để nhận mẫu năm
+cụ	72	C		#1: phải vì công cụ dở. ... Các bác || #6: sắc hoặc đạo cụ. Nếu ảnh gốc || #8: những lựa chọn cụ thể. Khi đã
+phải	69	FN		#1: trông giả, không phải vì công cụ || #1: sáng từ bên phải mà bóng lại || #1: đổ ngược sang phải. Mắt mình có
+được	61	FN		#1: không gọi tên được lỗi, nhưng vẫn || #4: cảnh sử dụng được mở rộng. Đừng || #5: không cảm nhận được sự nhất quán.
+cho	60	LEAD		#1: các bác. Hãy cho nó tiêu chí || #2: tạo ảnh hero cho website, ảnh lifestyle || #2: website, ảnh lifestyle cho Facebook, ảnh cận
+người	60	C		#2: nhiều lựa chọn. Người làm marketing quyết || #6: làn da, dáng người, chất liệu và || #6: có thể giữ người, giữ sản phẩm,
+sửa	60	C		#1: đó giả. Tôi sửa bằng cách thêm || #3: prompt càng dễ sửa, và kết quả || #8: trao đổi, chỉnh sửa và lặp lại.
+cần	58	C		#2: shop nhỏ không cần chụp lại 20 || #3: ai, sản phẩm cần nổi bật điều || #4: nào, các bác cần thêm bối cảnh
+muốn	58	C		#1: nếu các bác muốn nhận khung prompt || #2: TÀI SẢN nếu muốn nhận thứ tự || #3: gì, cảm xúc muốn tạo ra là
+video	58	C	units	#2: cận chất liệu, video dọc cho Reels || #2: khách hàng. Lưu video này và bình || #11: sản phẩm thành video quảng cáo tiếng
+nhưng	57	LEAD		#1: một bối cảnh, nhưng ảnh bên trái || #1: tên được lỗi, nhưng vẫn cảm thấy || #2: banner quảng cáo. Nhưng các bác chú
+chỉ	54	LEAD		#4: không xấu. ... Nó chỉ chưa cho khách || #4: phẩm không đổi, chỉ có hoàn cảnh || #6: làm nền rồi chỉ thay phần cần
+dùng	54	C		#4: dung mình sẽ dùng sản phẩm thế || #4: Sau đó tôi dùng AI để thay || #6: toàn mới, tôi dùng ảnh thật làm
+đầu	54	C		#6: dễ kiểm soát đầu ra. Dùng AI || #8: không cần bắt đầu một thương hiệu || #8: logo. ... Hãy bắt đầu bằng cảm giác.
+luận	52	C		#1: diễn tả. Bình luận ÁNH SÁNG nếu || #2: này và bình luận 5 TÀI SẢN || #3: lặp lại. Bình luận BRIEF để nhận
+bản	51	C		#1: tạo lại hai bản để so sánh. || #2: tạo các phiên bản khác nhau cho || #10: là: tạo vài bản nháp ở mức
+chưa	51	LEAD	warn	#3: là các bác chưa nói cho nó || #4: xấu. ... Nó chỉ chưa cho khách một || #7: góc máy trong chưa đầy một phút.
+lại	50	FN		#1: phải mà bóng lại đổ ngược sang || #1: đó tôi tạo lại hai bản để || #2: không cần chụp lại 20 lần. ... Một
+bình	47	C		#1: để diễn tả. Bình luận ÁNH SÁNG || #2: video này và bình luận 5 TÀI || #3: dễ lặp lại. Bình luận BRIEF để
+khi	47	LEAD		#1: để so sánh. Khi bốn thông tin || #3: phẩm đó. Trước khi viết prompt, hãy || #5: thứ này trước khi tạo hàng loạt.
+kiểm	47	C		#6: bác càng dễ kiểm soát đầu ra. || #9: đăng, tôi luôn kiểm tra bốn thứ: || #10: đúng brief nhất, kiểm tra lỗi, rồi
+kết	47	C		#3: dễ sửa, và kết quả càng dễ || #10: lần thử, nếu kết quả vẫn sai, || #11: vào 10 giây. Kết quả có thể
+bằng	46	LEAD		#1: giả. Tôi sửa bằng cách thêm bốn || #8: một thương hiệu bằng logo. ... Hãy bắt || #8: Hãy bắt đầu bằng cảm giác. Ví
+hơn	46	TRAIL		#1: Ảnh tự nhiên hơn ngay ở vùng || #8: dễ viết prompt hơn, dễ nhận ra || #8: lệch phong cách hơn, và dễ giao
+nào	46	FN		#1: bóng đi thế nào, bề mặt phản || #1: ở vị trí nào. Sau đó tôi || #2: định lựa chọn nào đáng xuất hiện
+nó	46	FN	pronouns	#1: bác. Hãy cho nó tiêu chí để || #3: chưa nói cho nó biết thế nào || #4: bác không xấu. ... Nó chỉ chưa cho
+đó	46	FN		#1: cảm thấy ảnh đó giả. Tôi sửa || #1: trí nào. Sau đó tôi tạo lại || #2: không nhận ra đó là cùng một
+nhận	44	C		#1: các bác muốn nhận khung prompt này. || #2: hàng sẽ không nhận ra đó là || #2: SẢN nếu muốn nhận thứ tự workflow.
+prompt	44	C		#1: thông tin vào prompt: nguồn sáng ở || #1: muốn nhận khung prompt này. || #3: Trước khi viết prompt, hãy trả lời
+xem	44	C		#12: lỗi khiến người xem mất niềm tin || #12: những chỗ người xem thường phát hiện || #12: Hãy hỏi người xem có tin nó
+hãy	43	LEAD		#1: giống các bác. Hãy cho nó tiêu || #3: khi viết prompt, hãy trả lời năm || #4: thứ xa lạ. Hãy đặt nó vào
+học	43	C		#23: giúp các bác học được điều gì || #36: tính thời gian học, thời gian xuất || #42: đầu tiên của học viên này chưa
+ba	42	LEAD		#2: Tôi luôn khóa ba thứ: sản phẩm || #3: ở một phần ba khung hình, dành || #5: nhau, hãy khóa ba thứ này trước
+thật	42	C		#2: phải là tạo thật nhiều ảnh. Nếu || #4: và đặc tính thật. Sau đó tôi || #6: số 0. Ảnh thật đã có sẵn
+hàng	41	C		#2: phong cách, khách hàng sẽ không nhận || #2: một nhóm khách hàng. Sau đó tôi || #2: hiện trước khách hàng. Lưu video này
+lỗi	41	C	warn,units	#1: gọi tên được lỗi, nhưng vẫn cảm || #6: cơ hội tạo lỗi. Càng giữ lại || #10: nhất, kiểm tra lỗi, rồi mới nâng
+mới	41	FN		#2: Sau đó tôi mới tạo các phiên || #4: đang cần. Đó mới là khác biệt || #5: Sau đó tôi mới đưa brand sheet
+này	41	FN		#1: Nhìn hai ảnh này. Cùng một sản || #1: bốn thông tin này rõ, AI không || #1: nhận khung prompt này.
+phần	41	C	units	#1: bóng đổ và phần tiếp xúc với || #3: đặt ở một phần ba khung hình, || #6: rồi chỉ thay phần cần thay. Các
+sẽ	41	LEAD		#2: cách, khách hàng sẽ không nhận ra || #3: sang, và ai sẽ mua sản phẩm || #3: cao cấp”, tôi sẽ nói: ánh sáng
+thứ	41	C	units	#2: luôn khóa ba thứ: sản phẩm phải || #2: nếu muốn nhận thứ tự workflow. || #4: phẩm thành một thứ xa lạ. Hãy
+biết	39	C		#3: nói cho nó biết thế nào là || #4: việc: cho khách biết sản phẩm đang || #6: Nhiều khi là biết giữ đúng thứ
+cảnh	38	C		#1: cùng một bối cảnh, nhưng ảnh bên || #4: cần thêm bối cảnh và cảm xúc. || #4: ánh sáng, bối cảnh và góc kể
+ngày	38	C	units	#22: nhỏ, logo, giá, ngày tháng và thông || #22: tả, logo và ngày kết thúc chương || #22: ở giá hoặc ngày tháng có thể
+ra	38	FN		#1: mặt phản xạ ra sao, và camera || #2: có thể mở ra năm loại content. || #2: sẽ không nhận ra đó là cùng
+khách	37	C		#2: đổi phong cách, khách hàng sẽ không || #2: cùng một nhóm khách hàng. Sau đó || #2: xuất hiện trước khách hàng. Lưu video
+năng	37	C		#4: ảnh có khả năng bán hàng. Ghi || #9: ra một tính năng sản phẩm không || #10: bản có khả năng xuất hiện trong
+tin	37	C		#1: thêm bốn thông tin vào prompt: nguồn || #1: Khi bốn thông tin này rõ, AI || #6: rất nhiều thông tin tốt: ánh sáng,
+đúng	37	C		#2: loại content. Từ đúng một ảnh gốc, || #4: đặt nó vào đúng hoàn cảnh khách || #6: sản phẩm đã đúng hình dáng, đừng
+đẹp	37	C		#3: Brief “làm cho đẹp và sang” là || #3: thế nào là đẹp, thế nào là || #5: thấy từng ảnh đẹp, nhưng không nhớ
+brief	36	C		#3: Brief “làm cho đẹp || #3: nữ văn phòng. Brief càng rõ, prompt || #3: lại. Bình luận BRIEF để nhận mẫu
+của	35	LEAD		#4: Ảnh sản phẩm của các bác không || #4: Ghi ngành hàng của các bác ở || #5: Nếu mỗi ảnh của các bác nhìn
+quả	35	C		#3: sửa, và kết quả càng dễ lặp || #10: thử, nếu kết quả vẫn sai, tôi || #11: 10 giây. Kết quả có thể dùng
+tra	35	C		#9: tôi luôn kiểm tra bốn thứ: hình || #10: brief nhất, kiểm tra lỗi, rồi mới || #11: bác phải kiểm tra logo, ngón tay,
+nói	34	C		#3: các bác chưa nói cho nó biết || #3: dụ, thay vì nói “một bức ảnh || #3: cấp”, tôi sẽ nói: ánh sáng mềm
+thành	34	C		#4: biến sản phẩm thành một thứ xa || #7: có thể biến thành cả bảng góc || #8: tách câu đó thành màu sắc, chất
+cách	33	C	units	#1: Tôi sửa bằng cách thêm bốn thông || #2: hoặc đổi phong cách, khách hàng sẽ || #5: Thứ ba là cách đặt sản phẩm
+nhiều	33	C	quantity	#1: phải đoán quá nhiều. Ảnh tự nhiên || #2: là tạo thật nhiều ảnh. Nếu mỗi || #2: AI giúp tạo nhiều lựa chọn. Người
+tốt	33	C		#2: ảnh sản phẩm tốt có thể mở || #4: nền trắng làm tốt một việc: cho || #6: nhiều thông tin tốt: ánh sáng, làn
+động	33	C		#11: mô tả chuyển động và một lời || #11: phẩm và hành động của nhân vật. || #11: kiểm tra chuyển động, rồi mới sửa
+ở	33	LEAD		#1: prompt: nguồn sáng ở đâu, hướng bóng || #1: camera đang đứng ở vị trí nào. || #1: nhiên hơn ngay ở vùng bóng đổ
+vào	32	LEAD		#1: bốn thông tin vào prompt: nguồn sáng || #4: Hãy đặt nó vào đúng hoàn cảnh || #5: đưa brand sheet vào quy trình tạo
+giúp	31	C		#2: vị trí. AI giúp tạo nhiều lựa || #8: Sau đó AI giúp tôi tạo moodboard || #8: thẩm mỹ. AI giúp biến gu đó
+bài	30	C	units	#7: với mục tiêu bài đăng. Ảnh cận || #21: và mục tiêu bài đăng. Sau đó || #34: cần đọc 20 bài về AI hôm
+cùng	30	C		#1: hai ảnh này. Cùng một sản phẩm, || #1: một sản phẩm, cùng một bối cảnh, || #2: ra đó là cùng một thương hiệu.
+rõ	30	C		#1: thông tin này rõ, AI không còn || #3: phòng. Brief càng rõ, prompt càng dễ || #14: câu này chưa rõ, video có thể
+sáng	30	C		#1: bỏ quên ánh sáng. Nhìn hai ảnh || #1: ảnh bên trái sáng từ bên phải || #1: vào prompt: nguồn sáng ở đâu, hướng
+đổi	30	C		#2: Nếu mỗi ảnh đổi màu, đổi hình || #2: ảnh đổi màu, đổi hình dáng hoặc || #2: hình dáng hoặc đổi phong cách, khách
+khác	29	C		#2: các phiên bản khác nhau cho từng || #4: Đó mới là khác biệt giữa ảnh || #5: một thương hiệu khác nhau, hãy khóa
+sau	29	LEAD		#1: vị trí nào. Sau đó tôi tạo || #2: nhóm khách hàng. Sau đó tôi mới || #4: đặc tính thật. Sau đó tôi dùng
+thay	29	C		#3: hợp. Ví dụ, thay vì nói “một || #4: dùng AI để thay ánh sáng, bối || #6: nhiên. Vì vậy, thay vì tạo một
+trong	29	LEAD		#4: bàn làm việc, trong balo đi du || #5: đặt sản phẩm trong khung hình. Tôi || #5: được lặp lại trong mọi lần tạo.
+trước	29	LEAD		#2: đáng xuất hiện trước khách hàng. Lưu || #3: sản phẩm đó. Trước khi viết prompt, || #5: ba thứ này trước khi tạo hàng
+nhất	28	TRAIL		#2: nguyên, palette phải nhất quán, và thông || #5: hàng loạt. Thứ nhất là palette màu. || #5: nhận được sự nhất quán. Họ có
+vì	28	LEAD		#1: giả, không phải vì công cụ dở. ... || #3: Ví dụ, thay vì nói “một bức || #6: giác tự nhiên. Vì vậy, thay vì
+lần	27	C	units	#2: chụp lại 20 lần. ... Một ảnh sản || #5: lại trong mọi lần tạo. Bình luận || #10: Sau một số lần thử, nếu kết
+vẫn	27	LEAD		#1: được lỗi, nhưng vẫn cảm thấy ảnh || #7: làm nội dung vẫn phải làm biên || #8: nhưng hiện đại” vẫn còn quá mơ
+hình	26	C		#2: đổi màu, đổi hình dáng hoặc đổi || #3: phần ba khung hình, dành cho phụ || #4: Nhưng để khách hình dung mình sẽ
+thêm	26	C		#1: sửa bằng cách thêm bốn thông tin || #4: các bác cần thêm bối cảnh và || #10: đáng đầu tư thêm. Nếu upscale cả
+tiêu	26	C		#1: Hãy cho nó tiêu chí để diễn || #5: đến từ những tiêu chí được lặp || #7: hợp với mục tiêu bài đăng. Ảnh
+trình	26	C		#5: sheet vào quy trình tạo ảnh. Khi || #22: kết thúc chương trình. Nếu đây là || #22: sai cả chương trình. Lưu video này
+việc	26	C		#4: làm tốt một việc: cho khách biết || #4: trên bàn làm việc, trong balo đi || #8: và dễ giao việc cho người khác
+đang	26	LEAD		#1: dở. ... Các bác đang bỏ quên ánh || #1: sao, và camera đang đứng ở vị || #4: biết sản phẩm đang tồn tại. Nhưng
+đừng	26	LEAD	warn	#4: được mở rộng. Đừng biến sản phẩm || #6: AI bớt giả, đừng bắt AI làm || #6: ánh sáng tốt, đừng bắt AI phát
+câu	25	C	units	#3: trả lời năm câu hỏi: khách hàng || #8: hồ. Tôi tách câu đó thành màu || #11: ảnh gốc, một câu mô tả chuyển
+gì	25	FN		#3: nổi bật điều gì, cảm xúc muốn || #3: tạo ra là gì, màu chủ đạo || #3: chủ đạo là gì, và góc máy
+hoặc	25	LEAD		#2: đổi hình dáng hoặc đổi phong cách, || #4: đi du lịch hoặc cạnh một buổi || #6: cảnh, màu sắc hoặc đạo cụ. Nếu
+thông	25	C		#1: cách thêm bốn thông tin vào prompt: || #1: sánh. Khi bốn thông tin này rõ, || #2: nhất quán, và thông điệp phải phục
+tự	25	C		#1: quá nhiều. Ảnh tự nhiên hơn ngay || #1: bàn. AI không tự hiểu từ “sang || #2: muốn nhận thứ tự workflow.
+chuyển	24	C		#11: câu mô tả chuyển động và một || #11: để kiểm tra chuyển động, rồi mới || #12: và giảm những chuyển động không cần
+cũng	24	LEAD		#6: phải lúc nào cũng là tạo từ || #7: ảnh nào đẹp cũng đúng với chiến || #10: bị loại. Tôi cũng không tạo vô
+thử	24	C		#10: một số lần thử, nếu kết quả || #11: Việt không? ... Tôi thử ngay. Tôi bắt || #19: nếu muốn tôi thử công cụ khác
+với	24	LEAD		#1: phần tiếp xúc với mặt bàn. AI || #7: góc phù hợp với mục tiêu bài || #7: thể phù hợp với sản phẩm cần
+ánh	24	C		#1: đang bỏ quên ánh sáng. Nhìn hai || #1: tả. Bình luận ÁNH SÁNG nếu các || #3: tôi sẽ nói: ánh sáng mềm từ
+cảm	23	C		#1: lỗi, nhưng vẫn cảm thấy ảnh đó || #3: bật điều gì, cảm xúc muốn tạo || #4: bối cảnh và cảm xúc. Tôi giữ
+rồi	23	FN		#6: thật làm nền rồi chỉ thay phần || #6: phẩm, giữ dáng, rồi đổi bối cảnh, || #9: khách nhận hàng rồi thấy khác hoàn
+thấy	23	C		#1: nhưng vẫn cảm thấy ảnh đó giả. || #5: Họ có thể thấy từng ảnh đẹp, || #9: nhận hàng rồi thấy khác hoàn toàn
+từ	23	LEAD		#1: bên trái sáng từ bên phải mà || #1: không tự hiểu từ “sang trọng” giống || #2: năm loại content. Từ đúng một ảnh
+đã	23	LEAD		#6: 0. Ảnh thật đã có sẵn rất || #6: Nếu ảnh gốc đã có ánh sáng || #6: Nếu sản phẩm đã đúng hình dáng,
+theo	22	LEAD		#17: rõ bước tiếp theo. Video đẹp là || #18: Năm giây tiếp theo là sản phẩm. || #23: bản, so sánh theo brief và giữ
+tính	22	C		#4: sắc và đặc tính thật. Sau đó || #9: tạo ra một tính năng sản phẩm || #14: một danh sách tính năng. Họ cần
+giữ	21	C		#2: sản phẩm phải giữ nguyên, palette phải || #4: cảm xúc. Tôi giữ nguyên sản phẩm, || #4: Một chiếc bình giữ nhiệt có thể
+khóa	21	C		#2: hiệu. Tôi luôn khóa ba thứ: sản || #5: khác nhau, hãy khóa ba thứ này || #12: tạo chữ nhỏ, khóa hướng sáng và
+những	21	LEAD		#5: Nó đến từ những tiêu chí được || #8: trừu tượng thành những lựa chọn cụ || #9: tin chữ và những chi tiết ảnh
+sai	21	C	warn	#10: nhỏ. Một bản sai hình dáng sản || #10: phẩm. Một bản sai ánh sáng. Một || #10: kết quả vẫn sai, tôi quay lại
+thường	21	FN		#5: khung hình. Tôi thường tạo một brand || #10: Workflow của tôi thường là: tạo vài || #12: chỗ người xem thường phát hiện trước
+workflow	21	C		#2: nhận thứ tự workflow. || #6: GỐC để nhận workflow. || #10: chắc sẽ dùng. Workflow của tôi thường
+định	21	C		#2: làm marketing quyết định lựa chọn nào || #7: để AI quyết định thay các bác || #9: hưởng đến quyết định mua. Làm content
+biến	20	C		#4: mở rộng. Đừng biến sản phẩm thành || #7: phẩm có thể biến thành cả bảng || #8: Nó là cách biến một cảm giác
+chọn	20	C		#2: tạo nhiều lựa chọn. Người làm marketing || #2: quyết định lựa chọn nào đáng xuất || #4: luận. Tôi sẽ chọn một ngành để
+cả	20	LEAD		#6: AI làm tất cả từ số 0. || #7: thể biến thành cả bảng góc máy || #7: không dùng tất cả. Tôi chọn góc
+hai	19	LEAD		#1: ánh sáng. Nhìn hai ảnh này. Cùng || #1: tôi tạo lại hai bản để so || #5: palette màu. Thứ hai là hướng ánh
+hay	19	LEAD		#12: lỗi các bác hay gặp. Tôi sẽ || #21: là điểm nghẽn hay không. Tôi chỉ || #23: sáng, bối cảnh hay chữ. Đừng tìm
+hiểu	19	C		#1: AI không tự hiểu từ “sang trọng” || #14: marketing vẫn phải hiểu người mua. Bình || #22: thể làm khách hiểu sai cả chương
+hợp	19	C		#3: máy nào phù hợp. Ví dụ, thay || #7: chọn góc phù hợp với mục tiêu || #7: có thể phù hợp với sản phẩm
+xuất	19	C		#2: chọn nào đáng xuất hiện trước khách || #4: nhiệt có thể xuất hiện trên bàn || #10: có khả năng xuất hiện trong chiến
+điều	19	C		#3: cần nổi bật điều gì, cảm xúc || #18: có quá nhiều điều muốn nói, hãy || #22: kiểm tra thêm điều kiện ưu đãi
+đây	19	FN		#7: bộ bố cục. Đây là điểm nhiều || #12: cần giữ nguyên. Đây là những chỗ || #15: sẽ cảm thấy đây là nhiều nhân
+đăng	19	C		#7: mục tiêu bài đăng. Ảnh cận chất || #9: vậy, trước khi đăng, tôi luôn kiểm || #11: Nhưng trước khi đăng, các bác phải
+bắt	18	C		#6: bớt giả, đừng bắt AI làm tất || #6: sáng tốt, đừng bắt AI phát minh || #8: bác không cần bắt đầu một thương
+màu	18	C		#2: mỗi ảnh đổi màu, đổi hình dáng || #3: ra là gì, màu chủ đạo là || #3: bên trái, nền màu kem, bố cục
+team	18	C		#29: có thể khiến team tốn nhiều thời || #31: ổn định không, team sửa được không, || #32: vào workflow của team, đặc biệt khi
+đến	18	LEAD		#5: Nhất quán không đến từ may mắn. || #5: may mắn. Nó đến từ những tiêu || #9: tiết ảnh hưởng đến quyết định mua.
+đề	18	C		#3: giống nhau. Vấn đề không phải AI || #3: tưởng tượng. Vấn đề là các bác || #14: nào? Và vấn đề nào được giải
+ghi	17	C		#4: năng bán hàng. Ghi ngành hàng của || #14: luận UGC và ghi ngành hàng của || #23: đầu sai, hãy ghi rõ sai ở
+góc	17	C	units	#3: là gì, và góc máy nào phù || #4: bối cảnh và góc kể chuyện. Một || #5: sáng, khoảng trống, góc máy và chất
+mục	17	C		#7: phù hợp với mục tiêu bài đăng. || #13: động không có mục đích. Video bán || #17: khoảnh khắc có mục đích. Một video
+nhanh	17	C		#9: mua. Làm content nhanh không có nghĩa || #9: các bác làm nhanh hơn, nhưng không || #11: bản nháp rất nhanh. Nhưng trước khi
+nhìn	17	C		#1: quên ánh sáng. Nhìn hai ảnh này. || #5: của các bác nhìn như một thương || #7: sản phẩm cần nhìn toàn bộ bố
+năm	17	LEAD		#2: thể mở ra năm loại content. Từ || #3: hãy trả lời năm câu hỏi: khách || #3: để nhận mẫu năm dòng.
+phù	17	C		#3: góc máy nào phù hợp. Ví dụ, || #7: Tôi chọn góc phù hợp với mục || #7: top-down có thể phù hợp với sản
+quyết	17	C		#2: ý nhé, bí quyết không phải là || #2: Người làm marketing quyết định lựa chọn || #7: Đừng để AI quyết định thay các
+rất	17	LEAD		#5: một brand sheet rất ngắn, gồm màu || #6: đã có sẵn rất nhiều thông tin || #11: làm bản nháp rất nhanh. Nhưng trước
+đạt	17	C		#23: bản nào không đạt, và vòng lặp || #25: lần thử không đạt, chứ không chỉ || #26: kết quả chưa đạt, tôi chỉ sửa
+bối	16	C		#1: phẩm, cùng một bối cảnh, nhưng ảnh || #4: bác cần thêm bối cảnh và cảm || #4: thay ánh sáng, bối cảnh và góc
+bốn	16	LEAD		#1: bằng cách thêm bốn thông tin vào || #1: so sánh. Khi bốn thông tin này || #9: luôn kiểm tra bốn thứ: hình dáng,
+case	16	C		#25: cụ này test case tiếp theo. || #31: kiểm tra bằng case thật. || #38: chọn một use case nhỏ, rồi làm
+cuối	16	C		#11: nhiệm với bản cuối. Bình luận ẢNH || #17: giải pháp, phần cuối phải nói rõ || #18: dùng. Hai giây cuối là lời kêu
+dụng	16	C		#4: hoàn cảnh sử dụng được mở rộng. || #9: kích thước, công dụng, thành phần hoặc || #14: hộp, cảnh sử dụng và nhân vật
+hỏi	16	C		#3: lời năm câu hỏi: khách hàng là || #12: đó. Đừng chỉ hỏi video có đẹp || #12: đẹp không. Hãy hỏi người xem có
+nhau	16	C		#2: phiên bản khác nhau cho từng vị || #3: ảnh không giống nhau. Vấn đề không || #5: thương hiệu khác nhau, hãy khóa ba
+nhỏ	16	C		#2: Một shop nhỏ không cần chụp || #10: tạo bốn bản nhỏ. Một bản sai || #12: AI tạo chữ nhỏ, khóa hướng sáng
+nên	16	LEAD		#18: Mỗi cảnh chỉ nên làm một việc. || #23: được điều gì nên giữ và điều || #23: và điều gì nên loại. Bình luận
+quá	16	C		#1: còn phải đoán quá nhiều. Ảnh tự || #8: đại” vẫn còn quá mơ hồ. Tôi || #16: không cần dùng quá nhiều tính từ.
+đâu	16	TRAIL		#1: nguồn sáng ở đâu, hướng bóng đi || #9: giới nằm ở đâu? Bình luận TRUNG || #17: người xem đi đâu. Tôi thường viết
+hoàn	15	C		#4: đổi, chỉ có hoàn cảnh sử dụng || #4: nó vào đúng hoàn cảnh khách hàng || #6: một nhân vật hoàn toàn mới, tôi
+quy	15	C		#5: brand sheet vào quy trình tạo ảnh. || #23: Hãy xây một quy trình kiểm soát || #23: động. Khi có quy trình, ba kết
+bước	14	C	units	#11: giúp rút ngắn bước sản xuất. Người || #17: phải nói rõ bước tiếp theo. Video || #25: với ai, và bước nào vẫn cần
+chủ	14	C		#3: là gì, màu chủ đạo là gì, || #5: ngắn, gồm màu chủ đạo, màu phụ, || #8: designer, marketer và chủ doanh nghiệp cùng
+demo	14	C		#4: một ngành để demo. || #11: Đừng nhầm một demo đẹp với video || #25: đẹp ở một demo chưa chắc chạy
+mình	14	FN	pronouns	#1: sang phải. Mắt mình có thể không || #4: khách hình dung mình sẽ dùng sản || #14: quen thuộc với mình. Tôi có thể
+tài	14	C	units	#2: bình luận 5 TÀI SẢN nếu muốn || #15: Hãy xây một tài sản nhân vật || #27: đến sức khỏe, tài chính, pháp lý
+vậy	14	FN		#6: tự nhiên. Vì vậy, thay vì tạo || #9: niềm tin. Vì vậy, trước khi đăng, || #17: câu thoại. Như vậy, các bác không
+chí	13	C		#1: cho nó tiêu chí để diễn tả. || #5: từ những tiêu chí được lặp lại || #23: đầu vào, tiêu chí loại để biết
+chữ	13	C		#9: sắc, thông tin chữ và những chi || #11: logo, ngón tay, chữ, hình dạng sản || #12: lực. Lỗi hai, chữ hoặc logo bị
+cáo	13	C		#2: một banner quảng cáo. Nhưng các bác || #9: toàn hình quảng cáo, thương hiệu sẽ || #9: cho lời quảng cáo. Các bác nghĩ
+còn	13	FN		#1: rõ, AI không còn phải đoán quá || #8: hiện đại” vẫn còn quá mơ hồ. || #10: khách hàng. Chỉ còn một bản đáng
+dễ	13	C		#3: rõ, prompt càng dễ sửa, và kết || #3: kết quả càng dễ lặp lại. Bình || #6: các bác càng dễ kiểm soát đầu
+lặp	13	C		#3: quả càng dễ lặp lại. Bình luận || #5: tiêu chí được lặp lại trong mọi || #8: chỉnh sửa và lặp lại. Bình luận
+nhân	13	C		#6: vì tạo một nhân vật hoàn toàn || #11: hành động của nhân vật. Tôi tạo || #14: sử dụng và nhân vật nói chuyện
+như	13	LEAD		#5: các bác nhìn như một thương hiệu || #16: vật đang nói như brochure. Câu “sản || #16: HeyGen. Nếu nghe như văn bản brochure,
+thời	13	C		#16: thứ hai có thời điểm, khó khăn || #19: lặp lại, tốn thời gian nhưng không || #25: chi phí hoặc thời gian có phù
+tiếp	13	C		#1: đổ và phần tiếp xúc với mặt || #17: nói rõ bước tiếp theo. Video đẹp || #18: đề. Năm giây tiếp theo là sản
+tiết	13	C		#9: và những chi tiết ảnh hưởng đến || #10: lại ngẫu nhiên. Tiết kiệm credits không || #10: nhận checklist workflow tiết kiệm.
+viết	13	C		#3: đó. Trước khi viết prompt, hãy trả || #8: các bác dễ viết prompt hơn, dễ || #16: bản brochure, hãy viết lại như đang
+bị	12	LEAD		#10: những bản đã bị loại. Tôi cũng || #12: chữ hoặc logo bị AI vẽ lại. || #12: tiết quan trọng bị lỗi, đừng cố
+bố	12	C		#3: nền màu kem, bố cục có khoảng || #7: nhìn toàn bộ bố cục. Đây là || #9: góc máy và bố cục. Tôi không
+bộ	12	C		#7: cần nhìn toàn bộ bố cục. Đây || #8: Moodboard không phải bộ ảnh để ngắm || #15: bác cần một bộ neo nhận dạng:
+chất	12	C		#2: Facebook, ảnh cận chất liệu, video dọc || #5: góc máy và chất liệu nền. Sau || #6: da, dáng người, chất liệu và cảm
+feedback	12	C		#26: hơn và giúp feedback cụ thể hơn. || #41: hỏi cụ thể, feedback cũng cụ thể || #41: THẬT để nhận feedback.
+gian	12	C		#19: lại, tốn thời gian nhưng không nhất || #25: phí hoặc thời gian có phù hợp || #29: nên tính thời gian sửa. Một công
+giây	12	C	units	#11: thoại khoảng 10 giây. Camera tiến chậm. || #11: catalogue vào 10 giây. Kết quả có || #12: AI trong năm giây. Lỗi một, cơ
+hiện	12	C		#2: nào đáng xuất hiện trước khách hàng. || #4: có thể xuất hiện trên bàn làm || #8: “tự nhiên nhưng hiện đại” vẫn còn
+hiệu	12	C		#2: cùng một thương hiệu. Tôi luôn khóa || #5: như một thương hiệu khác nhau, hãy || #5: nhớ được thương hiệu. Nhất quán không
+liệu	12	C		#2: ảnh cận chất liệu, video dọc cho || #5: máy và chất liệu nền. Sau đó || #6: dáng người, chất liệu và cảm giác
+lực	12	C		#12: nhưng không có lực. Lỗi hai, chữ || #34: tạo thêm áp lực phải biết mọi || #41: Đó là năng lực tạo ra đầu
+mua	12	C		#3: và ai sẽ mua sản phẩm đó. || #9: đến quyết định mua. Làm content nhanh || #14: phải hiểu người mua. Bình luận UGC
+mà	12	LEAD		#1: từ bên phải mà bóng lại đổ || #10: upscale một ảnh mà các bác chưa || #14: một khoảnh khắc mà khách hàng thật
+máy	12	C		#3: gì, và góc máy nào phù hợp. || #5: khoảng trống, góc máy và chất liệu || #7: cả bảng góc máy trong chưa đầy
+mỗi	12	LEAD		#2: nhiều ảnh. Nếu mỗi ảnh đổi màu, || #5: Nếu mỗi ảnh của các || #17: gọi hành động. Mỗi cảnh cần một
+nguyên	12	C		#2: phẩm phải giữ nguyên, palette phải nhất || #4: xúc. Tôi giữ nguyên sản phẩm, logo, || #11: Sản phẩm giữ nguyên hình dáng. Ánh
+quảng	12	C		#2: và một banner quảng cáo. Nhưng các || #9: hoàn toàn hình quảng cáo, thương hiệu || #9: nhiệm cho lời quảng cáo. Các bác
+sử	12	C		#4: có hoàn cảnh sử dụng được mở || #14: mở hộp, cảnh sử dụng và nhân || #15: vật rồi tái sử dụng. KOL ảo
+sự	12	C		#5: cảm nhận được sự nhất quán. Họ || #13: cao cấp cần sự bình tĩnh. Sản || #14: khách hàng thật sự gặp. AI hỗ
+vấn	12	C		#3: không giống nhau. Vấn đề không phải || #3: trí tưởng tượng. Vấn đề là các || #14: lúc nào? Và vấn đề nào được
+vật	12	C		#6: tạo một nhân vật hoàn toàn mới, || #11: động của nhân vật. Tôi tạo bản || #12: đổ và những vật thể cần giữ
+điểm	12	C		#7: cục. Đây là điểm nhiều người bỏ || #15: khóa những đặc điểm không được thay || #16: hai có thời điểm, khó khăn và
+đồng	12	C		#21: nếu các bác đồng ý. || #23: không phải hợp đồng bảo đảm một || #27: nhiều hơn không đồng nghĩa với dùng
+brand	11	C		#5: thường tạo một brand sheet rất ngắn, || #5: tôi mới đưa brand sheet vào quy || #5: muốn nhận checklist brand sheet tối thiểu.
+camera	11	C		#1: ra sao, và camera đang đứng ở || #11: khoảng 10 giây. Camera tiến chậm. Sản || #13: nhau. Dolly-in, tức camera tiến chậm vào
+chi	11	C		#9: chữ và những chi tiết ảnh hưởng || #11: rồi mới sửa chi tiết và ghép || #12: thiết. Nếu một chi tiết quan trọng
+chính	11	C		#7: tạo chín góc: chính diện, góc 45 || #15: nhận dạng: ảnh chính diện, ảnh nghiêng, || #22: sản phẩm, giá, chính tả, logo và
+chấm	11	C		#24: diễn và người chấm. Nếu không hiểu || #25: đang viral. ... Tôi chấm nó bằng một || #25: brief thật, không chấm bằng quảng cáo.
+cục	11	C		#3: màu kem, bố cục có khoảng thở, || #7: toàn bộ bố cục. Đây là điểm || #9: máy và bố cục. Tôi không cho
+giá	11	C		#15: ảo chỉ có giá trị khi người || #21: đó mới đánh giá xem công cụ || #22: chữ nhỏ, logo, giá, ngày tháng và
+giải	11	C		#10: nâng độ phân giải. Ví dụ, tôi || #14: đề nào được giải quyết? Nếu ba || #16: tôi mang đến giải pháp tối ưu”
+gốc	11	C		#2: đúng một ảnh gốc, tôi tạo ảnh || #6: cụ. Nếu ảnh gốc đã có ánh || #6: Bình luận ẢNH GỐC để nhận workflow.
+họ	11	FN	pronouns	#5: sự nhất quán. Họ có thể thấy || #12: trước cả khi họ biết video được || #14: dùng sản phẩm? Họ dùng vào lúc
+khung	11	C		#1: bác muốn nhận khung prompt này. || #3: một phần ba khung hình, dành cho || #5: sản phẩm trong khung hình. Tôi thường
+lời	11	C		#3: prompt, hãy trả lời năm câu hỏi: || #9: trách nhiệm cho lời quảng cáo. Các || #11: động và một lời thoại khoảng 10
+nền	11	C		#3: từ bên trái, nền màu kem, bố || #4: dừng lại. Ảnh nền trắng làm tốt || #5: và chất liệu nền. Sau đó tôi
+sheet	11	C		#5: tạo một brand sheet rất ngắn, gồm || #5: mới đưa brand sheet vào quy trình || #5: nhận checklist brand sheet tối thiểu.
+thương	11	C		#2: là cùng một thương hiệu. Tôi luôn || #5: nhìn như một thương hiệu khác nhau, || #5: không nhớ được thương hiệu. Nhất quán
+thế	11	FN		#1: hướng bóng đi thế nào, bề mặt || #3: cho nó biết thế nào là đẹp, || #3: nào là đẹp, thế nào là sang,
+tập	11	C		#4: cạnh một buổi tập. Sản phẩm không || #7: phải làm biên tập viên. Không phải || #38: muốn nhận bài tập 15 phút.
+checklist	10	C		#5: bác muốn nhận checklist brand sheet tối || #10: nếu muốn nhận checklist workflow tiết kiệm. || #15: nếu muốn nhận checklist bộ neo.
+càng	10	LEAD		#3: văn phòng. Brief càng rõ, prompt càng || #3: càng rõ, prompt càng dễ sửa, và || #3: và kết quả càng dễ lặp lại.
+dung	10	C		#4: để khách hình dung mình sẽ dùng || #7: người làm nội dung vẫn phải làm || #11: Người làm nội dung vẫn chịu trách
+duyệt	10	C		#27: tra và phê duyệt. Nếu nội dung || #33: điểm nghẽn là duyệt nội dung hoặc || #35: và tiêu chí duyệt của các bác.
+giác	10	C		#6: liệu và cảm giác tự nhiên. Vì || #8: đầu bằng cảm giác. Ví dụ, “tự || #8: biến một cảm giác trừu tượng thành
+giới	10	C		#9: bác nghĩ ranh giới nằm ở đâu? || #13: gần gũi. Video giới thiệu công nghệ || #20: và thêm những giới hạn như sản
+khả	10	C		#4: và ảnh có khả năng bán hàng. || #10: vào bản có khả năng xuất hiện || #23: lại bản có khả năng dùng. Nếu
+nghiệp	10	C		#8: và chủ doanh nghiệp cùng nhìn về || #19: video mất chuyên nghiệp. Một nhịp cắt || #40: bằng việc doanh nghiệp dùng nó mà
+nhiên	10	C		#1: nhiều. Ảnh tự nhiên hơn ngay ở || #6: cảm giác tự nhiên. Vì vậy, thay || #8: Ví dụ, “tự nhiên nhưng hiện đại”
+nằm	10	C		#9: nghĩ ranh giới nằm ở đâu? Bình || #28: gì, bằng chứng nằm ở đâu, và || #40: lỗi thường không nằm ở một công
+phí	10	C		#25: không, và chi phí hoặc thời gian || #29: test bản miễn phí và bản trả || #29: và bản trả phí bằng cùng một
+số	10	C		#6: tất cả từ số 0. Ảnh thật || #10: hạn. Sau một số lần thử, nếu || #15: toàn thân, một số biểu cảm và
+doanh	9	C		#8: marketer và chủ doanh nghiệp cùng nhìn || #40: sợ bằng việc doanh nghiệp dùng nó || #55: Doanh nghiệp không cần
+dáng	9	C		#2: màu, đổi hình dáng hoặc đổi phong || #6: sáng, làn da, dáng người, chất liệu || #6: sản phẩm, giữ dáng, rồi đổi bối
+hành	9	C		#11: sản phẩm và hành động của nhân || #17: lời kêu gọi hành động. Mỗi cảnh || #18: lời kêu gọi hành động. Mỗi cảnh
+hạn	9	C		#10: không tạo vô hạn. Sau một số || #20: thêm những giới hạn như sản phẩm || #20: động có giới hạn và có mục
+kiện	9	C		#22: tra thêm điều kiện ưu đãi và || #25: ghi rõ điều kiện test: ảnh đầu || #32: thức, đọc điều kiện sử dụng, thử
+logo	9	C		#4: nguyên sản phẩm, logo, màu sắc và || #8: thương hiệu bằng logo. ... Hãy bắt đầu || #11: phải kiểm tra logo, ngón tay, chữ,
+lúc	9	C		#6: giỏi không phải lúc nào cũng là || #13: thay đổi cùng lúc, AI sẽ khó || #14: Họ dùng vào lúc nào? Và vấn
+lý	9	C		#3: và sang” là lý do AI cho || #4: cho khách một lý do để dừng || #27: thông tin pháp lý. Tôi không tạo
+ngay	9	C		#1: tự nhiên hơn ngay ở vùng bóng || #11: không? ... Tôi thử ngay. Tôi bắt đầu || #29: cho ảnh đẹp ngay lần đầu nhưng
+ngành	9	C		#4: bán hàng. Ghi ngành hàng của các || #4: sẽ chọn một ngành để demo. || #14: UGC và ghi ngành hàng của các
+quán	9	C		#2: palette phải nhất quán, và thông điệp || #5: được sự nhất quán. Họ có thể || #5: thương hiệu. Nhất quán không đến từ
+test	9	C		#19: cuối. Bình luận TEST THẬT nếu muốn || #25: rõ điều kiện test: ảnh đầu vào || #25: công cụ này test case tiếp theo.
+thiếu	9	C		#3: không phải AI thiếu trí tưởng tượng. || #18: có nghĩa là thiếu. Ngắn là chọn || #24: phần thừa, phần thiếu và phần chưa
+ugc	9	C		#14: Một video UGC tốt không bắt || #14: mua. Bình luận UGC và ghi ngành || #16: nghe. Bình luận UGC THOẠI nếu muốn
+việt	9	C		#11: quảng cáo tiếng Việt không? ... Tôi thử || #30: một brief rất Việt Nam cho AI. ... || #30: Một căn bếp Việt, một mâm cơm
+đáng	9	C		#2: lựa chọn nào đáng xuất hiện trước || #10: còn một bản đáng đầu tư thêm. || #25: luận rất rõ: đáng dùng cho ai,
+đưa	9	C		#5: đó tôi mới đưa brand sheet vào || #16: thoại trước khi đưa vào HeyGen. Nếu || #19: Tôi đưa đúng một footage
+đặt	9	C		#3: thở, sản phẩm đặt ở một phần || #4: xa lạ. Hãy đặt nó vào đúng || #5: ba là cách đặt sản phẩm trong
+credits	8	C		#10: Đừng tốn credits để upscale một || #10: nhiên. Tiết kiệm credits không phải là || #10: thật. Bình luận CREDITS nếu muốn nhận
+danh	8	C		#7: nếu muốn nhận danh sách góc máy || #14: cần nghe một danh sách tính năng. || #27: Muốn tôi làm danh sách “AI nên
+lưu	8	C		#2: trước khách hàng. Lưu video này và || #22: cả chương trình. Lưu video này trước || #32: đang dùng không. Lưu checklist này và
+mất	8	C	warn	#9: thương hiệu sẽ mất niềm tin. Vì || #12: khiến người xem mất niềm tin vào || #16: thể: “Tôi từng mất cả buổi để
+nội	8	C		#7: nhưng người làm nội dung vẫn phải || #11: xuất. Người làm nội dung vẫn chịu || #19: một. Người làm nội dung vẫn là
+quan	8	C		#12: một chi tiết quan trọng bị lỗi, || #26: xem cái nào quan trọng nhất. Một || #27: nội dung liên quan đến sức khỏe,
+sách	8	C		#7: muốn nhận danh sách góc máy copy-paste. || #14: nghe một danh sách tính năng. Họ || #27: tôi làm danh sách “AI nên dùng
+tham	8	C		#23: ba thứ: ảnh tham chiếu để khóa || #30: thiện bằng ảnh tham chiếu, từ khóa || #35: từ model, ảnh tham chiếu hay cách
+tiến	8	C		#11: 10 giây. Camera tiến chậm. Sản phẩm || #13: Dolly-in, tức camera tiến chậm vào sản || #13: ngắn. Nếu camera tiến, sản phẩm xoay,
+trả	8	C		#3: viết prompt, hãy trả lời năm câu || #10: các bác đang trả tiền cho những || #29: Không phải cứ trả tiền là ảnh
+từng	8	LEAD		#2: khác nhau cho từng vị trí. AI || #5: có thể thấy từng ảnh đẹp, nhưng || #15: biến là tạo từng cảnh một cách
+xúc	8	C		#1: và phần tiếp xúc với mặt bàn. || #3: điều gì, cảm xúc muốn tạo ra || #4: cảnh và cảm xúc. Tôi giữ nguyên
+ý	8	C		#2: các bác chú ý nhé, bí quyết || #21: các bác đồng ý. || #24: hàng. Tôi giữ ý chính, rồi sửa
+buổi	7	C		#4: hoặc cạnh một buổi tập. Sản phẩm || #16: từng mất cả buổi để làm việc || #24: phù hợp với buổi sáng bận rộn.”
+bán	7	C		#4: có khả năng bán hàng. Ghi ngành || #13: mục đích. Video bán hàng không cần || #17: đích. Một video bán hàng có thể
+bảy	7	LEAD		#45: người mới sau bảy ngày thực hành. || #45: lỗi. Ngày thứ bảy, đóng gói thành || #46: ảnh sản phẩm, bảy ngày, bảy tài
+chuyện	7	C		#4: và góc kể chuyện. Một chiếc bình || #14: nhân vật nói chuyện tự nhiên. Nhưng || #15: phong cách nói chuyện. Chỉ khi bộ
+chứng	7	C		#17: cách dùng, bằng chứng và lời kêu || #18: sau là bằng chứng hoặc cách dùng. || #28: điều gì, bằng chứng nằm ở đâu,
+cộng	7	C		#43: bài tập vào cộng đồng và ghi || #46: Tôi giao cho cộng đồng một nhiệm || #48: Nếu cộng đồng của các
+giả	7	C	warn	#1: ảnh AI trông giả, không phải vì || #1: thấy ảnh đó giả. Tôi sửa bằng || #6: ảnh AI bớt giả, đừng bắt AI
+gửi	7	C		#12: tin nó không. Gửi một lỗi các || #24: kết quả sai. Gửi một mô tả || #28: khách hành động. Gửi một video đẹp
+khiến	7	C		#12: ra ba lỗi khiến người xem mất || #16: thay đổi. Nó khiến người xem dễ || #24: một bức ảnh khiến người mua thấy
+nghe	7	C		#14: xem không cần nghe một danh sách || #16: pháp tối ưu” nghe giống phòng marketing, || #16: vào HeyGen. Nếu nghe như văn bản
+nghĩa	7	C		#9: nhanh không có nghĩa là bỏ qua || #18: Ngắn không có nghĩa là thiếu. Ngắn || #21: xấu không có nghĩa là các bác
+ngắn	7	C		#5: brand sheet rất ngắn, gồm màu chủ || #11: AI giúp rút ngắn bước sản xuất. || #13: vào một video ngắn. Nếu camera tiến,
+nhiệm	7	C		#9: bỏ qua trách nhiệm với khách hàng. || #9: bác chịu trách nhiệm cho lời quảng || #11: vẫn chịu trách nhiệm với bản cuối.
+nháp	7	C		#10: tạo vài bản nháp ở mức vừa || #11: dùng làm bản nháp rất nhanh. Nhưng || #16: để có bản nháp đầu tiên.” Câu
+phong	7	C		#2: dáng hoặc đổi phong cách, khách hàng || #8: ra ảnh lệch phong cách hơn, và || #15: dáng người và phong cách nói chuyện.
+phát	7	C		#6: đừng bắt AI phát minh lại ánh || #6: nhiều thứ phải phát minh, AI càng || #12: người xem thường phát hiện trước cả
+sang	7	C		#1: lại đổ ngược sang phải. Mắt mình || #1: tự hiểu từ “sang trọng” giống các || #3: cho đẹp và sang” là lý do
+soát	7	C		#6: càng dễ kiểm soát đầu ra. Dùng || #13: sẽ khó kiểm soát hơn. Một chuyển || #22: Các bác kiểm soát phần thông tin.
+tên	7	C		#1: thể không gọi tên được lỗi, nhưng || #19: phụ đề sai tên sản phẩm có || #22: lần. Kiểm tra tên sản phẩm, giá,
+vòng	7	C		#13: tức camera đi vòng nhẹ, tạo cảm || #19: để AI làm vòng một, sau đó || #19: AI là editor vòng một. Người làm
+xây	7	C		#15: khác nhau. Hãy xây một tài sản || #23: thần kỳ. Hãy xây một quy trình || #42: và người đang xây năng lực. Tiến
+đọc	7	C		#16: Các bác hãy đọc to câu thoại || #31: thay vì chỉ đọc lại thông cáo. || #32: trang chính thức, đọc điều kiện sử
+đủ	7	C		#10: ở mức vừa đủ, chọn bản đúng || #20: sản phẩm” chưa đủ. Các bác phải || #29: phí có thể đủ. Nếu cần sản
+bấm	6	C		#10: gốc thay vì bấm lại ngẫu nhiên. || #52: chứ không chỉ bấm lại đến khi || #53: bằng một nút bấm. Hãy xây bằng
+chiếu	6	C		#23: thứ: ảnh tham chiếu để khóa đầu || #30: bằng ảnh tham chiếu, từ khóa bối || #35: model, ảnh tham chiếu hay cách viết
+chạy	6	C		#11: đã sẵn sàng chạy quảng cáo. AI || #22: này trước khi chạy quảng cáo. || #23: Người mới thường chạy một lần rồi
+cập	6	C		#33: CŨ]. Sau bản cập nhật [TIN MỚI], || #33: không. Nhưng bản cập nhật chưa thay || #38: giác mình đang cập nhật. Bình luận
+do	6	LEAD		#3: sang” là lý do AI cho các || #4: khách một lý do để dừng lại. || #34: biết và lý do nó liên quan
+dẫn	6	C		#9: phẩm trông hấp dẫn hơn. ... Nhưng không || #17: đẹp nhưng không dẫn người xem đi || #17: Video có đường dẫn mới là video
+dừng	6	C		#4: lý do để dừng lại. Ảnh nền || #9: đẹp giúp khách dừng lại. Nhưng nếu || #28: Đẹp giúp khách dừng lại. Rõ ràng
+giống	6	C		#1: từ “sang trọng” giống các bác. Hãy || #3: 10 ảnh không giống nhau. Vấn đề || #14: nhưng vẫn không giống lời nói của
+giữa	6	LEAD		#4: là khác biệt giữa ảnh catalogue và || #12: sáng thay đổi giữa các khung hình. || #17: vấn đề, phần giữa phải cho thấy
+gói	6	C		#45: thứ bảy, đóng gói thành một case || #46: Ngày bảy đóng gói brand sheet. Các || #53: sửa và đóng gói. Công cụ có
+hướng	6	C		#1: sáng ở đâu, hướng bóng đi thế || #5: Thứ hai là hướng ánh sáng. Thứ || #8: nhìn về một hướng. Moodboard không phải
+kỳ	6	C		#23: tìm prompt thần kỳ. Hãy xây một || #34: bác chưa nên kỳ vọng là [GIỚI || #38: sai để tránh kỳ vọng quá mức.
+liên	6	C		#18: và thông tin liên hệ vào cùng || #22: và thông tin liên hệ rất dễ || #22: và thông tin liên hệ. AI làm
+mô	6	C		#11: gốc, một câu mô tả chuyển động || #24: Tôi mô tả một sản || #24: sai. Gửi một mô tả đời thường.
+mạnh	6	C		#13: thông điệp thường mạnh hơn năm chuyển || #27: Công cụ càng mạnh, quy trình kiểm || #29: công cụ đó mạnh. Hãy mua khi
+mọi	6	LEAD		#5: lặp lại trong mọi lần tạo. Bình || #34: lực phải biết mọi thứ. Theo dõi || #48: Thay vì hỏi “mọi người thấy công
+nhóm	6	C		#2: vụ cùng một nhóm khách hàng. Sau || #21: chỉ sửa từng nhóm thông tin một. || #44: chỉ thay một nhóm thông tin để
+nhật	6	C		#33: Sau bản cập nhật [TIN MỚI], bước || #33: Nhưng bản cập nhật chưa thay thế || #38: mình đang cập nhật. Bình luận LÀM
+nơi	6	C		#31: chia sẻ khắp nơi. ... Nhưng SME có || #40: người duyệt và nơi lưu bản cuối. || #48: cụ thể và nơi trưng bày thành
+sắc	6	C		#4: phẩm, logo, màu sắc và đặc tính || #6: bối cảnh, màu sắc hoặc đạo cụ. || #8: đó thành màu sắc, chất liệu, nguồn
+tay	6	C		#11: sáng không đổi. Tay tương tác tự || #11: tra logo, ngón tay, chữ, hình dạng || #12: bác hãy nhìn tay, mắt, bóng đổ
+thiết	6	C		#12: động không cần thiết. Nếu một chi || #19: nhưng không nhất thiết cần người ngồi || #22: bằng công cụ thiết kế. Như vậy,
+thoại	6	C		#11: và một lời thoại khoảng 10 giây. || #11: tự nhiên. Lời thoại chỉ nói một || #16: đó hơn. Lời thoại tự nhiên thường
+thức	6	C		#20: để nhận công thức ba phần. || #32: mở trang chính thức, đọc điều kiện || #34: thông tin chính thức, đâu là phần
+tư	6	C		#10: bản đáng đầu tư thêm. Nếu upscale || #10: Là chỉ đầu tư vào bản có || #45: cục. Ngày thứ tư, tạo bản đầu
+tượng	6	C		#3: thiếu trí tưởng tượng. Vấn đề là || #7: để gây ấn tượng. Góc top-down có || #8: cảm giác trừu tượng thành những lựa
+tả	6	C		#1: chí để diễn tả. Bình luận ÁNH || #11: một câu mô tả chuyển động và || #22: phẩm, giá, chính tả, logo và ngày
+vài	6	LEAD	quantity	#10: thường là: tạo vài bản nháp ở || #16: tôi chỉ cần vài phút để có || #23: thật thường tạo vài bản, so sánh
+vụ	6	C		#2: điệp phải phục vụ cùng một nhóm || #13: chuyển động phục vụ một thông điệp || #17: cảnh không phục vụ câu chuyện, tôi
+ít	6	C		#10: phải là làm ít hơn. Là chỉ || #22: hãy phóng to ít nhất một lần. || #26: ràng giúp AI ít phải đoán hơn
+đóng	6	C		#45: Ngày thứ bảy, đóng gói thành một || #46: UGC. Ngày bảy đóng gói brand sheet. || #53: tra, sửa và đóng gói. Công cụ
+độ	6	C	units	#7: diện, góc 45 độ, cận chất liệu, || #10: rồi mới nâng độ phân giải. Ví || #29: Tôi chấm tốc độ, khả năng sửa,
+ổn	6	C		#15: khi bộ neo ổn định, các bác || #25: đầu ra có ổn định không, các || #31: điểm: đầu ra ổn định không, team
+bóng	5	C		#1: bên phải mà bóng lại đổ ngược || #1: ở đâu, hướng bóng đi thế nào, || #1: ngay ở vùng bóng đổ và phần
+bỏ	5	C		#1: Các bác đang bỏ quên ánh sáng. || #7: điểm nhiều người bỏ qua: AI tạo || #9: có nghĩa là bỏ qua trách nhiệm
+cao	5	C		#3: “một bức ảnh cao cấp”, tôi sẽ || #13: tạo cảm giác cao cấp. Orbit, tức || #13: điệp. Sản phẩm cao cấp cần sự
+challenge	5	C		#42: muốn tham gia challenge. || #45: nhận lộ trình challenge. || #46: khác nhau. Luật challenge rất đơn giản:
+chiến	5	C		#7: cũng đúng với chiến lược. Đừng để || #10: xuất hiện trong chiến dịch thật. Bình || #38: cần tạo cả chiến dịch. Chỉ cần
+cầu	5	C		#7: phút. Tôi yêu cầu AI tạo chín || #26: quá nhiều yêu cầu vào một prompt, || #34: chưa có nhu cầu đó thì chưa
+cắt	5	C		#17: câu chuyện, tôi cắt nó, dù cảnh || #19: AI có thể cắt khoảng lặng, chọn || #19: nghiệp. Một nhịp cắt sai có thể
+diện	5	C		#7: chín góc: chính diện, góc 45 độ, || #7: nào sẽ đại diện cho thương hiệu. || #15: dạng: ảnh chính diện, ảnh nghiêng, ảnh
+dụ	5	C		#3: phù hợp. Ví dụ, thay vì nói || #8: cảm giác. Ví dụ, “tự nhiên nhưng || #10: phân giải. Ví dụ, tôi tạo bốn
+giao	5	C		#8: hơn, và dễ giao việc cho người || #22: nhanh nhưng không giao cho AI phần || #46: Tôi giao cho cộng đồng
+gọi	5	C		#1: có thể không gọi tên được lỗi, || #17: và lời kêu gọi hành động. Mỗi || #18: là lời kêu gọi hành động. Mỗi
+khoảng	5	C		#3: bố cục có khoảng thở, sản phẩm || #5: phụ, nguồn sáng, khoảng trống, góc máy || #8: liệu, nguồn sáng, khoảng thở và kiểu
+khó	5	C	warn	#13: lúc, AI sẽ khó kiểm soát hơn. || #15: KOL ảo không khó bằng giữ người || #16: có thời điểm, khó khăn và thay
+kiệm	5	C		#10: ngẫu nhiên. Tiết kiệm credits không phải || #10: checklist workflow tiết kiệm. || #21: là cách tiết kiệm nhất. Bình luận
+ký	5	C		#51: Trước khi đăng ký, hãy hỏi ba || #51: các bác đăng ký vì đã xác || #52: làm thật, đăng ký buổi học thử
+kể	5	C		#4: cảnh và góc kể chuyện. Một chiếc || #16: một người đang kể trải nghiệm. Hãy || #16: lại như đang kể cho một người
+loại	5	C		#2: mở ra năm loại content. Từ đúng || #10: bản đã bị loại. Tôi cũng không || #23: vào, tiêu chí loại để biết bản
+luôn	5	FN		#2: thương hiệu. Tôi luôn khóa ba thứ: || #9: khi đăng, tôi luôn kiểm tra bốn || #34: ngay. Tôi sẽ luôn tách rõ đâu
+lộ	5	C		#45: nếu muốn nhận lộ trình challenge. || #52: quan trọng của lộ trình. Nếu các || #52: đây không phải lộ trình phù hợp.
+lựa	5	C		#2: giúp tạo nhiều lựa chọn. Người làm || #2: marketing quyết định lựa chọn nào đáng || #7: AI tạo ra lựa chọn, nhưng người
+marketing	5	C		#2: chọn. Người làm marketing quyết định lựa || #14: cảnh. Người làm marketing vẫn phải hiểu || #16: nghe giống phòng marketing, không giống một
+miễn	5	C		#29: Tôi test bản miễn phí và bản || #29: ý tưởng, bản miễn phí có thể || #36: năng này nghe miễn phí. ... Nhưng workflow
+mắt	5	C		#1: ngược sang phải. Mắt mình có thể || #12: hãy nhìn tay, mắt, bóng đổ và || #15: kiểu tóc, màu mắt, dáng người và
+mở	5	C		#2: tốt có thể mở ra năm loại || #4: sử dụng được mở rộng. Đừng biến || #14: để dựng cảnh mở hộp, cảnh sử
+phiên	5	C		#2: mới tạo các phiên bản khác nhau || #40: team ghi rõ phiên bản prompt, ngày || #46: sáu tạo một phiên bản UGC. Ngày
+pháp	5	C		#16: mang đến giải pháp tối ưu” nghe || #17: cho thấy giải pháp, phần cuối phải || #27: và thông tin pháp lý. Tôi không
+phép	5	C		#9: phải. Tôi cho phép AI thay ánh || #9: Tôi không cho phép AI đổi kích || #18: chỉ không cho phép các bác nói
+phút	5	C	units	#7: chưa đầy một phút. Tôi yêu cầu || #16: chỉ cần vài phút để có bản || #38: thử trong 10 phút. Không cần tạo
+phụ	5	C		#3: hình, dành cho phụ nữ văn phòng. || #5: chủ đạo, màu phụ, nguồn sáng, khoảng || #19: bản và tạo phụ đề rất nhanh.
+phục	5	C		#2: thông điệp phải phục vụ cùng một || #13: Một chuyển động phục vụ một thông || #15: cảm và trang phục chuẩn. Sau đó
+ràng	5	C		#26: Ưu tiên rõ ràng giúp AI ít || #28: hơn nhưng rõ ràng hơn. Tôi sẽ || #28: dừng lại. Rõ ràng mới giúp khách
+sao	5	FN		#1: phản xạ ra sao, và camera đang || #48: đạt và vì sao. Không biến nơi || #50: thích được vì sao kết quả xuất
+thực	5	C		#9: Bình luận TRUNG THỰC. || #36: phí. ... Nhưng workflow thực tế có thể || #38: dùng được trong thực tế. Nếu test
+tiên	5	C		#16: bản nháp đầu tiên.” Câu thứ hai || #26: phần nào. Ưu tiên rõ ràng giúp || #30: Kết quả đầu tiên mắc lỗi ở
+tiền	5	C		#10: bác đang trả tiền cho những bản || #14: máy quay đắt tiền. ... Nó bắt đầu || #29: phải cứ trả tiền là ảnh đẹp
+toàn	5	C		#6: nhân vật hoàn toàn mới, tôi dùng || #7: phẩm cần nhìn toàn bộ bố cục. || #9: thấy khác hoàn toàn hình quảng cáo,
+trách	5	C		#9: là bỏ qua trách nhiệm với khách || #9: các bác chịu trách nhiệm cho lời || #11: dung vẫn chịu trách nhiệm với bản
+tách	5	C		#8: mơ hồ. Tôi tách câu đó thành || #18: muốn nói, hãy tách thành một series. || #26: lộn xộn. Hãy tách prompt thành bốn
+tốn	5	C	warn	#10: Đừng tốn credits để upscale || #19: việc lặp lại, tốn thời gian nhưng || #29: thể khiến team tốn nhiều thời gian
+ví	5	C		#3: nào phù hợp. Ví dụ, thay vì || #8: bằng cảm giác. Ví dụ, “tự nhiên || #10: độ phân giải. Ví dụ, tôi tạo
+về	5	LEAD		#8: nghiệp cùng nhìn về một hướng. Moodboard || #18: thứ nhất nói về lỗi. Video thứ || #18: thứ hai nói về cách sửa. Video
+vừa	5	C		#10: nháp ở mức vừa đủ, chọn bản || #26: prompt tốt. Nếu vừa muốn ảnh tối || #26: ảnh tối giản, vừa muốn nhiều chi
+yêu	5	C		#7: một phút. Tôi yêu cầu AI tạo || #26: nhồi quá nhiều yêu cầu vào một || #35: hay cách viết yêu cầu. Nếu brief
+đi	5	C		#1: đâu, hướng bóng đi thế nào, bề || #4: việc, trong balo đi du lịch hoặc || #13: Orbit, tức camera đi vòng nhẹ, tạo
+điệp	5	C		#2: quán, và thông điệp phải phục vụ || #13: dựa trên thông điệp. Sản phẩm cao || #13: vụ một thông điệp thường mạnh hơn
+đoán	5	C		#1: không còn phải đoán quá nhiều. Ảnh || #26: AI sẽ phải đoán xem cái nào || #26: AI ít phải đoán hơn và giúp
+đạo	5	C		#3: gì, màu chủ đạo là gì, và || #5: gồm màu chủ đạo, màu phụ, nguồn || #6: màu sắc hoặc đạo cụ. Nếu ảnh
+ảo	5	C		#15: Tạo một KOL ảo không khó bằng || #15: sử dụng. KOL ảo chỉ có giá || #15: Bình luận KOL ẢO nếu muốn nhận
+10	4	C		#3: cho các bác 10 ảnh không giống || #11: lời thoại khoảng 10 giây. Camera tiến || #11: cả catalogue vào 10 giây. Kết quả
+15	4	C		#18: Video 15 giây không ngắn. ... || #18: đúng. Bình luận 15 GIÂY nếu muốn || #38: nhận bài tập 15 phút.
+biệt	4	C		#4: mới là khác biệt giữa ảnh catalogue || #32: của team, đặc biệt khi đang làm || #35: tra xem khác biệt đến từ model,
+bạn	4	FN	pronouns	#42: nó rất cao. Bạn ấy đã khóa || #45: Ngày thứ hai, bạn ấy học cách || #45: lỗi. Trước đây, bạn ấy chỉ nói
+chia	4	C		#17: Hãy bắt nó chia video thành những || #20: méo. Tôi thường chia prompt thành ba || #31: MỚI] đang được chia sẻ khắp nơi. ...
+chuẩn	4	C		#15: và trang phục chuẩn. Sau đó hãy || #47: hơn, thêm màu chuẩn vào brand sheet, || #53: định mục tiêu, chuẩn bị đầu vào
+chắc	4	C		#10: các bác chưa chắc sẽ dùng. Workflow || #25: một demo chưa chắc chạy được trong || #30: khóa, nhưng chưa chắc hiểu sắc thái
+chờ	4	C		#36: watermark, thời gian chờ, quyền sử dụng || #52: xem video và chờ kết quả tự || #59: video AI rồi chờ viral. Nó không
+cũ	4	C		#35: các bác vẫn cũ, kết quả vẫn || #35: kết quả vẫn cũ. Tôi đưa cùng || #35: cả công cụ cũ lẫn công cụ
+cải	4	C		#30: cạnh nhau. Tôi cải thiện bằng ảnh || #54: để tiếp tục cải thiện. Nếu ngày || #55: phát sinh và cải thiện quy trình.
+cấu	4	C		#8: bác muốn nhận cấu trúc prompt. || #44: Khi prompt có cấu trúc, feedback cũng || #57: PORTFOLIO để nhận cấu trúc một trang.
+cận	4	C		#2: cho Facebook, ảnh cận chất liệu, video || #7: góc 45 độ, cận chất liệu, top-down, || #7: bài đăng. Ảnh cận chất liệu dùng
+dành	4	C		#3: ba khung hình, dành cho phụ nữ || #59: học này không dành cho người chỉ || #59: viral. Nó không dành cho người không
+dạng	4	C		#11: tay, chữ, hình dạng sản phẩm và || #15: bộ neo nhận dạng: ảnh chính diện, || #20: giữ nguyên hình dạng, logo không đổi,
+dịch	4	C		#10: hiện trong chiến dịch thật. Bình luận || #38: tạo cả chiến dịch. Chỉ cần biết || #55: thành một chiến dịch nhỏ, đo lỗi
+dữ	4	C		#32: Ba, ảnh và dữ liệu của các || #32: đang làm với dữ liệu hoặc tài || #33: dung hoặc thiếu dữ liệu đầu vào,
+gia	4	C		#42: nếu muốn tham gia challenge. || #45: demo của chuyên gia. ... Đây là sản || #46: Bình luận THAM GIA để nhận brief
+giảm	4	C		#12: bằng AI. Cách giảm lỗi là dùng || #12: hướng sáng và giảm những chuyển động || #38: thật sự giúp giảm một bước trong
+hero	4	C		#2: tôi tạo ảnh hero cho website, ảnh || #7: angle, over-the-shoulder và hero shot. Sau đó || #7: tạo hoàn cảnh. Hero shot dùng để
+hỗ	4	C		#14: sự gặp. AI hỗ trợ tạo cảnh. || #27: AI có thể hỗ trợ bản nháp. || #39: công cụ đã hỗ trợ một tính
+kol	4	C		#15: Tạo một KOL ảo không khó || #15: tái sử dụng. KOL ảo chỉ có || #15: vật. Bình luận KOL ẢO nếu muốn
+lifestyle	4	C		#2: cho website, ảnh lifestyle cho Facebook, ảnh || #7: liệu, top-down, profile, lifestyle, low angle, over-the-shoulder || #7: tin tưởng. Ảnh lifestyle dùng để tạo
+lượng	4	C		#25: brief không, chất lượng đầu ra có || #33: hưởng đến chất lượng đầu ra không. || #33: tra brief, chất lượng và nhận diện
+mang	4	C		#16: của chúng tôi mang đến giải pháp || #45: lực có thể mang sang sản phẩm || #53: mới có thể mang sang nền tảng
+moodboard	4	C		#8: giúp tôi tạo moodboard để designer, marketer || #8: về một hướng. Moodboard không phải bộ || #8: Khi đã có moodboard, các bác dễ
+mười	4	LEAD	quantity	#15: ở video thứ mười. Muốn nhân vật || #43: vì xem thêm mười video về công || #44: hơn. Đừng sửa mười thứ cùng lúc.
+mặt	4	C		#1: thế nào, bề mặt phản xạ ra || #1: tiếp xúc với mặt bàn. AI không || #15: thay đổi: khuôn mặt, kiểu tóc, màu
+nghẽn	4	C		#21: sự là điểm nghẽn hay không. Tôi || #29: quyết đúng điểm nghẽn của workflow. Bình || #33: ích. Nếu điểm nghẽn là duyệt nội
+nhịp	4	C		#17: tôi kiểm tra nhịp: ba giây đầu || #19: khoảng lặng, chọn nhịp cơ bản và || #19: Nhưng câu chữ, nhịp cảm xúc, logo,
+nhồi	4	C		#11: cụ thể, không nhồi cả catalogue vào || #13: khám phá. Đừng nhồi năm chuyển động || #18: một việc. Đừng nhồi logo, tính năng,
+niềm	4	C		#9: hiệu sẽ mất niềm tin. Vì vậy, || #12: người xem mất niềm tin vào video || #49: bằng chứng giả. Niềm tin không đến
+phân	4	C		#10: mới nâng độ phân giải. Ví dụ, || #32: các bác đang phân vân. || #36: lượt tạo, độ phân giải, watermark, thời
+portfolio	4	C		#57: được gì. Một portfolio AI nên có || #57: sự đồng ý. Portfolio tốt biến lời || #57: lực. Bình luận PORTFOLIO để nhận cấu
+qua	4	LEAD		#7: nhiều người bỏ qua: AI tạo ra || #9: nghĩa là bỏ qua trách nhiệm với || #27: không thể bỏ qua. Dùng AI nhiều
+quay	4	C		#10: vẫn sai, tôi quay lại sửa brief || #13: chuyển động máy quay, cùng một ảnh || #14: đầu bằng máy quay đắt tiền. ... Nó
+so	4	C		#1: hai bản để so sánh. Khi bốn || #23: tạo vài bản, so sánh theo brief || #29: workflow. Bình luận SO SÁNH và ghi
+sánh	4	C		#1: bản để so sánh. Khi bốn thông || #23: vài bản, so sánh theo brief và || #29: Bình luận SO SÁNH và ghi công
+thiện	4	C		#30: nhau. Tôi cải thiện bằng ảnh tham || #54: tiếp tục cải thiện. Nếu ngày thứ || #55: sinh và cải thiện quy trình. Chủ
+thúc	4	C		#22: và ngày kết thúc chương trình. Nếu || #28: giữa, rồi kết thúc bằng một hành || #56: tạo chỉ kết thúc bằng việc mọi
+trang	4	C		#6: là tạo từ trang trắng. Nhiều khi || #15: biểu cảm và trang phục chuẩn. Sau || #32: Tôi thường mở trang chính thức, đọc
+trên	4	LEAD		#4: thể xuất hiện trên bàn làm việc, || #13: chuyển động dựa trên thông điệp. Sản || #33: MỚI]. Tôi thử trên một brief thật
+trúc	4	C		#8: muốn nhận cấu trúc prompt. || #44: prompt có cấu trúc, feedback cũng cụ || #57: để nhận cấu trúc một trang.
+trị	4	C		#15: chỉ có giá trị khi người xem || #31: AI có giá trị khi nó giúp || #41: lại có giá trị hơn. Tôi muốn
+trọng	4	C		#1: hiểu từ “sang trọng” giống các bác. || #12: chi tiết quan trọng bị lỗi, đừng || #26: cái nào quan trọng nhất. Một prompt
+trợ	4	C		#14: gặp. AI hỗ trợ tạo cảnh. Người || #27: có thể hỗ trợ bản nháp. Người || #39: cụ đã hỗ trợ một tính năng.
+tình	4	C		#14: đầu bằng một tình huống đúng. Ai || #16: đổi thành một tình huống cụ thể: || #16: dung mình trong tình huống đó hơn.
+tưởng	4	C		#3: AI thiếu trí tưởng tượng. Vấn đề || #7: để tăng tin tưởng. Ảnh lifestyle dùng || #29: thử một ý tưởng, bản miễn phí
+tối	4	C		#5: checklist brand sheet tối thiểu. || #16: đến giải pháp tối ưu” nghe giống || #26: vừa muốn ảnh tối giản, vừa muốn
+viral	4	C		#25: mới này đang viral. ... Tôi chấm nó || #32: thấy một video viral. ... Kiểm tra ba || #50: phải bài nào viral cũng là bài
+viên	4	C		#7: làm biên tập viên. Không phải ảnh || #42: tiên của học viên này chưa đẹp. ... || #49: là case học viên, tôi sẽ xin
+vô	4	C		#10: cũng không tạo vô hạn. Sau một || #23: Vậy prompt có vô dụng không? Không. || #54: để học thêm vô hạn. Các bác
+vọng	4	C		#21: ba kiểu thất vọng khác nhau. Một || #34: chưa nên kỳ vọng là [GIỚI HẠN]. || #38: để tránh kỳ vọng quá mức. Đọc
+đào	4	C		#55: bàn giao, dễ đào tạo người mới || #55: lại prompt tốt. Đào tạo tốt không || #55: nghiệp bình luận ĐÀO TẠO TEAM để
+đích	4	C		#13: không có mục đích. Video bán hàng || #17: khắc có mục đích. Một video bán || #20: và có mục đích. Bình luận CHUYỂN
+đặc	4	C		#4: màu sắc và đặc tính thật. Sau || #15: hãy khóa những đặc điểm không được || #27: cũng không đổi đặc tính sản phẩm
+đều	4	C		#35: công cụ mới đều phải đoán. Công || #46: và người xem đều học được cách || #52: sửa. Mỗi phần đều phải đi ra
+đổ	4	C		#1: mà bóng lại đổ ngược sang phải. || #1: ở vùng bóng đổ và phần tiếp || #12: tay, mắt, bóng đổ và những vật
+đời	4	C		#13: tạo cảm giác đời thường, nhưng dễ || #13: tĩnh. Sản phẩm đời thường cần cảm || #24: bằng ngôn ngữ đời thường và để
+đứng	4	C		#1: và camera đang đứng ở vị trí || #20: Muốn sản phẩm đứng yên mà camera || #20: thứ gì phải đứng yên. Phần hai
+ưu	4	C		#16: giải pháp tối ưu” nghe giống phòng || #18: logo, tính năng, ưu đãi, câu chuyện || #22: thêm điều kiện ưu đãi và thông
+ấy	4	FN		#42: rất cao. Bạn ấy đã khóa đúng || #45: thứ hai, bạn ấy học cách mô || #45: Trước đây, bạn ấy chỉ nói “ảnh
+20	3	C		#2: cần chụp lại 20 lần. ... Một ảnh || #34: không cần đọc 20 bài về AI || #55: nhân viên biết 20 công cụ AI. ...
+bao	3	C		#24: Nó hiểu đúng bao nhiêu phần? Tôi || #25: số lần thử bao nhiêu và tôi || #36: thật sự tốn bao nhiêu thời gian,
+bàn	3	C		#1: xúc với mặt bàn. AI không tự || #4: xuất hiện trên bàn làm việc, trong || #55: Team cũng dễ bàn giao, dễ đào
+bên	3	C		#1: cảnh, nhưng ảnh bên trái sáng từ || #1: trái sáng từ bên phải mà bóng || #3: sáng mềm từ bên trái, nền màu
+chuyên	3	C		#19: làm video mất chuyên nghiệp. Một nhịp || #45: ảnh demo của chuyên gia. ... Đây là || #54: cần trở thành chuyên gia AI. ... Các
+chỗ	3	C		#12: Đây là những chỗ người xem thường || #30: lỗi ở đúng chỗ này. AI hiểu || #36: thể tốn ở chỗ khác. Các bác
+chứ	3	C		#25: thử không đạt, chứ không chỉ bản || #52: phẩm cụ thể, chứ không dừng ở || #52: kết quả sai, chứ không chỉ bấm
+claim	3	C		#37: Claim “[CÔNG CỤ] làm || #37: tôi sẽ là claim này đúng trong || #37: chưa đủ. Gửi claim AI các bác
+cơ	3	C		#6: AI càng có cơ hội tạo lỗi. || #12: giây. Lỗi một, cơ thể làm động || #19: lặng, chọn nhịp cơ bản và tạo
+cấp	3	C		#3: bức ảnh cao cấp”, tôi sẽ nói: || #13: cảm giác cao cấp. Orbit, tức camera || #13: Sản phẩm cao cấp cần sự bình
+duy	3	C		#23: đảm một ảnh duy nhất. Muốn kiểm || #44: một tiêu chí duy nhất. Tôi nói || #48: thêm cách tư duy. Tôi cũng muốn
+dạy	3	C		#50: nhưng chưa chắc dạy được các bác || #52: học này không dạy các bác ngồi || #53: khóa học chỉ dạy danh sách công
+dọc	3	C		#2: chất liệu, video dọc cho Reels và || #46: năm tạo video dọc. Ngày sáu tạo || #56: phẩm, một video dọc, một nội dung
+gặp	3	C		#12: các bác hay gặp. Tôi sẽ làm || #14: hàng thật sự gặp. AI hỗ trợ || #28: hỏi: ai đang gặp vấn đề, sản
+gồm	3	C		#5: sheet rất ngắn, gồm màu chủ đạo, || #17: hàng có thể gồm năm cảnh: vấn || #55: tôi đề xuất gồm năm bước: brief,
+huống	3	C		#14: bằng một tình huống đúng. Ai đang || #16: thành một tình huống cụ thể: “Tôi || #16: mình trong tình huống đó hơn. Lời
+hảo	3	C		#41: video chưa hoàn hảo nhưng đúng sản || #42: một ảnh hoàn hảo. Là người học || #46: cần làm hoàn hảo ngay ngày đầu.
+hệ	3	C		#18: thông tin liên hệ vào cùng một || #22: thông tin liên hệ rất dễ sai. || #22: thông tin liên hệ. AI làm nền.
+hồ	3	C		#8: còn quá mơ hồ. Tôi tách câu || #21: brief vẫn mơ hồ, đổi công cụ || #44: ba phần mơ hồ: sản phẩm chưa
+hứa	3	C		#54: trình này không hứa một prompt sẽ || #59: ký, còn hơn hứa một kết quả || #60: cách. Không ai hứa một prompt sẽ
+khoảnh	3	C		#14: hiện trong một khoảnh khắc quen thuộc || #14: thật hoặc một khoảnh khắc mà khách || #17: video thành những khoảnh khắc có mục
+khắc	3	C		#14: trong một khoảnh khắc quen thuộc với || #14: hoặc một khoảnh khắc mà khách hàng || #17: thành những khoảnh khắc có mục đích.
+kiểu	3	C		#8: khoảng thở và kiểu ảnh. Sau đó || #15: đổi: khuôn mặt, kiểu tóc, màu mắt, || #21: tạo ra ba kiểu thất vọng khác
+kế	3	C		#22: công cụ thiết kế. Như vậy, các || #47: công cụ thiết kế. Nếu chỉ xem || #60: cách tôi thiết kế khóa học: học
+lớp	3	C		#39: tin thành ba lớp: thông báo chính || #39: một trong ba lớp, tôi sẽ không || #50: Tôi nhìn bốn lớp. Hook có khiến
+lợi	3	C		#11: chỉ nói một lợi ích cụ thể, || #17: Video đẹp là lợi thế. Video có || #28: thiếu đối tượng, lợi ích và hành
+model	3	C		#21: bác cần một model mới. Nếu brief || #21: Trước khi đổi model, hãy giữ nguyên || #35: biệt đến từ model, ảnh tham chiếu
+mơ	3	C		#8: vẫn còn quá mơ hồ. Tôi tách || #21: Nếu brief vẫn mơ hồ, đổi công || #44: thấy ba phần mơ hồ: sản phẩm
+nam	3	C		#30: brief rất Việt Nam cho AI. ... Kết || #30: bối cảnh Việt Nam để tôi thử || #39: mở ở Việt Nam không, có giới
+neo	3	C		#15: cần một bộ neo nhận dạng: ảnh || #15: Chỉ khi bộ neo ổn định, các || #15: nhận checklist bộ neo.
+nghiệm	3	C		#16: đang kể trải nghiệm. Hãy đổi thành || #39: chính thức, trải nghiệm thử và ý || #60: để kể trải nghiệm. Nhân vật hoặc
+nguồn	3	C		#1: tin vào prompt: nguồn sáng ở đâu, || #5: đạo, màu phụ, nguồn sáng, khoảng trống, || #8: sắc, chất liệu, nguồn sáng, khoảng thở
+ngôn	3	C		#24: sản phẩm bằng ngôn ngữ đời thường || #32: phù hợp với ngôn ngữ mình đang || #39: dùng được với ngôn ngữ tiếng Việt
+ngẫu	3	C		#10: vì bấm lại ngẫu nhiên. Tiết kiệm || #15: cảnh một cách ngẫu hứng. Cảnh đầu || #58: cách bấm thử ngẫu nhiên, credits sẽ
+ngữ	3	C		#24: phẩm bằng ngôn ngữ đời thường và || #32: hợp với ngôn ngữ mình đang dùng || #39: được với ngôn ngữ tiếng Việt không,
+nhiêu	3	C		#24: hiểu đúng bao nhiêu phần? Tôi nói: || #25: lần thử bao nhiêu và tôi đã || #36: sự tốn bao nhiêu thời gian, credits
+palette	3	C		#2: phải giữ nguyên, palette phải nhất quán, || #5: Thứ nhất là palette màu. Thứ hai || #47: bị lệch vì palette chưa được khóa.
+quen	3	C		#14: một khoảnh khắc quen thuộc với mình. || #14: thật, một thói quen thật hoặc một || #41: bác tập thói quen tự chấm trước
+quyền	3	C		#29: độ nhất quán, quyền sử dụng và || #36: thời gian chờ, quyền sử dụng và || #48: cộng đồng có quyền nói bài nào
+riêng	3	C		#19: tra hình, xem riêng phần phụ đề || #40: một công cụ riêng lẻ. Lỗi nằm || #60: tài sản của riêng mình. Ảnh sản
+series	3	C		#18: tách thành một series. Video thứ nhất || #34: thứ. Theo dõi series Tin AI nhưng || #39: muốn tôi làm series này.
+sinh	3	C		#13: thường, nhưng dễ sinh lỗi hơn. Tôi || #36: những bước phát sinh, rồi mới quyết || #55: đo lỗi phát sinh và cải thiện
+social	3	C		#51: sản phẩm, video social, UGC, KOL ảo || #52: phẩm. Một video social. Một phiên bản || #60: đăng bán. Video social để thu hút
+sáu	3	LEAD		#45: feedback. Ngày thứ sáu, sửa lỗi. Ngày || #46: video dọc. Ngày sáu tạo một phiên || #54: tạo video. Ngày sáu kiểm tra và
+thiệu	3	C		#13: gũi. Video giới thiệu công nghệ có || #56: một buổi giới thiệu AI. ... Họ cần || #57: biến lời giới thiệu thành bằng chứng.
+tháng	3	C		#22: logo, giá, ngày tháng và thông tin || #22: giá hoặc ngày tháng có thể làm || #53: cũ sau vài tháng. Một workflow tốt
+thích	3	C		#27: phải rõ. Tôi thích dùng AI để || #50: trình có giải thích được vì sao || #53: các bác yêu thích biến mất, các
+thần	3	C		#23: Đừng tìm prompt thần kỳ. Hãy xây || #42: từ một prompt thần kỳ. Nó đến || #47: từ một prompt thần kỳ. Xem cả
+tiếng	3	C		#11: video quảng cáo tiếng Việt không? ... Tôi || #19: video không bật tiếng để kiểm tra || #39: với ngôn ngữ tiếng Việt không, hay
+to	3	C		#16: bác hãy đọc to câu thoại trước || #22: đẹp chưa? ... Phóng to lên rồi hãy || #22: đăng, hãy phóng to ít nhất một
+tool	3	C		#21: luận BRIEF TRƯỚC TOOL nếu các bác || #35: trước khi đổi tool, hãy viết lại || #55: xem danh sách tool. Là giúp team
+trí	3	C		#1: đứng ở vị trí nào. Sau đó || #2: cho từng vị trí. AI giúp tạo || #3: phải AI thiếu trí tưởng tượng. Vấn
+trải	3	C		#16: người đang kể trải nghiệm. Hãy đổi || #39: báo chính thức, trải nghiệm thử và || #60: UGC để kể trải nghiệm. Nhân vật
+tuần	3	C		#45: đẹp”. Sau một tuần, bạn ấy có || #48: muốn nhận đề tuần này. || #56: hàng và một tuần nội dung. Team
+tác	3	C		#11: đổi. Tay tương tác tự nhiên. Lời || #12: thể làm động tác nhưng không có || #44: thật sự có tác dụng. Tôi cũng
+tái	3	C		#15: nhân vật rồi tái sử dụng. KOL || #52: concept có thể tái sử dụng. Và || #60: concept có thể tái sử dụng. Và
+tìm	3	C		#23: hay chữ. Đừng tìm prompt thần kỳ. || #55: mới và dễ tìm lại prompt tốt. || #59: sửa, hoặc đang tìm một công cụ
+tóc	3	C		#15: khuôn mặt, kiểu tóc, màu mắt, dáng || #15: hứng. Cảnh đầu tóc ngắn, cảnh sau || #15: ngắn, cảnh sau tóc dài; cảnh này
+tảng	3	C		#53: mang sang nền tảng khác. Đừng xây || #56: đã có nền tảng để lặp lại. || #60: học: học nền tảng, làm ảnh, làm
+tất	3	LEAD		#6: bắt AI làm tất cả từ số || #7: tôi không dùng tất cả. Tôi chọn || #21: một. Nếu sửa tất cả cùng lúc,
+tầng	3	C	units	#26: prompt thành bốn tầng: chủ thể, bố || #26: chỉ sửa một tầng mỗi lần. Nhờ || #26: Bình luận 4 TẦNG để nhận khung
+tắc	3	C		#53: ghi lại nguyên tắc phía sau. Những || #53: sau. Những nguyên tắc đó mới có || #58: hiện. Ba nguyên tắc tôi dùng là:
+tắt	3	C		#31: ngay không? Tóm tắt trong một câu, || #33: sơ đồ tóm tắt. || #59: Không có đường tắt bằng một prompt.
+tố	3	C		#21: không biết yếu tố nào làm kết || #26: bác biết yếu tố nào thật sự || #44: không biết yếu tố nào thật sự
+tốc	3	C		#27: AI để tăng tốc phần lặp lại, || #29: hơn. Tôi chấm tốc độ, khả năng || #40: Quy trình giúp tốc độ đó không
+upscale	3	C		#10: tốn credits để upscale một ảnh mà || #10: tư thêm. Nếu upscale cả bốn, các || #58: trúc, và chỉ upscale bản có khả
+văn	3	C		#3: cho phụ nữ văn phòng. Brief càng || #16: Nếu nghe như văn bản brochure, hãy || #30: hiểu sắc thái văn hóa và bối
+vẽ	3	C		#6: đừng để AI vẽ lại nó. Càng || #12: logo bị AI vẽ lại. Lỗi ba, || #47: để AI tự vẽ thông tin. Mỗi
+workshop	3	C		#55: để nhận khung workshop. || #56: nghiệp muốn thử workshop thực hành. || #60: nhóm. Đăng ký workshop hoặc danh sách
+xác	3	C		#35: tham chiếu và xác định bản nào || #51: ký vì đã xác định được một || #53: cách các bác xác định mục tiêu,
+yên	3	C		#20: sản phẩm đứng yên mà camera chuyển || #20: gì phải đứng yên. Phần hai nói || #20: gì phải đứng yên. Chuyển động tốt
+yếu	3	C		#21: sẽ không biết yếu tố nào làm || #26: các bác biết yếu tố nào thật || #44: bác không biết yếu tố nào thật
+ích	3	C		#11: nói một lợi ích cụ thể, không || #28: đối tượng, lợi ích và hành động. || #33: có thể hữu ích. Nếu điểm nghẽn
+đánh	3	C		#21: Sau đó mới đánh giá xem công || #42: lý do tôi đánh giá nó rất || #51: nhận worksheet tự đánh giá.
+0	2	C		#6: cả từ số 0. Ảnh thật đã || #53: đầu từ số 0. Khi học một
+7	2	C		#45: khác. Bình luận 7 NGÀY nếu muốn || #54: thật. Bình luận 7 NGÀY để nhận
+banner	2	C		#2: Reels và một banner quảng cáo. Nhưng || #46: Ngày bốn tạo banner. Ngày năm tạo
+brochure	2	C	warn	#16: đang nói như brochure. Câu “sản phẩm || #16: như văn bản brochure, hãy viết lại
+buộc	2	C		#24: chi tiết bắt buộc phải giữ nguyên. || #30: và những ràng buộc không được thay
+bảng	2	C		#7: biến thành cả bảng góc máy trong || #13: nếu muốn nhận bảng chuyển động.
+bảo	2	C		#17: Đừng bảo AI làm một || #23: phải hợp đồng bảo đảm một ảnh
+bật	2	C		#3: phẩm cần nổi bật điều gì, cảm || #19: xem video không bật tiếng để kiểm
+bề	2	C		#1: đi thế nào, bề mặt phản xạ || #20: logo không đổi, bề mặt không méo.
+bớt	2	C		#6: Muốn ảnh AI bớt giả, đừng bắt || #33: của các bác bớt được bước nào.
+bức	2	C		#3: vì nói “một bức ảnh cao cấp”, || #24: “Hãy làm một bức ảnh khiến người
+caption	2	C		#11: tiết và ghép caption. Đừng nhầm một || #12: cố cứu bằng caption. Hãy tạo lại
+catalogue	2	C		#4: biệt giữa ảnh catalogue và ảnh có || #11: không nhồi cả catalogue vào 10 giây.
+chú	2	C		#2: Nhưng các bác chú ý nhé, bí || #34: quả. Phần đáng chú ý là [ĐIỂM
+chúng	2	FN	pronouns	#16: “sản phẩm của chúng tôi mang đến || #27: tin ra công chúng. Muốn tôi làm
+chương	2	C		#22: ngày kết thúc chương trình. Nếu đây || #22: hiểu sai cả chương trình. Lưu video
+chậm	2	C		#11: giây. Camera tiến chậm. Sản phẩm giữ || #13: tức camera tiến chậm vào sản phẩm,
+chỉnh	2	C		#8: thể trao đổi, chỉnh sửa và lặp || #25: và tôi đã chỉnh những gì. Như
+chịu	2	C		#9: thay các bác chịu trách nhiệm cho || #11: nội dung vẫn chịu trách nhiệm với
+con	2	C		#25: nào vẫn cần con người kiểm tra. || #30: phương vẫn cần con người hiểu. Gửi
+concept	2	C		#52: nhân vật hoặc concept có thể tái || #60: Nhân vật hoặc concept có thể tái
+content	2	C		#2: ra năm loại content. Từ đúng một || #9: định mua. Làm content nhanh không có
+cạnh	2	C		#4: du lịch hoặc cạnh một buổi tập. || #30: thể được đặt cạnh nhau. Tôi cải
+cứ	2	C		#29: Không phải cứ trả tiền là || #58: định. Không phải cứ tạo nhiều là
+diễn	2	C		#1: tiêu chí để diễn tả. Bình luận || #24: phải làm đạo diễn và người chấm.
+dài	2	C		#15: cảnh sau tóc dài; cảnh này ánh || #26: nhất. Một prompt dài không tự động
+dõi	2	C		#34: là: nên theo dõi nếu các bác || #34: mọi thứ. Theo dõi series Tin AI
+dù	2	C		#17: tôi cắt nó, dù cảnh đó có || #27: AI để làm, dù AI hoàn toàn
+dở	2	C	warn	#1: vì công cụ dở. ... Các bác đang || #23: cụ tốt hoặc dở. Người làm thật
+dựa	2	C		#13: chọn chuyển động dựa trên thông điệp. || #35: sánh công cụ dựa trên cùng một
+dựng	2	C		#14: dùng AI để dựng cảnh mở hộp, || #56: sheet, làm ảnh, dựng video và kiểm
+editor	2	C		#19: thanh. AI là editor vòng một. Người || #19: dung vẫn là editor cuối. Bình luận
+file	2	C		#36: thời gian xuất file, thời gian kiểm || #55: brief rời rạc, file nằm nhiều nơi,
+footage	2	C		#19: đưa đúng một footage thô cho AI || #19: cụ khác cùng footage.
+giản	2	C		#26: muốn ảnh tối giản, vừa muốn nhiều || #46: challenge rất đơn giản: giữ nguyên sản
+giấu	2	C		#49: không cần che giấu lần thử không || #57: chưa đạt. Đừng giấu quá trình. Một
+gu	2	C		#8: không thay thế gu thẩm mỹ. AI || #8: AI giúp biến gu đó thành thứ
+gây	2	C		#7: shot dùng để gây ấn tượng. Góc || #57: Một ảnh cuối gây ấn tượng, nhưng
+gần	2	C		#13: cần cảm giác gần gũi. Video giới || #20: Prompt “camera tiến gần sản phẩm” chưa
+hôm	2	C		#34: bài về AI hôm nay. ... Đây là || #53: Nếu hôm nay công cụ
+hưởng	2	C		#9: chi tiết ảnh hưởng đến quyết định || #33: và có ảnh hưởng đến chất lượng
+hấp	2	C		#9: sản phẩm trông hấp dẫn hơn. ... Nhưng || #27: chỉ để ảnh hấp dẫn hơn. AI
+hứng	2	C		#15: một cách ngẫu hứng. Cảnh đầu tóc || #50: thể truyền cảm hứng, nhưng chưa chắc
+khen	2	C		#42: thật. Điều đáng khen không phải là || #48: thành nơi chỉ khen nhau sẽ giúp
+khoe	2	C		#47: sẽ không chỉ khoe bản đẹp. ... Tôi || #50: Một video chỉ khoe bản đẹp có
+khám	2	C		#13: tạo cảm giác khám phá. Handheld tạo || #13: cần chuyển động khám phá. Đừng nhồi
+khăn	2	C		#16: thời điểm, khó khăn và thay đổi. || #16: cảnh, một khó khăn và một thay
+kiến	2	C		#51: đang sưu tầm kiến thức. Trước khi || #54: sản phẩm giúp kiến thức bám vào
+kêu	2	C		#17: chứng và lời kêu gọi hành động. || #18: cuối là lời kêu gọi hành động.
+loạt	2	C		#5: khi tạo hàng loạt. Thứ nhất là || #39: sản xuất hàng loạt không. Tôi luôn
+lượt	2	C		#36: cần kiểm tra lượt tạo, độ phân || #48: không chỉ có lượt xem. Bình luận
+lẫn	2	C		#35: công cụ cũ lẫn công cụ mới || #37: kết quả đạt lẫn kết quả không
+lệch	2	C		#8: nhận ra ảnh lệch phong cách hơn, || #47: hai, màu bị lệch vì palette chưa
+lịch	2	C		#4: balo đi du lịch hoặc cạnh một || #56: lực thật. Đặt lịch trao đổi nếu
+lớn	2	C		#21: sửa biến số lớn nhất trước khi || #45: Điểm thay đổi lớn nhất không phải
+marketer	2	C		#8: moodboard để designer, marketer và chủ doanh || #59: hợp với SME, marketer, freelancer và những
+may	2	C		#5: không đến từ may mắn. Nó đến || #52: lại đến khi may mắn có một
+minh	2	C		#6: bắt AI phát minh lại ánh sáng. || #6: thứ phải phát minh, AI càng có
+méo	2	C		#20: bề mặt không méo. Tôi thường chia || #47: sản phẩm bị méo vì ảnh gốc
+mẫu	2	C		#3: BRIEF để nhận mẫu năm dòng. || #18: muốn nhận timeline mẫu.
+mắn	2	C		#5: đến từ may mắn. Nó đến từ || #52: đến khi may mắn có một bản
+mức	2	C		#10: bản nháp ở mức vừa đủ, chọn || #38: kỳ vọng quá mức. Đọc tin để
+nay	2	C		#34: về AI hôm nay. ... Đây là một || #53: Nếu hôm nay công cụ AI
+nghĩ	2	C		#9: cáo. Các bác nghĩ ranh giới nằm || #46: được cách suy nghĩ. Bình luận THAM
+ngược	2	C		#1: bóng lại đổ ngược sang phải. Mắt || #50: cách làm lại. Ngược lại, một case
+ngồi	2	C		#19: thiết cần người ngồi làm từng giây. || #52: dạy các bác ngồi xem AI. ... Nó
+nhé	2	TRAIL		#2: bác chú ý nhé, bí quyết không || #59: Nói thật nhé. ... Khóa học này
+nhắn	2	C		#28: cụ thể như nhắn tin, bình luận || #60: cho doanh nghiệp, nhắn TEAM AI.
+nhờ	2	C		#26: tầng mỗi lần. Nhờ vậy, các bác || #30: Sau đó tôi nhờ người thật xem
+nổi	2	C		#3: sản phẩm cần nổi bật điều gì, || #45: chủ thể chưa nổi và bố cục
+phá	2	C		#13: cảm giác khám phá. Handheld tạo cảm || #13: chuyển động khám phá. Đừng nhồi năm
+phòng	2	C		#3: phụ nữ văn phòng. Brief càng rõ, || #16: ưu” nghe giống phòng marketing, không giống
+phóng	2	C		#22: AI đẹp chưa? ... Phóng to lên rồi || #22: khi đăng, hãy phóng to ít nhất
+phương	2	C		#30: Bối cảnh địa phương vẫn cần con || #49: người xem thấy phương pháp. Bình luận
+phản	2	C		#1: nào, bề mặt phản xạ ra sao, || #48: sản phẩm và phản hồi, không chỉ
+phỏng	2	C		#49: là case mô phỏng, tôi cũng sẽ || #50: hình ảnh mô phỏng. Đừng chỉ hỏi
+rút	2	C		#11: cáo. AI giúp rút ngắn bước sản || #33: này có thể rút gọn thành [BƯỚC
+rộng	2	C		#4: dụng được mở rộng. Đừng biến sản || #45: brief còn rất rộng. Ngày thứ hai,
+shot	2	C		#7: over-the-shoulder và hero shot. Sau đó tôi || #7: hoàn cảnh. Hero shot dùng để gây
+sme	2	C		#31: khắp nơi. ... Nhưng SME có thật sự || #59: phù hợp với SME, marketer, freelancer và
+storyboard	2	C		#17: Tôi thường viết storyboard trước, rồi mới || #17: hàng. Bình luận STORYBOARD để nhận khung
+sẵn	2	C		#6: thật đã có sẵn rất nhiều thông || #11: với video đã sẵn sàng chạy quảng
+sẻ	2	C		#31: đang được chia sẻ khắp nơi. ... Nhưng || #39: đang được chia sẻ rất nhiều. ... Nhưng
+sợ	2	C		#40: mới không đáng sợ bằng việc doanh || #51: bác mua vì sợ bỏ lỡ một
+sức	2	C		#27: liên quan đến sức khỏe, tài chính, || #36: credits và công sức sửa”. Lưu video
+thiểu	2	C		#5: brand sheet tối thiểu. || #40: Một workflow tối thiểu cần có brief,
+thói	2	C		#14: đau thật, một thói quen thật hoặc || #41: các bác tập thói quen tự chấm
+thất	2	C		#21: ra ba kiểu thất vọng khác nhau. || #59: để các bác thất vọng. Nếu các
+thở	2	C		#3: cục có khoảng thở, sản phẩm đặt || #8: nguồn sáng, khoảng thở và kiểu ảnh.
+top-down	2	C		#7: cận chất liệu, top-down, profile, lifestyle, low || #7: ấn tượng. Góc top-down có thể phù
+trao	2	C		#8: thứ có thể trao đổi, chỉnh sửa || #56: thật. Đặt lịch trao đổi nếu doanh
+trái	2	C		#1: nhưng ảnh bên trái sáng từ bên || #3: mềm từ bên trái, nền màu kem,
+tránh	2	C		#12: ảnh gốc tốt, tránh để AI tạo || #38: phần sai để tránh kỳ vọng quá
+trông	2	C		#1: 90% ảnh AI trông giả, không phải || #9: làm sản phẩm trông hấp dẫn hơn. ...
+trắng	2	C		#4: lại. Ảnh nền trắng làm tốt một || #6: tạo từ trang trắng. Nhiều khi là
+trống	2	C		#5: nguồn sáng, khoảng trống, góc máy và || #26: vừa muốn nền trống, vừa muốn có
+tâm	2	C		#31: Điều tôi quan tâm không phải tính || #31: đâu. Tôi quan tâm nó cắt được
+tóm	2	C		#31: nó ngay không? Tóm tắt trong một || #33: nhận sơ đồ tóm tắt.
+tăng	2	C		#7: liệu dùng để tăng tin tưởng. Ảnh || #27: dùng AI để tăng tốc phần lặp
+tại	2	LEAD		#4: phẩm đang tồn tại. Nhưng để khách || #60: danh sách chờ tại link trong bio.
+tải	2	C		#18: video bị quá tải. Ngắn không có || #32: Đừng tải [CÔNG CỤ] chỉ
+tế	2	C		#36: Nhưng workflow thực tế có thể tốn || #38: được trong thực tế. Nếu test đạt,
+tục	2	C		#54: phẩm để tiếp tục cải thiện. Nếu || #60: có thể tiếp tục lưu video AI. ...
+tức	2	C		#13: khác nhau. Dolly-in, tức camera tiến chậm || #13: cao cấp. Orbit, tức camera đi vòng
+vị	2	C		#1: đang đứng ở vị trí nào. Sau || #2: nhau cho từng vị trí. AI giúp
+xa	2	C		#4: thành một thứ xa lạ. Hãy đặt || #37: nên hiểu quá xa đến đâu. Nếu
+xấu	2	C	warn	#4: các bác không xấu. ... Nó chỉ chưa || #21: Kết quả xấu không có nghĩa
+áp	2	C		#25: kết luận này áp dụng trong trường || #34: phải tạo thêm áp lực phải biết
+đo	2	C		#40: trình nhỏ và đo xem nó có || #55: chiến dịch nhỏ, đo lỗi phát sinh
+đãi	2	C		#18: tính năng, ưu đãi, câu chuyện và || #22: điều kiện ưu đãi và thông tin
+đường	2	C		#17: thế. Video có đường dẫn mới là || #59: phẩm. Không có đường tắt bằng một
+đại	2	C		#7: ảnh nào sẽ đại diện cho thương || #8: nhiên nhưng hiện đại” vẫn còn quá
+đắt	2	C		#14: bằng máy quay đắt tiền. ... Nó bắt || #36: nhiều có thể đắt hơn một công
+đối	2	C		#28: Nhưng nó thiếu đối tượng, lợi ích || #43: ảnh có đúng đối tượng không, và
+đội	2	C		#56: Đội marketing không cần || #60: việc, portfolio hoặc đội nhóm. Đăng ký
+ấn	2	C		#7: dùng để gây ấn tượng. Góc top-down || #57: ảnh cuối gây ấn tượng, nhưng một
+4	1	C		#26: hơn. Bình luận 4 TẦNG để nhận
+45	1	C		#7: chính diện, góc 45 độ, cận chất
+5	1	C		#2: và bình luận 5 TÀI SẢN nếu
+60	1	C		#60: Trong 60 ngày tới, các
+9	1	C		#7: hiệu. Bình luận 9 GÓC nếu muốn
+90%	1	C		#1: 90% ảnh AI trông
+angle	1	C		#7: profile, lifestyle, low angle, over-the-shoulder và hero
+assets	1	C		#55: sheet, prompt, batch assets và kiểm duyệt.
+background	1	C		#13: chuyển động và background thay đổi cùng
+balo	1	C		#4: làm việc, trong balo đi du lịch
+ban	1	C		#57: hãy ghi brief ban đầu, đầu ra
+batch	1	C		#55: brand sheet, prompt, batch assets và kiểm
+bay	1	C		#20: cả hai cùng bay. Prompt “camera tiến
+be	1	C		#5: ảnh có nền be, một ảnh có
+bio	1	C		#60: tại link trong bio. Nếu dành cho
+biên	1	C		#7: vẫn phải làm biên tập viên. Không
+biểu	1	C		#15: thân, một số biểu cảm và trang
+bày	1	C		#48: và nơi trưng bày thành quả. Thay
+bám	1	C		#54: giúp kiến thức bám vào công việc
+báo	1	C		#39: ba lớp: thông báo chính thức, trải
+bí	1	C		#2: chú ý nhé, bí quyết không phải
+bóc	1	C		#28: hiểu. Tôi sẽ bóc phần hai.
+bất	1	C		#43: một sản phẩm bất kỳ. Viết khách
+bận	1	C		#24: với buổi sáng bận rộn.” AI có
+bếp	1	C		#30: dụng. Một căn bếp Việt, một mâm
+cam	1	C		#27: pháp lý hoặc cam kết với khách
+che	1	C		#49: tốt không cần che giấu lần thử
+chiếc	1	LEAD		#4: kể chuyện. Một chiếc bình giữ nhiệt
+chung	1	C		#36: có thể dùng chung hay không. Đừng
+chìm	1	C		#42: sản phẩm bị chìm vào nền. Lần
+chín	1	LEAD		#7: cầu AI tạo chín góc: chính diện,
+chụp	1	C		#2: nhỏ không cần chụp lại 20 lần. ...
+constraints	1	C		#20: movement và negative constraints. Phần một nói
+copy-paste	1	C		#7: sách góc máy copy-paste.
+cuộc	1	C		#41: AI không phải cuộc thi xem ai
+cá	1	C		#34: là nhận định cá nhân. Tin AI
+cái	1	LEAD		#26: phải đoán xem cái nào quan trọng
+căn	1	C		#30: sử dụng. Một căn bếp Việt, một
+cơm	1	C		#30: Việt, một mâm cơm Việt hay một
+cẩn	1	C		#32: cần thêm sự cẩn thận. Tôi thường
+cố	1	C		#12: bị lỗi, đừng cố cứu bằng caption.
+cứu	1	C		#12: lỗi, đừng cố cứu bằng caption. Hãy
+cửa	1	C		#30: Việt hay một cửa hàng Việt không
+da	1	C		#6: ánh sáng, làn da, dáng người, chất
+deadline	1	C		#48: bài tập nhỏ, deadline rõ, feedback cụ
+designer	1	C		#8: tạo moodboard để designer, marketer và chủ
+dolly-in	1	C		#13: xúc khác nhau. Dolly-in, tức camera tiến
+du	1	C		#4: trong balo đi du lịch hoặc cạnh
+dòng	1	C	units	#3: nhận mẫu năm dòng.
+dấu	1	C		#47: AI, không phải dấu hiệu các bác
+edit	1	C		#19: thô cho AI edit. ... Đây là phần
+facebook	1	C		#2: ảnh lifestyle cho Facebook, ảnh cận chất
+freelancer	1	C		#59: với SME, marketer, freelancer và những người
+ghép	1	C		#11: chi tiết và ghép caption. Đừng nhầm
+giỏi	1	C		#6: ra. Dùng AI giỏi không phải lúc
+góp	1	C		#48: bài để nhận góp ý. Khi người
+gũi	1	C		#13: cảm giác gần gũi. Video giới thiệu
+gọn	1	C		#33: có thể rút gọn thành [BƯỚC MỚI].
+handheld	1	C		#13: giác khám phá. Handheld tạo cảm giác
+hashtag	1	C		#41: các bác với hashtag BÀI LÀM THẬT
+headline	1	C		#39: khi tin. Một headline có thể nói
+heygen	1	C		#16: khi đưa vào HeyGen. Nếu nghe như
+homework	1	C		#48: xem. Bình luận HOMEWORK nếu muốn nhận
+hook	1	C		#50: nhìn bốn lớp. Hook có khiến người
+hài	1	C		#43: các bác chưa hài lòng.
+hóa	1	C		#30: sắc thái văn hóa và bối cảnh
+hút	1	C		#60: social để thu hút khách. UGC để
+hồi	1	C		#48: phẩm và phản hồi, không chỉ có
+hỗn	1	C		#40: biến thành sự hỗn loạn. Nếu team
+hội	1	C		#6: càng có cơ hội tạo lỗi. Càng
+hộp	1	C		#14: dựng cảnh mở hộp, cảnh sử dụng
+hữu	1	C		#33: mới có thể hữu ích. Nếu điểm
+kem	1	C		#3: trái, nền màu kem, bố cục có
+khuyên	1	C		#40: cuối. Tôi còn khuyên team ghi rõ
+khuôn	1	C		#15: được thay đổi: khuôn mặt, kiểu tóc,
+khá	1	LEAD		#24: thành một prompt khá tốt, nhưng vẫn
+khâu	1	C		#33: thời gian ở khâu tạo bản nháp,
+khắp	1	C		#31: được chia sẻ khắp nơi. ... Nhưng SME
+khỏe	1	C		#27: quan đến sức khỏe, tài chính, pháp
+kia	1	FN		#15: sáng lạnh, cảnh kia ánh sáng vàng;
+kiếm	1	C		#59: một công cụ kiếm tiền nhanh mà
+kém	1	C		#47: các bác làm kém. Các bác muốn
+kích	1	C		#9: phép AI đổi kích thước, công dụng,
+kịch	1	C		#14: tự nhiên. Nhưng kịch bản vẫn phải
+lan	1	C		#18: các bác nói lan man. Ba giây
+link	1	C		#60: sách chờ tại link trong bio. Nếu
+lock	1	C		#20: ba phần: subject lock, camera movement và
+low	1	C		#7: top-down, profile, lifestyle, low angle, over-the-shoulder và
+loạn	1	C		#40: thành sự hỗn loạn. Nếu team chưa
+luật	1	C		#46: góc khác nhau. Luật challenge rất đơn
+làn	1	C		#6: tốt: ánh sáng, làn da, dáng người,
+lên	1	FN		#22: chưa? ... Phóng to lên rồi hãy đăng.
+lòng	1	C		#43: bác chưa hài lòng.
+lũy	1	C		#38: phải để tích lũy cảm giác mình
+lược	1	C		#7: đúng với chiến lược. Đừng để AI
+lạ	1	C		#4: một thứ xa lạ. Hãy đặt nó
+lạnh	1	C		#15: này ánh sáng lạnh, cảnh kia ánh
+lặng	1	C		#19: thể cắt khoảng lặng, chọn nhịp cơ
+lẻ	1	C		#40: công cụ riêng lẻ. Lỗi nằm ở
+lộn	1	C		#26: ra kết quả lộn xộn. Hãy tách
+lỡ	1	C		#51: vì sợ bỏ lỡ một công cụ
+man	1	C		#18: bác nói lan man. Ba giây đầu
+movement	1	C		#20: subject lock, camera movement và negative constraints.
+mâm	1	C		#30: bếp Việt, một mâm cơm Việt hay
+mò	1	C		#32: khách hàng. Tò mò là tốt. Nhưng
+mù	1	C		#34: nhưng đừng tin mù.
+mắc	1	C		#30: quả đầu tiên mắc lỗi ở đúng
+mềm	1	C		#3: nói: ánh sáng mềm từ bên trái,
+mỹ	1	C		#8: thế gu thẩm mỹ. AI giúp biến
+negative	1	C		#20: camera movement và negative constraints. Phần một
+neon	1	C		#5: một ảnh có neon, một ảnh lại
+nghiêng	1	C		#15: chính diện, ảnh nghiêng, ảnh toàn thân,
+nghệ	1	C		#13: giới thiệu công nghệ có thể cần
+ngón	1	C		#11: kiểm tra logo, ngón tay, chữ, hình
+ngắm	1	C		#8: bộ ảnh để ngắm cho vui. Nó
+nhiệt	1	C		#4: chiếc bình giữ nhiệt có thể xuất
+nhu	1	C		#34: nếu chưa có nhu cầu đó thì
+nhạc	1	C		#28: có hình ảnh, nhạc và chuyển động.
+nhạy	1	C		#32: tài sản không nhạy cảm, rồi mới
+nhầm	1	C		#11: ghép caption. Đừng nhầm một demo đẹp
+nhẹ	1	C		#13: camera đi vòng nhẹ, tạo cảm giác
+nhớ	1	C		#5: đẹp, nhưng không nhớ được thương hiệu.
+nâng	1	C		#10: lỗi, rồi mới nâng độ phân giải.
+nút	1	C		#53: hiệu bằng một nút bấm. Hãy xây
+nối	1	C		#51: học tốt phải nối công cụ với
+nỗi	1	C		#14: phát từ một nỗi đau thật, một
+nữ	1	C		#3: dành cho phụ nữ văn phòng. Brief
+orbit	1	C		#13: giác cao cấp. Orbit, tức camera đi
+output	1	C		#36: thường thử một output nhỏ trước, ghi
+over-the-shoulder	1	C		#7: lifestyle, low angle, over-the-shoulder và hero shot.
+phê	1	C		#27: kiểm tra và phê duyệt. Nếu nội
+phía	1	C		#53: lại nguyên tắc phía sau. Những nguyên
+phổ	1	C		#15: mới. Một lỗi phổ biến là tạo
+profile	1	C		#7: chất liệu, top-down, profile, lifestyle, low angle,
+quên	1	C		#1: bác đang bỏ quên ánh sáng. Nhìn
+ranh	1	C		#9: Các bác nghĩ ranh giới nằm ở
+reels	1	C		#2: video dọc cho Reels và một banner
+rubric	1	C		#48: tự chấm theo rubric, rồi đăng bài
+rơi	1	C		#17: bác không bị rơi vào tình trạng
+rạc	1	C		#55: Là brief rời rạc, file nằm nhiều
+rằng	1	LEAD		#47: các bác thấy rằng làm AI không
+rộn	1	C		#24: buổi sáng bận rộn.” AI có thể
+rời	1	C		#55: cụ. Là brief rời rạc, file nằm
+shop	1	C		#2: Một shop nhỏ không cần
+subject	1	C		#20: thành ba phần: subject lock, camera movement
+suy	1	C		#46: học được cách suy nghĩ. Bình luận
+sàng	1	C		#11: video đã sẵn sàng chạy quảng cáo.
+sơ	1	C		#33: WORKFLOW để nhận sơ đồ tóm tắt.
+sưu	1	C		#51: mới chỉ đang sưu tầm kiến thức.
+ta	1	FN	pronouns	#50: có khiến người ta dừng lại không?
+testimonial	1	C		#27: Tôi không tạo testimonial giả. Tôi cũng
+thanh	1	C		#19: lại với âm thanh. AI là editor
+thi	1	C		#41: không phải cuộc thi xem ai tạo
+thu	1	C		#60: Video social để thu hút khách. UGC
+thuộc	1	C		#14: khoảnh khắc quen thuộc với mình. Tôi
+thà	1	C		#59: tiếp theo. Tôi thà nói rõ điều
+thái	1	C		#30: chắc hiểu sắc thái văn hóa và
+thân	1	C		#15: nghiêng, ảnh toàn thân, một số biểu
+thì	1	LEAD		#34: nhu cầu đó thì chưa cần chạy
+thô	1	C		#19: đúng một footage thô cho AI edit. ...
+thư	1	C		#60: đầu xây một thư viện tài sản
+thước	1	C		#9: AI đổi kích thước, công dụng, thành
+thẩm	1	C		#8: thay thế gu thẩm mỹ. AI giúp
+thận	1	C		#32: thêm sự cẩn thận. Tôi thường mở
+thẳng	1	C		#37: tôi sẽ nói thẳng là chưa đủ.
+thừa	1	C		#24: vẫn có phần thừa, phần thiếu và
+timeline	1	C		#18: nếu muốn nhận timeline mẫu.
+toán	1	C		#57: quyết một bài toán cụ thể, làm
+trung	1	C		#9: đâu? Bình luận TRUNG THỰC.
+truyền	1	C		#50: đẹp có thể truyền cảm hứng, nhưng
+trưng	1	C		#48: thể và nơi trưng bày thành quả.
+trường	1	C		#25: áp dụng trong trường hợp nào. Cuối
+trạng	1	C		#17: rơi vào tình trạng video có rất
+trở	1	C		#54: bác không cần trở thành chuyên gia
+trừu	1	C		#8: một cảm giác trừu tượng thành những
+tích	1	C		#38: không phải để tích lũy cảm giác
+tò	1	C		#32: của khách hàng. Tò mò là tốt.
+tĩnh	1	C		#13: cần sự bình tĩnh. Sản phẩm đời
+tương	1	C		#11: không đổi. Tay tương tác tự nhiên.
+tầm	1	C		#51: chỉ đang sưu tầm kiến thức. Trước
+tệ	1	C		#44: Prompt này không tệ. ... Nó chỉ đang
+tồn	1	C		#4: sản phẩm đang tồn tại. Nhưng để
+tới	1	LEAD		#60: Trong 60 ngày tới, các bác có
+use	1	C		#38: MỚI], chọn một use case nhỏ, rồi
+visual	1	C		#22: bác vẫn có visual nhanh nhưng không
+viện	1	C		#60: xây một thư viện tài sản của
+vui	1	C		#8: để ngắm cho vui. Nó là cách
+vàng	1	C		#15: kia ánh sáng vàng; người xem sẽ
+vân	1	C		#32: bác đang phân vân.
+vùng	1	C		#1: hơn ngay ở vùng bóng đổ và
+vội	1	C		#43: chưa đạt, đừng vội đổi công cụ.
+watermark	1	C		#36: độ phân giải, watermark, thời gian chờ,
+website	1	C		#2: ảnh hero cho website, ảnh lifestyle cho
+worksheet	1	C		#51: TIÊU để nhận worksheet tự đánh giá.
+wow	1	C		#29: nhìn bản nào “wow” hơn. Tôi chấm
+xanh	1	C		#5: có ánh sáng xanh, khách hàng sẽ
+xin	1	C		#49: viên, tôi sẽ xin phép trước khi
+xoay	1	C		#13: tiến, sản phẩm xoay, tay chuyển động
+xong	1	C		#56: Họ cần làm xong một chiến dịch
+xạ	1	C		#1: bề mặt phản xạ ra sao, và
+xộn	1	C		#26: kết quả lộn xộn. Hãy tách prompt
+xử	1	C		#32: các bác được xử lý thế nào?
+âm	1	C		#19: xem lại với âm thanh. AI là
+đau	1	C		#14: từ một nỗi đau thật, một thói
+đoạn	1	C		#19: thông điệp và đoạn kết vẫn cần
+đơn	1	C		#46: Luật challenge rất đơn giản: giữ nguyên
+đảm	1	C		#23: hợp đồng bảo đảm một ảnh duy
+đầy	1	C		#7: máy trong chưa đầy một phút. Tôi
+địa	1	C		#30: nhanh. Bối cảnh địa phương vẫn cần
+đồ	1	C		#33: để nhận sơ đồ tóm tắt.

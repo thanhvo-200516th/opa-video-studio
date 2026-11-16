@@ -85,6 +85,17 @@ def main() -> None:
     for text, why in flow_bad.items():
         assert any(why in p for p in bf.lint_prompt(text)), (why, bf.lint_prompt(text))
     assert bf.lint_prompt("A Vietnamese founder seen from behind, over the shoulder, listens to a client across a wooden table in a bright office.") == []
+    # 1.2.2–1.2.3 F2: bộ từ cấm sinh chữ/UI/số liệu giả/tên hãng & nền tảng
+    f2_banned = [
+        "note", "notes", "checklist", "checklists", "checkbox", "checkboxes", "written", "bullet", "bullets",
+        "handwritten", "handwriting", "chatting", "message", "messages", "messaging", "texting",
+        "side-by-side", "comparison", "graph", "graphs", "metrics", "analytics", "statistics", "engagement",
+        "youtube", "tiktok", "facebook", "instagram", "iphone", "macbook", "apple", "samsung", "google",
+    ]
+    for w in f2_banned:
+        p = f"A young Vietnamese creator looks at {w} on a bright wooden desk in a sunlit modern office."
+        errs = bf.lint_prompt(p)
+        assert any("chứa từ cấm" in e for e in errs), (w, errs)
     assert bf.lint_prompt(GOOD3, TTS3, "một câu không có trong lời cảnh") and bf.lint_prompt(GOOD3, TTS3, None)
     assert bf.lint_prompt(GOOD3, TTS3, "minh và KHỐI kỹ thuật, tập trung tối đa") == []      # chuẩn hoá hoa/thường/dấu câu
     assert bf.core_of(f"{GOOD3} ({rmb.BROLL_STRICT_SUFFIX_EN})") == GOOD3
@@ -227,6 +238,38 @@ def main() -> None:
         fr = np.frombuffer(raw, np.uint8).reshape(1920, 1080)
         assert float(fr[1700:1780, 860:940].mean()) < 40, f"dấu Flow chưa bị xoá ({fr[1700:1780, 860:940].mean():.0f})"
         print("ok  normalize: 1080x1920 30 fps không tiếng, xoá dấu Flow")
+
+    # 1.2.2 F3 trim_uniform_borders: cắt viền trắng/đen/đồng màu >= 2 %, giữ nguyên < 2 % và nền chuyển êm
+    import numpy as np
+    from PIL import Image
+    rng = np.random.default_rng(42)
+    core_arr = rng.integers(30, 180, (400, 300, 3), dtype=np.uint8)
+    # 1) Viền trắng 30 px (> 2 %) -> cắt gọn còn đúng 300x400
+    bordered_white = np.full((460, 360, 3), 255, dtype=np.uint8)
+    bordered_white[30:430, 30:330] = core_arr
+    assert bf.trim_uniform_borders(Image.fromarray(bordered_white)).size == (300, 400)
+    # 2) Viền đen + đồng màu (xám xanh) >= 2 % -> cắt gọn
+    bordered_color = np.full((460, 360, 3), (60, 90, 120), dtype=np.uint8)
+    bordered_color[30:430, 30:330] = rng.integers(180, 250, (400, 300, 3), dtype=np.uint8)
+    assert bf.trim_uniform_borders(Image.fromarray(bordered_color)).size == (300, 400)
+    # 3) Viền mỏng < 2 % (10 px trên 1080x1920 = 0.9 % / 0.5 %) -> giữ nguyên an toàn
+    thin = np.full((1920, 1080, 3), 255, dtype=np.uint8)
+    thin[10:1910, 10:1070] = rng.integers(20, 140, (1900, 1060, 3), dtype=np.uint8)
+    assert bf.trim_uniform_borders(Image.fromarray(thin)).size == (1080, 1920)
+    # 4) Gradient tự nhiên êm không nhảy đột ngột -> giữ nguyên
+    grad = np.tile(np.linspace(255, 80, 500, dtype=np.uint8)[:, None, None], (1, 300, 3))
+    assert bf.trim_uniform_borders(Image.fromarray(grad)).size == (300, 500)
+    # 5) Tích hợp normalize: video có viền trắng 48 px quanh cảnh tối -> cắt sạch viền trước khi scale 1080x1920
+    with tempfile.TemporaryDirectory() as td:
+        raw, out = Path(td) / "bordered.mp4", Path(td) / "clean.mp4"
+        ff(["-f", "lavfi", "-i", "color=c=#203040:s=624x1184:r=30:d=1",
+            "-vf", "pad=720:1280:48:48:color=white", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(raw)])
+        assert bf.cmd_normalize(type("A", (), {"raw": str(raw), "out": str(out), "mark": None})()) == 0
+        raw_px = subprocess.run(["ffmpeg", "-v", "error", "-i", str(out), "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "gray", "-"],
+                                capture_output=True).stdout
+        fr = np.frombuffer(raw_px, np.uint8).reshape(1920, 1080)
+        assert float(fr[:10, :].mean()) < 100 and float(fr[-10:, :].mean()) < 100, (fr[:10, :].mean(), fr[-10:, :].mean())
+    print("ok  trim_uniform_borders: trắng/đồng màu >= 2 % cắt gọn, < 2 % giữ nguyên, normalize tích hợp")
 
     print("TẤT CẢ ĐẠT")
 

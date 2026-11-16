@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HyperFrames Talking Head UI Composition</title>
+  <link rel="stylesheet" href="./motion.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: #090d16;
+      font-family: 'Inter', 'Montserrat', 'Noto Sans', sans-serif;
+      color: #ffffff;
+    }
+    .stage {
+      position: relative;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+    }
+    .video-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .vignette {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        180deg,
+        rgba(9, 13, 22, 0.35) 0%,
+        rgba(9, 13, 22, 0.0) 24%,
+        rgba(9, 13, 22, 0.0) 58%,
+        rgba(9, 13, 22, 0.82) 100%
+      );
+    }
+    /* Vung an toan khuon mat (x: 22%-78%, y: 16%-56%) - UI & chu KHONG duoc de len */
+    .face-safe-zone {
+      position: absolute;
+      left: 22%;
+      top: 16%;
+      width: 56%;
+      height: 40%;
+      pointer-events: none;
+      border: 2px dashed rgba(56, 189, 248, 0.0);
+      border-radius: 28px;
+    }
+    .stage[data-debug-safe-zone="true"] .face-safe-zone {
+      border-color: rgba(56, 189, 248, 0.75);
+      background: rgba(56, 189, 248, 0.08);
+    }
+    /* UI Elements dat o goc tren va vung lower-third phia tren phu de */
+    .ui-orbit-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .orbit-node {
+      position: absolute;
+      padding: 14px 24px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      backdrop-filter: blur(12px);
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+    }
+    .orbit-node--top-left {
+      top: 96px;
+      left: 56px;
+    }
+    .orbit-node--top-right {
+      top: 132px;
+      right: 56px;
+      color: #38bdf8;
+    }
+    .ui-glass-card {
+      position: absolute;
+      left: 64px;
+      right: 64px;
+      bottom: 620px;
+      padding: 24px 30px;
+      border-radius: 22px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+    }
+    .ui-glass-card__title {
+      font-size: 30px;
+      font-weight: 800;
+      color: #ffd43b;
+    }
+    .ui-glass-card__sub {
+      font-size: 24px;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-top: 6px;
+    }
+    /* Phu de word-by-word to ro de doc khi tat tieng tren dien thoai */
+    .caption-stage {
+      position: absolute;
+      left: 64px;
+      right: 64px;
+      bottom: 300px;
+      text-align: center;
+      line-height: 1.16;
+      letter-spacing: 0.02em;
+    }
+    .caption-word {
+      font-size: calc(56px * 1.15);
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0 8px;
+      -webkit-text-stroke: 3px #0f172a;
+      text-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+    .caption-word.kw-highlight {
+      font-size: calc(68px * 1.15);
+      color: #ffd43b;
+    }
+    .caption-word.kw-accent {
+      color: #38bdf8;
+    }
+    .transition-flash-cam {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="stage" data-hf-engine="hyperframes" data-debug-safe-zone="false">
+    <video
+      id="talking-head-video"
+      class="video-layer fake-camera-hook"
+      src="assets/talking-head.mp4"
+      playsinline
+      muted
+      autoplay
+    ></video>
+
+    <div class="vignette"></div>
+    <div class="face-safe-zone" aria-hidden="true"></div>
+
+    <section class="ui-orbit-layer">
+      <div class="orbit-node orbit-node--top-left">01 · HOOK 10S</div>
+      <div class="orbit-node orbit-node--top-right">EASE-IN-OUT</div>
+
+      <div class="ui-glass-card">
+        <div>
+          <div class="ui-glass-card__title">CHỮ = ÂM THANH</div>
+          <div class="ui-glass-card__sub">Đọc rõ 100% khi tắt tiếng trên điện thoại</div>
+        </div>
+        <div style="font-size: 36px; font-weight: 800; color: #4ade80;">9:16</div>
+      </div>
+    </section>
+
+    <section class="caption-stage" aria-label="Kinetic Captions">
+      <span class="caption-word">Chữ</span>
+      <span class="caption-word kw-highlight">NHẢY</span>
+      <span class="caption-word">theo</span>
+      <span class="caption-word kw-accent">nhịp</span>
+      <span class="caption-word">nói</span>
+    </section>
+
+    <div class="transition-flash-cam" aria-hidden="true"></div>
+  </main>
+
+  <script>
+    // Portable config loader: doc edit.config.json tu cung thu muc
+    fetch('./edit.config.json')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((cfg) => {
+        if (!cfg) return;
+        const scale = cfg.text_speed_scale ?? cfg.motion?.text_speed_scale ?? 1.2;
+        document.documentElement.style.setProperty('--th-text-speed-scale', String(scale));
+        const videoEl = document.getElementById('talking-head-video');
+        if (videoEl && cfg.media?.talking_head_src) {
+          videoEl.setAttribute('src', cfg.media.talking_head_src);
+        }
+      })
+      .catch(() => {});
+  </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+/* Talking Head UI HyperFrames Motion System
+ * Rule: Tat ca chuyen dong chu, UI va fake camera BAT BUOC dung ease-in-out (khong dung linear).
+ */
+:root {
+  --th-ease: cubic-bezier(0.42, 0, 0.58, 1);
+  --th-text-speed-scale: 1.2;
+  --th-word-pop-ms: calc(260ms * var(--th-text-speed-scale));
+  --th-ui-enter-ms: calc(360ms * var(--th-text-speed-scale));
+  --th-camera-cycle: 3.5s;
+}
+
+@keyframes fakeCameraInOut {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.12) translate3d(0, -12px, 0);
+  }
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+
+.fake-camera-hook {
+  transform-origin: 50% 34%;
+  animation: fakeCameraInOut var(--th-camera-cycle) var(--th-ease) 0s 3 both;
+  will-change: transform;
+}
+
+@keyframes wordPopEase {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.caption-word {
+  display: inline-block;
+  animation: wordPopEase var(--th-word-pop-ms) var(--th-ease) both;
+  transition: transform 220ms var(--th-ease), color 220ms var(--th-ease);
+}
+
+.caption-word.kw-highlight {
+  transform: scale(1.08);
+}
+
+@keyframes glassCardEnter {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.ui-glass-card {
+  animation: glassCardEnter var(--th-ui-enter-ms) var(--th-ease) both;
+}
+
+@keyframes orbitFloat {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.orbit-node {
+  animation: orbitFloat 2.8s var(--th-ease) infinite;
+}
+
+@keyframes flashCamPulse {
+  0% {
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.72;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.transition-flash-cam {
+  animation: flashCamPulse 260ms var(--th-ease) both;
+}
