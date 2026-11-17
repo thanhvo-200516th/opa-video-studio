@@ -74,11 +74,11 @@ def test_template_on_kb08() -> None:
 
 
 def check_cutaway(spec: dict, words: list) -> None:
-    """("cutaway", "khoanh", 8, 2.4): clip câm của B-roll cảnh 8 trên lane trên V1, bắt đầu ở «khoanh» (44,5 s), có chuyển cảnh vào + ra,
+    """("cutaway", "khoanh", 7, 2.4): clip câm của B-roll cảnh 7 (bản đồ vệ tinh) trên lane trên V1, bắt đầu ở «khoanh» (44,5 s), có chuyển cảnh vào + ra,
     giấy B-roll phủ; chữ trong lúc đó dùng vùng chữ B-roll."""
     cut = next(c for t in spec["tracks"] if t["name"].startswith("gfx_under") for c in t["clips"] if "cutaway" in c["name"])
     t_word = next(w[1] for w in words if w[0] == "khoanh" and w[1] > 40)
-    assert Path(cut["src"]).name == "08_b-roll-6.mp4" and cut["audio"] is False, cut
+    assert Path(cut["src"]).name == "07_b-roll-5.mp4" and cut["audio"] is False, cut
     assert abs(cut["at"] - (t_word - 0.3)) < 0.05 and abs(cut["dur"] - 2.4) < 0.05, (cut["at"], cut["dur"])   # vào trước lời 0,3 s
     assert cut["transition_in"]["frames"] >= 12 and cut["transition_out"]["frames"] >= 12, cut
     assert any(e["effect"] == "vignette" for e in cut["effects"])
