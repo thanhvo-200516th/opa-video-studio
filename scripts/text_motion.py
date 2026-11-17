@@ -54,6 +54,8 @@ KIN = {
     "exit_dy": -24,           # profile key: text.kinetic.exit_dy — Y 0 → −24 px
     "exit_blur": 6,           # profile key: text.kinetic.exit_blur — blur 0 → 6
 }
+MIN_HOLD_WINDOW_FRAMES = 1  # profile key: text.kinetic.min_hold_window_frames — cửa sổ giữ ngắn nhất còn thêm phóng chậm (clip 0,6–0,95 s)
+SHORT_HOLD_FLOOR = 0.1      # profile key: text.kinetic.short_hold_floor — cửa sổ ngắn: biên độ phóng ≥ 10 % của (hold_scale − 100)
 MIN_ENTRY_FRAMES = 3        # clip rất ngắn: vào co lại, tối thiểu 3 khung
 SKIP_KEYS = ("src", "text", "name", "font", "style", "color", "shadow", "position", "align", "tracking", "size")
 
@@ -95,6 +97,11 @@ def has_hold_motion(c: dict, t0: float, t1: float) -> bool:
     src = {"motion": c.get("motion"), "effects": [e for e in c.get("effects", []) if e.get("effect") != "gaussian_blur"]}
     need = 0.6 * max(1e-3, t1 - t0)
     return any(min(k) <= t0 + 0.35 and max(k) >= t1 - 0.35 and max(k) - min(k) >= need for k in _key_spans(src))
+
+
+def _static_hold(c: dict) -> bool:
+    """Tiêu chí của static_report: không có chuỗi key chuyển động trải suốt lúc giữ (từ min(0,6 s, dur/3) tới trước đoạn ra)."""
+    return not has_hold_motion(c, min(0.6, c["dur"] / 3), c["dur"] - SOFT_OUT_S)
 
 
 def _anim_times(c: dict) -> list[float]:
@@ -402,9 +409,12 @@ class EntranceStyles:
         return ok[0]
 
 
-def kinetic_hold(c: dict, t0: float, t1: float, kin: dict | None = None) -> None:
-    """Giữ: scale phóng chậm đều từ lúc đáp (t0) tới t1 → hold_scale %, key đáp mềm cả hai phía (bezier)."""
+def kinetic_hold(c: dict, t0: float, t1: float, kin: dict | None = None, fps: float = 30.0) -> None:
+    """Giữ: scale phóng chậm đều từ lúc đáp (t0) tới t1 → hold_scale %, key đáp mềm cả hai phía (bezier).
+    Cửa sổ giữ ngắn hơn min_hold_frames: biên độ thu theo tỉ lệ (tối thiểu SHORT_HOLD_FLOOR) — vẫn một chuỗi key liên tục nên chữ không đứng yên."""
     k = kin or KIN
+    full = max(1e-3, k["min_hold_frames"] / fps)
+    k = {**k, "hold_scale": 100 + (k["hold_scale"] - 100) * min(1.0, max(SHORT_HOLD_FLOOR, (t1 - t0) / full))}
     fx = _kin_fx(c)
     sk = _keys(fx["params"]["scale_height"])
     if sk[-1][0] < t0 - 1e-6:
@@ -445,8 +455,9 @@ def _profile_motion(c: dict, lane: str, fps: float, kin: dict, n: dict) -> None:
     d, has_out = c["dur"], _has_out(c)
     out_s = 0.0 if has_out else min(kin["exit_frames"] / fps, d / 2)
     in_end = max([t for t in ts if t <= ENTRANCE_WINDOW + 0.25] or [0.0])
-    if d - out_s - in_end >= kin["min_hold_frames"] / fps and not has_hold_motion(c, in_end, d - out_s):
-        kinetic_hold(c, in_end, d - out_s, kin)
+    still = not has_hold_motion(c, in_end, d - out_s) or (d >= MIN_HOLD_S and _static_hold(c))   # cùng tiêu chí với static_report
+    if d - out_s - in_end >= MIN_HOLD_WINDOW_FRAMES / fps - 1e-6 and still:
+        kinetic_hold(c, in_end, d - out_s, kin, fps)
         n["hold"] += 1
     if not has_out:
         kinetic_exit(c, fps, kin)
@@ -505,6 +516,6 @@ def static_report(tracks: list[dict], fps: float = 30.0) -> dict:
             ts = _anim_times(c)
             if not any(t_ <= ENTRANCE_WINDOW for t_ in ts):
                 no_in += 1
-            if not has_hold_motion(c, min(0.6, c["dur"] / 3), c["dur"] - SOFT_OUT_S):
+            if _static_hold(c):
                 flat += 1                  # không có chuyển động trải suốt lúc giữ = chữ đứng yên
     return {"total": total, "no_entrance": no_in, "static_hold": flat}

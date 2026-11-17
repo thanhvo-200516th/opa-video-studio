@@ -10,7 +10,7 @@ description: >-
   thumbnail, học style kênh mẫu; xuất bảng phân cảnh dựng (Edit Blueprint) cho Premiere Pro / After Effects /
   CapCut. Dùng khi người dùng gọi "opa-video-studio", "master-video-edit", "dviet", hoặc nhờ dựng / sửa /
   edit video, thêm phụ đề, hiệu ứng chữ, chuyển cảnh, SFX, nhạc nền, phân tích kịch bản A-roll B-roll, tìm / tạo B-roll.
-version: 3.6.0
+version: 3.6.5
 standalone: true
 ---
 

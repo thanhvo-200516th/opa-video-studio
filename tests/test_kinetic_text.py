@@ -220,6 +220,30 @@ def test_glow_level_visible() -> None:
     assert s["radius"] >= 20 and s["hold"] >= 50 and g["peak"] > g["hold"] and s["peak"] > s["hold"]
 
 
+def test_short_clip_hold_motion() -> None:
+    """Clip ngắn (0,6–0,95 s, cửa sổ giữ < min_hold_frames) vẫn có chuỗi key phóng chậm nối từ cuối vào tới đầu ra → bộ kiểm không báo đứng yên."""
+    for end in (1.6, 1.7, 1.8, 1.9, 1.95, 2.0):
+        items = group(times=[1.0, 1.0, 1.0, 1.0], end=end)   # stagger: clip dài 0,6–1,0 s
+        tm.ensure_motion(items, FPS, profile=PROF)
+        tracks = [{"name": f"{lane} {i}", "clips": [c]} for i, (lane, c) in enumerate(items)]
+        rep = tm.static_report(tracks, FPS)
+        assert rep["total"] and rep["static_hold"] == 0, (end, rep)
+        for _, c in items:
+            sk = fx(c, "transform")["scale_height"]
+            assert all(a[0] < b[0] for a, b in zip(sk, sk[1:])) and sk[-1][0] <= c["dur"] + 1e-9, sk
+            assert max(v[1] for v in sk) <= max(KIN["overshoot"], KIN["hold_scale"]), sk              # nhẹ: không vượt hold_scale / vọt
+    for dur in (0.6, 0.633, 0.667, 0.7, 0.9, 0.95):                                          # clip dựng tay (kiểu vào của ensure_motion)
+        own = [("text", {"text": "x", "at": 1.0, "dur": dur, "position": [540, 500], "size": 120})]
+        tm.ensure_motion(own, FPS, profile=PROF)
+        assert tm.static_report([{"name": "text 1", "clips": [own[0][1]]}], FPS)["static_hold"] == 0, dur
+    # kiểu vào có chuỗi position dài (typewriter_soft…) khiến cửa sổ giữ chỉ còn ~2 khung: vẫn phải có chuỗi key trải qua lúc giữ
+    pos = [[0, [540, 510]], [0.2, [540, 500], "easeIn"], [0.4, [540, 500]]]
+    odd = [("text_low", {"text": "y", "at": 1.0, "dur": 0.633, "position": [540, 500], "size": 90, "opacity": [[0, 0], [0.1, 100]],
+                         "effects": [{"effect": "transform", "params": {"anchor": [540, 500], "position": pos, "uniform_scale": True, "scale_height": 100.0}}]})]
+    tm.ensure_motion(odd, FPS, profile=PROF)
+    assert tm.static_report([{"name": "text_low 1", "clips": [odd[0][1]]}], FPS)["static_hold"] == 0
+
+
 def test_default_non_profile_unchanged() -> None:
     """Không hồ sơ → ensure_motion giữ nguyên bản cũ (soft_in / hold_drift / soft_out)."""
     items = [("text", {"text": "a", "at": 1.0, "dur": 1.5, "position": [540, 500], "size": 150})]

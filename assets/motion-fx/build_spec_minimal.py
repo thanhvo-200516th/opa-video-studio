@@ -17,6 +17,9 @@ SCENE_GFX (tuỳ chọn, theo thứ tự cảnh):
   ("arrow", "từ", số_cảnh)                          mũi tên cong vẽ dần từ lời «từ», giữ tới hết cảnh
   ("graph", "từ bắt đầu", số_cảnh, ["từ1", ...])    cảnh đồ thị từ lời «từ bắt đầu» tới hết cảnh, mỗi bậc một từ số liệu
   ("quote", số_cảnh, ["dòng 1", ...], chỉ_số_dòng_nhấn)   thẻ trích dẫn (cảnh toàn chữ)
+  ("cutaway", "từ", số_cảnh_nguồn, giây[, giây_vào_nguồn])  chèn B-roll câm của cảnh nguồn lên lane trên V1 từ lời «từ» (V1 / giọng chạy tiếp) để cắt
+                                                    đoạn nói liền > 8 s (D1); «từ» tìm trong đoạn nói liền dài trước, vào / ra bằng blur_dissolve,
+                                                    giấy B-roll phủ, chữ trong lúc đó dùng vùng chữ B-roll; mỗi clip nguồn tối đa 2 lần (D8)
 CTA_WORD: từ lớn trắng trên hộp xanh (box_wipe), None = không có. PAIN: cụm nỗi đau → key_hit (trống = đọc work/pain.json).
 
 # --- VÍ DỤ KB08 (bỏ dấu "# " đầu dòng để dùng; test_build_spec_minimal.py chạy đúng khối này) ---
@@ -39,7 +42,8 @@ CTA_WORD: từ lớn trắng trên hộp xanh (box_wipe), None = không có. PAI
 #     "Mình gửi | *mẫu cấu hình | sẵn", "để anh em | thay | *thông số", "vào | ~chạy thử",
 # ]
 # SCENE_GFX = [("polaroid", 7, 1.6), ("arrow", "vẽ", 8), ("graph", "biểu", 9, ["vốn", "dòng", "bung", "con"]),
-#              ("quote", 11, ["Độ tin cậy tăng lên", "gấp mười lần", "so với video cắt ghép"], 1)]
+#              ("quote", 11, ["Độ tin cậy tăng lên", "gấp mười lần", "so với video cắt ghép"], 1),
+#              ("cutaway", "khoanh", 8, 2.4)]
 # CTA_WORD = "Bất Động Sản"
 # PAIN = ["bãi đất trống", "quên ngay"]
 # --- hết ví dụ ---
@@ -76,7 +80,7 @@ from text_motion import EntranceStyles, ensure_motion  # noqa: E402
 HEAD_TOP = _HEAD_TOP  # EDIT: đỉnh đầu người nói (px, khung 1080x1920) cho vùng chữ A-roll; đo bằng frame_person.py analyze
 GROUPS = [  # EDIT: cụm chữ "nhỏ | nhỏ | *từ lớn", None = bỏ qua cảnh (xem ví dụ KB08 ở đầu file)
 ]
-SCENE_GFX = []  # EDIT: đồ hoạ theo cảnh: ("polaroid", cảnh, giây) · ("arrow", "từ", cảnh) · ("graph", "từ bắt đầu", cảnh, [từ…]) · ("quote", cảnh, [dòng…], chỉ_số_nhấn)
+SCENE_GFX = []  # EDIT: đồ hoạ theo cảnh: ("polaroid", cảnh, giây) · ("arrow", "từ", cảnh) · ("graph", "từ bắt đầu", cảnh, [từ…]) · ("quote", cảnh, [dòng…], chỉ_số_nhấn) · ("cutaway", "từ", cảnh_nguồn, giây)
 CTA_WORD = None  # EDIT: từ lớn trên hộp xanh (box_wipe), vd "Bất Động Sản"; None = không có
 PAIN = []  # EDIT: cụm nỗi đau (key_hit), vd ["bãi đất trống"]; trống = lấy từ work/pain.json
 # ---------------------------------------------------------------- hết phần sửa
@@ -90,6 +94,10 @@ QUOTE_HERO_COLOR = "#FFD84D"     # profile key: graphics.quote_hero_color
 CTA_BOX_PAD = (80, 50)           # profile key: graphics.cta_box_pad (ngang, dọc)
 SPAN_START, LOOK_SPAN_STEP, LOOK_SPAN_MAX = 1.0, 0.1, 1.6   # profile key: text.span_ratio_range
 HERO_MIN, HERO_STEP = 120, 8     # profile key: text.size_hero_min / text.size_hero_step
+MAX_TALK_S = 8.0                 # profile key: rules.max_talk_s (edit_rules.MAX_AROLL_ONLY_S, D1): đoạn nói liền dài hơn thì cần cutaway
+MAX_BROLL_USES = 2               # profile key: rules.max_broll_uses (edit_rules.MAX_BROLL_USES_PER_VIDEO, D8)
+CUTAWAY_LEAD_S = 0.3             # profile key: transitions.cutaway_lead_s — cutaway vào trước lời 0,3 s
+CUTAWAY_TAIL_FRAMES, CUTAWAY_TAIL_SCALE = 8, 1.05   # profile key: transitions.cutaway_tail — đuôi cutaway phóng tăng tốc (cùng khuôn blur_dissolve_cut)
 
 W = Path(__file__).resolve().parent            # <phiên bản>/work
 GFX = W.parent / "gfx"
@@ -141,7 +149,7 @@ def load_inputs() -> SimpleNamespace:
     GFX.mkdir(exist_ok=True)
     return SimpleNamespace(code=code, base=base, words=words, fps=fps, end=base["duration"], prof=prof, v1=v1, sc=sc,
                            cuts=sorted({round(c["at"], 3) for c in v1 if c["at"] > 0}), v3=track(V3_PREFIX), a1=a1, music=music,
-                           fx=MotionFX(gfx_dir=GFX, fps=fps, name=f"{code}-minimal"), cues_pain=[], spans=[])
+                           fx=MotionFX(gfx_dir=GFX, fps=fps, name=f"{code}-minimal"), cues_pain=[], spans=[], cutaways=[])
 
 
 def wt(X, word: str, after: float) -> float:
@@ -168,9 +176,36 @@ def scene_span(X, n: int) -> tuple[float, float]:
     return X.sc[n]
 
 
+def talk_runs(X) -> list[tuple[float, float]]:
+    """Đoạn nói liền trên V1 (A-roll liền nhau, không B-roll) dài hơn MAX_TALK_S."""
+    runs: list[list[float]] = []
+    for c in X.v1:
+        a, b = c["at"], c["at"] + c["dur"]
+        if is_broll(c):
+            runs.append([])
+        elif runs and runs[-1] and abs(runs[-1][1] - a) < 1e-3:
+            runs[-1][1] = b
+        else:
+            runs.append([a, b])
+    return [(r[0], r[1]) for r in runs if r and r[1] - r[0] > MAX_TALK_S]
+
+
+def cutaway_span(X, word: str, secs: float) -> tuple[float, float]:
+    """(đầu, cuối) giây của cutaway: bắt đầu ở lời «word» — ưu tiên lần nói nằm trong đoạn nói liền quá dài (D1), không có thì lần đầu."""
+    hits = [w[1] for w in X.words if norm(w[0]) == norm(word)]
+    if not hits:
+        sys.exit(f"SCENE_GFX cutaway: không thấy từ «{word}» trong lời (words_tl.json)")
+    runs = talk_runs(X)
+    t = next((h for h in hits if any(a <= h < b for a, b in runs)), hits[0])
+    t0 = max(0.0, round(t - CUTAWAY_LEAD_S, 3))         # vào sớm: lúc chữ của lời hiện, B-roll đã phủ kín (chữ không đè mặt)
+    return t0, min(t0 + secs, X.end)
+
+
 def gfx_spans(X) -> None:
-    """Khoảng chữ phải ở vùng trên (hình ở giữa–dưới): polaroid (nền giấy sáng → chữ đen) và đồ thị."""
+    """Khoảng chữ phải ở vùng trên (hình ở giữa–dưới): polaroid (nền giấy sáng → chữ đen) và đồ thị; cutaway = chữ dùng vùng B-roll."""
     for g in SCENE_GFX:
+        if g[0] == "cutaway":
+            X.cutaways.append(cutaway_span(X, g[1], g[3]))
         if g[0] == "polaroid":
             a = scene_span(X, g[1])[0]
             X.spans.append((a, a + g[2], True))
@@ -248,17 +283,18 @@ def captions(X, parsed) -> tuple[list, list]:
         words = [s.lstrip("*~").rstrip(".,") for s in items]
         c = next(c for c in X.v1 if c["at"] - 1e-3 <= start + 0.01 < c["at"] + c["dur"] - 1e-3)
         sp_hit = next((s for s in X.spans if s[0] <= start < s[1]), None)
+        over_broll = is_broll(c) or any(a <= start < b for a, b in X.cutaways)     # cutaway: chữ nằm trên B-roll
         if sp_hit:
             zone = "top"
         else:
-            zone = BT.pick_zone(k, not is_broll(c), None if is_broll(c) else HEAD_TOP, prev_zone=prev_zone)
+            zone = BT.pick_zone(k, not over_broll, None if over_broll else HEAD_TOP, prev_zone=prev_zone)
         prev_zone = zone
         sc_n = scene_no(c)
         is_key = sc_n not in seen
         seen.add(sc_n)
         on_paper = bool(sp_hit and sp_hit[2])
         cta = bool(CTA_WORD) and words[h] == CTA_WORD                    # chữ trắng trên hộp xanh
-        light = on_paper or (not is_broll(c) and not cta)                 # A-roll: vùng chữ dưới trên áo sáng → chữ đậm màu
+        light = on_paper or (not over_broll and not cta)                 # A-roll: vùng chữ dưới trên áo sáng → chữ đậm màu
         extra = {"color": "#FFFFFF", "look": "shadow_deep"} if cta else {}
         X.fx.items += group_fit(X, words[h], words[:h], words[h + 1:], t, shrunk, end=end, fps=X.fps,
                                 style="serif" if items[h][0] == "~" else "sans", on_dark=not light, accent=on_paper,
@@ -314,6 +350,38 @@ def gfx_quote(X, n: int, lines: list, hero_index: int) -> None:
     X.fx.cues.append({"t": t_hero, "kind": "key_hit", "why": f"câu chốt «{lines[hero_index]}»"})
 
 
+def broll_uses(X, src: str) -> int:
+    """Số lần clip nguồn đã dùng (D8): các đoạn V1 liền nhau tính một lần + các cutaway đã đặt."""
+    ats = sorted((c["at"], c["at"] + c["dur"]) for c in X.v1 if c["src"] == src)
+    runs = sum(1 for i, (a, _) in enumerate(ats) if i == 0 or a > ats[i - 1][1] + 0.15)
+    return runs + sum(1 for _, c in X.fx.items if c.get("src") == src and "cutaway" in c.get("name", ""))
+
+
+def gfx_cutaway(X, word: str, n: int, secs: float, in_offset: float = 0.0) -> None:
+    """B-roll câm của cảnh `n` trên lane gfx_under (trên V1: V1 / giọng chạy tiếp) từ lời `word` trong `secs` giây: vào bằng blur_dissolve_cut
+    (th_join: đầu phóng 105 → 100 %), ra bằng blur_dissolve + đuôi phóng tăng tốc, giấy + tối rìa + mờ rìa như B-roll trên V1."""
+    src_clip = next((c for c in X.v1 if scene_no(c) == n and is_broll(c)), None)
+    if src_clip is None:
+        sys.exit(f"SCENE_GFX cutaway: cảnh {n} không có B-roll trên V1 (có {sorted({scene_no(c) for c in X.v1 if is_broll(c)})})")
+    src = src_clip["src"]
+    if broll_uses(X, src) >= MAX_BROLL_USES:
+        sys.exit(f"SCENE_GFX cutaway: B-roll cảnh {n} đã dùng {broll_uses(X, src)} lần (D8: tối đa {MAX_BROLL_USES})")
+    t0, t1 = cutaway_span(X, word, secs)
+    length = TH._src_len(src)
+    if length and length < t1 - t0:
+        sys.exit(f"SCENE_GFX cutaway: B-roll cảnh {n} chỉ dài {length:.2f}s, ngắn hơn {t1 - t0:.2f}s")
+    c = X.fx.image(src, t0, t1 - t0, lane="gfx_under", name=f"B-roll cutaway · s{n}")
+    c.update({"in": round(min(in_offset, max(length - c["dur"], 0.0)) if length else in_offset, 3), "audio": False})
+    X.fx.broll_paper(c, seed=1000 + n)
+    X.fx.th_join(c, "blur_dissolve_cut")                      # vào: blur_dissolve 16 khung + đầu phóng 105 → 100 %
+    eff, frames, _ = TH.TH_JOINS["blur_dissolve_cut"]
+    c["transition_out"] = {"effect": eff, "frames": frames}   # ra: cùng kiểu, đuôi phóng tăng tốc cùng nhịp
+    nf = round(c["dur"] * X.fps)
+    TH._scale_env(X.fx, c, nf - CUTAWAY_TAIL_FRAMES, nf - 1, lambda u: 1 + (CUTAWAY_TAIL_SCALE - 1) * u * u)
+    X.fx.cues.append({"t": round(c["at"] + c["dur"], 3), "kind": "paper", "max_pre": round(frames / 2 / X.fps + 0.02, 3),
+                      "why": f"cutaway ra «{word}»"})
+
+
 def gfx_cta(X) -> None:
     """Hộp tô xanh lộ dần sau từ lớn CTA."""
     hero = next((c[1] for c in X.fx.items if c[1].get("text") == CTA_WORD), None)
@@ -345,7 +413,7 @@ def graphics(X) -> None:
     for i, c in enumerate(X.v1):                       # B-roll: giấy + tối rìa + mờ rìa
         if is_broll(c):
             X.fx.broll_paper(c, seed=i)
-    kinds = {"polaroid": gfx_polaroid, "arrow": gfx_arrow, "graph": gfx_graph, "quote": gfx_quote}
+    kinds = {"polaroid": gfx_polaroid, "arrow": gfx_arrow, "graph": gfx_graph, "quote": gfx_quote, "cutaway": gfx_cutaway}
     for g in SCENE_GFX:
         if g[0] not in kinds:
             sys.exit(f"SCENE_GFX: kiểu lạ «{g[0]}» (có {sorted(kinds)})")
