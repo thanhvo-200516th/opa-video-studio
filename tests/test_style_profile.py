@@ -11,7 +11,7 @@ with tempfile.TemporaryDirectory() as td:
     assert sp.load(spec) is None and not sp.active(None, "minimal-edu")
     (w / "profile.json").write_text(json.dumps({"profile": "minimal-edu"}))
     p = sp.load(spec)
-    assert sp.active(p, "minimal-edu") and sp.get(p, "text.exit_frames") == 2
+    assert sp.active(p, "minimal-edu") and sp.get(p, "text.exit_frames") == 5
     assert sp.get(p, "cuts.hard_cuts_allowed") is True and sp.get(p, "text.zones") == "B8"
     assert sp.get(p, "nope.x", 7) == 7 and sp.load(w)["name"] == "minimal-edu"
     (w / "profile.json").write_text(json.dumps({"profile": "la"}))

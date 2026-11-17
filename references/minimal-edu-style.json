@@ -41,7 +41,7 @@
       2,
       3
     ],
-    "exit_frames": 2,
+    "exit_frames": 5,
     "end_before_cut_frames": [
       0,
       2
@@ -156,7 +156,8 @@
           "color": "#5B21B6"
         }
       ]
-    }
+    },
+    "exit_frames_note": "3.6.3+: chữ ra mờ + trượt 5 khung (text_motion KIN, người dùng muốn chuyển động mượt); mẫu Joseph biến mất ~1 khung — khác có chủ đích"
   },
   "speed": 1.05,
   "cuts": {
