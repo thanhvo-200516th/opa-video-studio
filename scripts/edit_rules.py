@@ -42,6 +42,7 @@ PAIN_LEXICON = [
     "hàng trăm lần thử sai", "đè lên mặt", "lặp lại lỗi cũ", "vài tuần loay hoay",
 ]
 # NGƯỠNG
+LIGHT_GRADIENT_TAG = "Chữ gradient sáng"   # = brooks_text.LIGHT_TAG: từ lớn gradient PNG trên nền sáng (không glow)
 PROFILE_FONTS = (2, 3)               # hồ sơ minimal-edu (P8)
 MIN_FONTS, MAX_FONTS = 4, 6          # số font family chữ trong 1 video (luật 2026-11-06)
 LONG_TALK_S = 4.0                    # đoạn A-roll liền dài hơn mức này phải có zoom động
@@ -384,7 +385,7 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
     lo_f, hi_f = PROFILE_FONTS if prof_on else (MIN_FONTS, MAX_FONTS)
     add("Font 2-3 mỗi video (P8)" if prof_on else "Font 4-6 mỗi video", "OK" if lo_f <= n <= hi_f else "LỖI",
         f"{n} font: " + ", ".join(f"{k} x{v}" for k, v in sorted(fams.items(), key=lambda x: -x[1]))
-        + " (chữ vẽ thành PNG như từ khoá template không đếm được)")
+        + " (chữ vẽ thành PNG — từ khoá template, từ lớn gradient của hồ sơ — không có trường font nên không đếm, cùng họ Inter / Playfair)")
 
     # Màu chữ phụ + chữ chính phát sáng
     bad_cap, glow_ok_cap, key_no_glow, key_n = [], 0, [], 0
@@ -392,7 +393,8 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
         lane = _lane(tn)
         if lane == "text_img":                      # từ khoá template: PNG, kiểm phát sáng
             key_n += 1
-            if not _has_glow(c):
+            light_png = prof_on and c.get("name", "").startswith(LIGHT_GRADIENT_TAG)    # P11: gradient đậm trên nền sáng không glow
+            if not (_has_glow(c) or light_png):
                 key_no_glow.append(c.get("name", "?")[:22])
             continue
         if "text" not in c:

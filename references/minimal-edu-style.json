@@ -1,5 +1,5 @@
 {
-  "_about": "Hồ sơ tuỳ chọn 'minimal-edu' (P6–P12): phong cách giáo dục tối giản kiểu Joseph | Video Editing / Arthur Brooks. Chỉ bật khi người dùng gọi tên (minimal / Brooks / Joseph); bật bằng file <thư mục work>/profile.json = {\"profile\": \"minimal-edu\"}. Số đo lấy từ phân tích khung hình 2026-11-17 (.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md). Quyết định người dùng 2026-11-17 (chữ chính đa màu + tốc độ 1.05x thêm cùng ngày): chữ mờ ra 2 khung (giữ tinh thần B14), cho cắt cứng trong hồ sơ (thay C1/C2 chỉ khi hồ sơ bật), giữ vùng chữ B8.",
+  "_about": "Hồ sơ tuỳ chọn 'minimal-edu' (P6–P12): phong cách giáo dục tối giản kiểu Joseph | Video Editing / Arthur Brooks. Chỉ bật khi người dùng gọi tên (minimal / Brooks / Joseph); bật bằng file <thư mục work>/profile.json = {\"profile\": \"minimal-edu\"}. Số đo lấy từ phân tích khung hình 2026-11-17 (.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md). Quyết định người dùng 2026-11-17 (chữ chính đa màu + tốc độ 1.05x thêm cùng ngày; chiều sâu chữ chính text.hero_looks / gradients thêm 3.6.2: glow thường, gradient PNG, bóng đổ sâu — không viền chữ, B2; nền sáng không glow): chữ mờ ra 2 khung (giữ tinh thần B14), cho cắt cứng trong hồ sơ (thay C1/C2 chỉ khi hồ sơ bật), giữ vùng chữ B8.",
   "name": "minimal-edu",
   "fonts": {
     "hero_sans": {"family": "Inter", "weight": 800, "file": "assets/fonts/Inter-ExtraBold.ttf", "tracking": -40},
@@ -23,6 +23,15 @@
     "zones": "B8",
     "serif_for": "từ cảm xúc / địa danh / từ kết câu",
     "auto_fit_min_hero": 120,
+    "hero_looks": ["glow", "gradient", "shadow_deep", "glow_shadow", "gradient", "glow"],
+    "gradients": {
+      "dark": [["#FFF1A8", "#FFC72C"], ["#7DE8FF", "#2F7BFF"], ["#C9B8FF", "#5B8CFF"], ["#FFFFFF", "#A8D8FF"]],
+      "light": [["#123CE8", "#5B21B6"], ["#B0102A", "#5B21B6"], ["#0558C4", "#303CA8"]]
+    },
+    "look_shadows": {
+      "deep": {"color": "#000000", "opacity": 85, "blur": 18, "distance": 8},
+      "light": {"color": "#555566", "opacity": 35, "blur": 14, "distance": 5}
+    },
     "colors": {
       "on_dark": "#FFFFFF", "on_paper": "#111111", "accent": "#123CE8", "accent_only_on_light": true,
       "hero_rotation_dark": [
