@@ -51,39 +51,47 @@ def test_motion_no_regression() -> None:
         assert tm.ensure_motion(b, 30.0, profile=prof) == n and b == a
 
 
-def last_key(c, name="opacity"):
-    return c[name][-1]
+def fx_of(c, name):
+    return next(e for e in c["effects"] if e["effect"] == name)["params"]
 
 
 def test_motion_profile() -> None:
-    items = [("text", {"text": "x", "at": 2.0, "dur": 1.5}), ("text_low", {"text": "y", "at": 2.0, "dur": 1.5})]
+    """Hồ sơ: vào mượt (kinetic_in) + giữ phóng chậm + ra 5 khung kết thúc end_before_cut khung trước điểm cắt."""
+    items = [("text", {"text": "x", "at": 2.0, "dur": 1.5, "position": [540, 500]}),
+             ("text_low", {"text": "y", "at": 2.0, "dur": 1.5, "position": [300, 460]})]
     n = tm.ensure_motion(items, FPS, profile=PROF, cuts=[3.5])
-    key, cap = items[0][1], items[1][1]
-    exit_f = T("exit_frames")
+    kin = tm.kinetic_params(PROF)
     end_f = T("end_before_cut_frames")[1]
-    assert n["in"] == 2 and n["out"] == 2 and n["trim"] == 2, n
-    for c in (key, cap):                              # kết thúc đúng end_before_cut khung trước cắt; ra mờ 2 khung
-        assert abs(c["at"] + c["dur"] - (3.5 - end_f * F)) < 1e-6, c["dur"]
+    assert n["in"] == 2 and n["out"] == 2 and n["trim"] == 2 and n["hold"] == 2, n
+    for _, c in items:
+        d = c["dur"]
+        assert abs(c["at"] + d - (3.5 - end_f * F)) < 1e-6, d                    # kết thúc đúng end_before_cut khung trước cắt
         (t1, v1), (t0, v0) = c["opacity"][-1][:2], c["opacity"][-2][:2]
-        assert v1 == 0 and abs((t1 - t0) - exit_f * F) < 1e-6, c["opacity"]
-        assert all(k[1] == 0 or k[0] < 0.2 for e in c["effects"] if e["effect"] == "gaussian_blur"
-                   for k in e["params"]["blurriness"])               # ra không nhoè: blur chỉ ở đầu clip (vào)
-    blur = lambda c: next(e for e in c["effects"] if e["effect"] == "gaussian_blur")["params"]["blurriness"]  # noqa: E731
-    lo, hi = T("hero_blur_in_frames")[0], T("small_in_frames")
-    assert abs(blur(key)[-1][0] - lo * F) < 1e-6 and blur(key)[-1][1] == 0         # chữ chính: khung của hero
-    assert hi[0] <= round(blur(cap)[-1][0] * FPS) <= hi[1] and blur(cap)[-1][1] == 0  # chữ phụ: khung của chữ nhỏ
-    assert all(k[0] <= blur(c)[-1][0] + 1e-9 for c in (key, cap) for k in c["opacity"][:2])
+        assert v1 == 0 and abs((t1 - t0) - kin["exit_frames"] * F) < 1e-6 and t1 == d, c["opacity"]   # ra 5 khung, tới đúng cuối clip
+        assert c["opacity"][0] == [0, 0] and c["opacity"][1][1] == 100 and abs(c["opacity"][1][0] - kin["opacity_frames"] * F) < 1e-6
+        blur, tf = fx_of(c, "gaussian_blur")["blurriness"], fx_of(c, "transform")
+        assert blur[0] == [0, kin["blur_from"]] and abs(blur[1][0] - kin["blur_frames"] * F) < 1e-6 and blur[1][1] == 0
+        assert abs(blur[-1][0] - d) < 1e-6 and blur[-1][1] == kin["exit_blur"], blur          # ra: blur 0 → 6 tới cuối clip
+        ay = tf["anchor"][1]
+        pos = tf["position"]
+        assert pos[0][1][1] == ay + kin["dy"] and pos[1][1][1] == ay and abs(pos[1][0] - kin["in_frames"] * F) < 1e-6   # vào: Y +48 → 0
+        assert pos[-1][1][1] == ay + kin["exit_dy"] and abs(pos[-1][0] - d) < 1e-6                                          # ra: Y → −24
+        sc = tf["scale_height"]
+        assert sc[0][1] == kin["scale_from"] and sc[1][1] == 100 and sc[-1][1] == kin["hold_scale"]                          # 90 → 100 → 103 (giữ)
+        assert all(a[0] < b[0] for a, b in zip(sc, sc[1:])) and all(a[0] < b[0] for a, b in zip(pos, pos[1:]))   # mốc tăng dần
+        assert abs(sc[-1][0] - (d - kin["exit_frames"] * F)) < 1e-6                                                           # phóng giữ tới lúc ra
 
 
 def test_motion_profile_no_cut_and_own_exit() -> None:
     c = ("text", {"text": "x", "at": 2.0, "dur": 1.5})
     items = [c]
     tm.ensure_motion(items, FPS, profile=PROF)           # không biết điểm cắt → ra ngay cuối clip, dur giữ nguyên
+    k = tm.kinetic_params(PROF)["exit_frames"]
     assert c[1]["dur"] == 1.5 and abs(c[1]["opacity"][-1][0] - 1.5) < 1e-9
-    assert abs(c[1]["opacity"][-1][0] - c[1]["opacity"][-2][0] - 2 * F) < 1e-6
+    assert abs(c[1]["opacity"][-1][0] - c[1]["opacity"][-2][0] - k * F) < 1e-6
     own = ("text", {"text": "d", "at": 3.0, "dur": 2.0, "transition_out": {"type": "fade"}})
-    tm.ensure_motion([own], FPS, profile=PROF, cuts=[5.0])   # đã có ra riêng → không cắt dur
-    assert own[1]["dur"] == 2.0
+    tm.ensure_motion([own], FPS, profile=PROF, cuts=[5.0])   # đã có ra riêng → không cắt dur, không thêm ra
+    assert own[1]["dur"] == 2.0 and own[1]["opacity"][-1][1] == 100
 
 
 # ---------------------------------------------------------------- brooks_text
@@ -123,7 +131,7 @@ def test_sandwich_and_ratio() -> None:
         items = group(hero=hero, before=["down"], after=["to"], times=[1.0, 1.1, 1.3])
         h, l, r = by_text(items, hero), by_text(items, "down"), by_text(items, "to")
         w = ink_w("hero_sans", h["size"], hero, h["tracking"])
-        assert w <= 800 + 1, w                                  # vừa rộng ≤ 800 (B8)
+        assert w <= bt.ZONES["top"][3] + 1, w                   # vừa rộng tối đa của vùng 'top' (840)
         left, right = h["position"][0] - w / 2, h["position"][0] + w / 2
         assert l["align"] == "left" and abs(l["position"][0] - left) <= 2, (l["position"], left)
         assert r["align"] == "right" and abs(r["position"][0] - right) <= 2, (r["position"], right)
@@ -157,30 +165,48 @@ def test_two_hero_and_multi_small() -> None:
         pass
 
 
-def entry_frames(c, kind: str) -> int:
-    key = c["effects"][0]["params"]["blurriness"][-1][0] if kind == "hero" else c["opacity"][-1][0]
-    return round(key * FPS)
+def tf_of(c) -> dict:
+    return next(e for e in c["effects"] if e["effect"] == "transform")["params"]
 
 
 def test_timing() -> None:
+    """Vào mượt: mọi chữ cùng một bộ vật lý (10 khung); từ lớn vọt 106 % rồi lắng sau 12 khung; từ cách nhau ≥ 2 khung."""
+    kin = tm.kinetic_params(PROF)
     items = group(times=[1.0, 1.1, 1.3, 1.4], end=2.5)
-    for t in ("down", "to", "the"):
+    for t in ("down", "to", "the", "studs"):
         c = by_text(items, t)
-        assert T("small_in_frames")[0] <= entry_frames(c, "small") <= T("small_in_frames")[1], t
-        assert c["opacity"][0] == [0, 0] and c["opacity"][-1][1] == 100 and "effects" not in c
+        assert c["opacity"][0] == [0, 0] and c["opacity"][-1][1] == 100 and abs(c["opacity"][-1][0] - kin["opacity_frames"] * F) < 1e-6, t
+        b = fx_of(c, "gaussian_blur")["blurriness"]
+        assert b[0] == [0, kin["blur_from"]] and abs(b[-1][0] - kin["blur_frames"] * F) < 1e-6 and b[-1][1] == 0 and b[-1][2] == "easeIn"
+        p = tf_of(c)["position"]
+        assert p[0][1][1] - p[1][1][1] == kin["dy"] and abs(p[1][0] - kin["in_frames"] * F) < 1e-6 and p[1][2] == "easeIn", p   # Y +48 → 0
     hero = by_text(items, "studs")
-    assert T("hero_blur_in_frames")[0] <= entry_frames(hero, "hero") <= T("hero_blur_in_frames")[1]
+    sc = tf_of(hero)["scale_height"]
+    assert [k[1] for k in sc] == [kin["scale_from"], kin["overshoot"], 100] and abs(sc[-1][0] - kin["overshoot_frames"] * F) < 1e-6, sc
+    assert [k[1] for k in tf_of(by_text(items, "down"))["scale_height"]] == [kin["scale_from"], 100]           # chữ nhỏ không vọt
     assert abs(hero["at"] - 1.3) < 1e-9 and abs(hero["at"] + hero["dur"] - 2.5) < 1e-9
     assert all(abs(c["at"] * FPS - round(c["at"] * FPS)) < 1e-6 and abs(c["dur"] * FPS - round(c["dur"] * FPS)) < 1e-6
                for _, c in items)
     serif = by_text(group(style="serif"), "studs")
-    assert entry_frames(serif, "hero") == entry_frames(hero, "hero") + T("serif_extra_frames")
     assert serif["font"] == "Playfair Display" and serif["style"] == "Bold Italic"
     assert hero["font"] == "Inter" and hero["style"] == "ExtraBold" and hero["tracking"] == PROF["fonts"]["hero_sans"]["tracking"]
     assert by_text(items, "down")["font"] == "Inter" and by_text(items, "down")["style"] == "Medium"
     lanes = {c["text"]: ln for ln, c in items}
     assert lanes["studs"] == "text" and lanes["down"] == "text_low"
     assert [ln for ln, _ in items].count("text") == 1
+
+
+def test_stagger() -> None:
+    """Các từ nói cùng lúc vẫn vào lần lượt cách nhau 2 khung (tối đa trễ 8 khung so với lúc nói)."""
+    kin = tm.kinetic_params(PROF)
+    got = tm.stagger_times([1.0, 1.0, 1.0, 1.0], FPS, kin)
+    assert [round((b - a) * FPS) for a, b in zip(got, got[1:])] == [kin["stagger_frames"]] * 3, got
+    assert tm.stagger_times([1.0, 1.1, 1.3], FPS, kin) == [1.0, 1.1, 1.3]            # đã cách xa thì giữ nguyên lúc nói
+    many = tm.stagger_times([1.0] * 8, FPS, kin)
+    assert max(many) - 1.0 <= kin["stagger_cap_frames"] * F + 1e-9, many                # trần 8 khung
+    items = group(times=[1.0, 1.0, 1.0, 1.0], end=2.5)
+    ats = [round(c["at"] * FPS) for _, c in items]
+    assert ats == sorted(ats) and len(set(ats)) == 4 and ats[-1] - ats[0] == 3 * kin["stagger_frames"], ats
 
 
 def test_colors() -> None:
@@ -194,17 +220,28 @@ def test_colors() -> None:
     assert by_text(group(on_dark=False, accent=True), "down")["color"] == P["on_paper"]   # chữ nhỏ không nhận màu nhấn
 
 
+def ink_top(items, hero_text) -> float:
+    return min(c["position"][1] + meter("hero_sans" if c["text"] == hero_text else "small", c["size"]).getbbox(c["text"], anchor="ls")[1]
+               for _, c in items)                                          # đỉnh mực cao nhất của cụm
+
+
 def test_zones() -> None:
-    import text_fx as tf
-    for zone, (lo, hi) in (("key", (tf.KEY_ZONE_TOP, 680)), ("cap", (1290, 1480))):
+    """Mỗi vùng: mực nằm trong dải y và trong bề ngang của vùng (tâm x, rộng tối đa); tên cũ key / cap = top / lower."""
+    for zone, (lo, hi, cx, max_w) in bt.ZONES.items():
         for hero in ("studs", "Tiếng"):
-            items = group(hero=hero, zone=zone)
+            items = group(hero=hero, zone=zone, before=["a"], after=["b"], times=[1.0, 1.1, 1.3])
             h = by_text(items, hero)
-            top = min(c["position"][1] + meter("hero_sans" if c is h else "small", c["size"]).getbbox(c["text"], anchor="ls")[1]
-                      for _, c in items)                                 # đỉnh mực cao nhất của cụm
-            assert lo <= top and h["position"][1] <= hi, (zone, top, h["position"])
-    assert abs(by_text(group(zone="key"), "studs")["position"][1] - 500) <= 60       # gần baseline key_y
-    assert by_text(group(zone="cap"), "studs")["position"][0] == 540
+            ys = [(c["position"][1] + meter("hero_sans" if c is h else "small", c["size"]).getbbox(c["text"], anchor="ls")[3]) for _, c in items]
+            assert lo <= ink_top(items, hero) and max(ys) <= hi + 1, (zone, ink_top(items, hero), max(ys))
+            assert h["position"][0] == cx and ink_w("hero_sans", h["size"], hero, h["tracking"]) <= max_w + 1, (zone, h["position"], h["size"])
+    assert bt.ZONES["top"][:2] == (260, 680) and bt.ZONES["lower"][:2] == (1180, 1430) and bt.ZONES["lower"][2] == 500
+    assert bt.ZONES["mid_left"][3] == bt.ZONES["mid_right"][3] == 420 and bt.ZONES["mid_left"][2] < 540 < bt.ZONES["mid_right"][2]
+    for z in bt.ZONES:                                   # cấm: x > 890 khi y ≥ 720; x < 90
+        lo, hi, cx, w = bt.ZONES[z]
+        assert cx - w / 2 >= 90 and (cx + w / 2 <= 890 or hi <= 680), z
+    key, top = group(zone="key"), group(zone="top")
+    assert key == top and group(zone="cap") == group(zone="lower")
+    assert by_text(group(zone="lower"), "studs")["position"][1] > 1180
     try:
         group(zone="giữa")
         raise AssertionError("vùng lạ phải báo lỗi")

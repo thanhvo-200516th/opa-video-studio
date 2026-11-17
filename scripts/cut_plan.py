@@ -253,8 +253,16 @@ def _min_limits(rules: dict | None, n: int) -> dict:
             "flashy": int(g("max_flashy_share") * n + 1e-9)}
 
 
-def _allowed(k: str, st: dict, lim: dict, level: int) -> bool:
-    """level 0 = mọi luật; 1 = bỏ trần 20 % / kiểu; 2 = bỏ thêm không lặp trong N điểm cắt và 1 lần / video."""
+def _mid_sentence(c: Cut) -> bool:
+    """Cắt giữa câu (lời trước chưa hết câu, không phải đổi phần): chỉ nhận chuyển cảnh nhẹ, không phủ khung / quét (TH.HEAVY_TH)."""
+    return bool(c.before.strip()) and not c.section and not _sentence_break(c.before)      # chưa biết lời trước → không coi là giữa câu
+
+
+def _allowed(k: str, st: dict, lim: dict, level: int, mid: bool = False) -> bool:
+    """level 0 = mọi luật; 1 = bỏ trần 20 % / kiểu; 2 = bỏ thêm không lặp trong N điểm cắt và 1 lần / video. `mid` = cắt giữa câu:
+    mọi level đều loại kiểu nặng (TH.HEAVY_TH)."""
+    if mid and k in TH.HEAVY_TH:
+        return False
     if k in TH.HARD_KINDS:
         return st["hard"] < lim["hard"] and st["run"] < lim["row"]
     if k in FLASHY and st["flashy"] >= lim["flashy"]:
@@ -266,19 +274,19 @@ def _allowed(k: str, st: dict, lim: dict, level: int) -> bool:
     return level >= 1 or st["count"].get(k, 0) < lim["kind_cap"]
 
 
-def _pick_min(opts: list[str], st: dict, lim: dict, left: int, seed: int) -> str:
+def _pick_min(opts: list[str], st: dict, lim: dict, left: int, seed: int, mid: bool = False) -> str:
     """Kiểu ít dùng nhất trong bảng ngữ cảnh (lệch vòng theo seed); hết thì lấy từ POOL_MIN; sắp hết điểm cắt mà chưa đủ số kiểu
     (`min_distinct_transitions`) thì chỉ nhận kiểu chưa dùng."""
     need_new = lim["kinds"] - len(st["distinct"]) >= left
     n = len(opts)
     for level in (0, 1, 2):
         for pool in (opts, [k for k in POOL_MIN if k not in opts]):
-            ok = [k for k in pool if _allowed(k, st, lim, level) and not (need_new and (k in TH.HARD_KINDS or k in st["distinct"]))]
+            ok = [k for k in pool if _allowed(k, st, lim, level, mid) and not (need_new and (k in TH.HARD_KINDS or k in st["distinct"]))]
             if ok:
                 return min(ok, key=lambda k: (st["count"].get(k, 0), (pool.index(k) - seed) % len(pool) if seed else pool.index(k)))
         if need_new and level == 2:
             need_new = False                                   # hết kiểu mới thì thôi, chọn bất kỳ
-    return min(POOL_MIN, key=lambda k: st["count"].get(k, 0))
+    return min([k for k in POOL_MIN if not (mid and k in TH.HEAVY_TH)], key=lambda k: st["count"].get(k, 0))
 
 
 def plan_cuts_min(cuts: list[Cut], seed: int = 0, rules: dict | None = None) -> list[Cut]:
@@ -292,7 +300,7 @@ def plan_cuts_min(cuts: list[Cut], seed: int = 0, rules: dict | None = None) -> 
         sim = similarity(fa, fb)
         mean_b, std_b = contrast(fb)
         ctx = _context(c, sim)
-        rec = _pick_min(OPTIONS_MIN[ctx], st, lim, len(cuts) - i, seed)
+        rec = _pick_min(OPTIONS_MIN[ctx], st, lim, len(cuts) - i, seed, _mid_sentence(c))
         hard = rec in TH.HARD_KINDS
         st["hard"] += hard
         st["run"] = st["run"] + 1 if hard else 0

@@ -13,7 +13,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import brooks_text as bt  # noqa: E402
 import edit_rules  # noqa: E402
 import style_profile as sp  # noqa: E402
-from motion_fx import GLOW, PALETTES  # noqa: E402
+from motion_fx import PALETTES  # noqa: E402
 
 PROF = sp.load(name="minimal-edu")
 COL = PROF["text"]["colors"]
@@ -75,7 +75,7 @@ def test_no_forbidden_hue_and_contrast() -> None:
 
 
 def test_coloured_hero_has_glow() -> None:
-    soft = GLOW["soft"]
+    soft = bt.GLOW_LEVEL["soft"]
     for e in COL["hero_rotation_dark"]:
         h = by_text(group(color=e["color"]), "studs")
         g = glow_of(h)
@@ -113,12 +113,12 @@ def test_small_words_unchanged() -> None:
 
 def test_input_not_mutated() -> None:
     before = copy.deepcopy(PROF)
-    group(color="#19C6F5", zone="cap", hero="Ếỵ")
+    group(color="#19C6F5", zone="lower", hero="Ếỵ")
     assert PROF == before
 
 
 def test_auto_fit_shrinks() -> None:
-    kw = dict(hero="Ếỵ", before=["a"], after=["b"], times=[1.0, 1.1, 1.2], zone="cap")
+    kw = dict(hero="Ếỵ", before=["a"], after=["b"], times=[1.0, 1.1, 1.2], zone="lower", band=(1180, 1420))   # dải 240 px: 156 / 148 không vừa
     strict = copy.deepcopy(PROF)
     strict["text"]["auto_fit_min_hero"] = PROF["text"]["size_hero"]                  # tắt co: phải báo lỗi như cũ
     try:
@@ -129,7 +129,7 @@ def test_auto_fit_shrinks() -> None:
     items = bt.caption_group(end=2.5, **kw)                                           # mặc định: co thay vì báo lỗi
     h = by_text(items, "Ếỵ")
     assert PROF["text"]["auto_fit_min_hero"] <= h["size"] < PROF["text"]["size_hero"], h["size"]
-    assert (PROF["text"]["size_hero"] - h["size"]) % 8 == 0 and h["position"][1] <= 1480
+    assert (PROF["text"]["size_hero"] - h["size"]) % 8 == 0 and h["position"][1] <= 1420
     floor = copy.deepcopy(PROF)
     floor["text"]["auto_fit_min_hero"] = 150                                          # sàn cao hơn mức cần co → vẫn báo lỗi
     try:

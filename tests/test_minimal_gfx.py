@@ -316,9 +316,9 @@ def test_graph_scene() -> None:
     for ln, c in fx.items:
         lanes.setdefault(ln, []).append(c)
         assert_valid_keys(c) if (c.get("effects") or c.get("opacity")) else None
-    steps = [c for ln, cs in lanes.items() for c in cs if c["name"].startswith("Bậc")]
-    assert len(steps) == 4
-    assert [round((c["at"] - 1.5) * FPS) for c in steps] == [round((w - 1.5) * FPS) for w in words]
+    assert not [c for cs in lanes.values() for c in cs if c["name"].startswith("Bậc")], "bậc rời đã thay bằng một nét liền"
+    curve = [c for cs in lanes.values() for c in cs if c["name"].startswith("Đường đồ thị")]
+    assert len(curve) == 1 and curve[0]["at"] <= words[0] and curve[0]["at"] + curve[0]["dur"] <= 1.5 + 3.5 + 1e-6
     axis = [c for cs in lanes.values() for c in cs if c["name"].startswith("Trục L")]
     mov = [c for c in axis if str(c["src"]).endswith(".mov")]
     assert len(mov) == 1 and round(mov[0]["dur"] * FPS) == GR["graph_axis_frames"]

@@ -15,6 +15,10 @@ thì không thêm; đã có transition_out / mờ ra thì không thêm ra.
 Hồ sơ tuỳ chọn 'minimal-edu' (references/minimal-edu-style.json, chỉ khi profile.json bật): ensure_motion(items, fps,
 profile=prof, cuts=[...]) — vào ngắn theo khung của chữ chính / chữ nhỏ, ra = mờ `exit_frames` khung (không nhoè), và
 clip kết thúc `end_before_cut_frames` khung trước điểm cắt gần cuối clip (chỉ rút ngắn). profile=None → như cũ.
+
+Hồ sơ minimal-edu 3.6.3 — typography chuyển động mượt ("lả lướt"): vào / giữ / ra là MỘT chuỗi keyframe của hiệu ứng `transform`
+(vị trí Y, scale) + gaussian_blur + opacity, easing easeIn (hãm lúc đến) / easeOut (hãm lúc đi); FilmCraft không có bezier tuỳ ý
+nên dùng đúng ba kiểu tích hợp. Một bộ "vật lý" cho cả video (KIN); chỉ khoảng trễ từ (stagger) đổi theo cụm.
 """
 from __future__ import annotations
 
@@ -31,6 +35,25 @@ ENTRANCE_WINDOW = 0.35      # có key trong 0,35 s đầu = đã có kiểu vào
 MIN_HOLD_S = 0.6            # clip ngắn hơn: chỉ vào / ra, không thêm phóng giữ
 MIN_CLIP_S = 0.3            # clip ngắn hơn (khung đổi font, chữ chớp…) giữ nguyên: hiệu ứng cố ý tức thời, thêm key sẽ trùng mốc
 CUT_SNAP_S = 0.25           # hồ sơ: điểm cắt cách cuối clip ≤ 0,25 s (về phía trước) thì clip kết thúc theo điểm cắt đó
+# ---- typography chuyển động của hồ sơ minimal-edu (mỗi số có thể ghi đè bằng hồ sơ: profile key text.kinetic.<tên>) ----
+KIN = {
+    "in_frames": 10,          # profile key: text.kinetic.in_frames — vào 10 khung (≈ 330 ms)
+    "dy": 48,                 # profile key: text.kinetic.dy — Y +48 px → 0
+    "scale_from": 90,         # profile key: text.kinetic.scale_from — scale 90 % → 100 %
+    "blur_from": 12,          # profile key: text.kinetic.blur_from — blur 12 → 0 …
+    "blur_frames": 6,         # profile key: text.kinetic.blur_frames — … trong 6 khung đầu
+    "opacity_frames": 4,      # profile key: text.kinetic.opacity_frames — opacity 0 → 100 trong 4 khung đầu
+    "stagger_frames": 2,      # profile key: text.kinetic.stagger_frames — mỗi từ trễ ≥ 2 khung so với từ trước
+    "stagger_cap_frames": 8,  # profile key: text.kinetic.stagger_cap_frames — trễ tối đa 8 khung so với lúc nói
+    "overshoot": 106,         # profile key: text.kinetic.overshoot — từ lớn vọt 106 % rồi lắng …
+    "overshoot_frames": 12,   # profile key: text.kinetic.overshoot_frames — … xong sau 12 khung (không áp cho số / tiền)
+    "hold_scale": 103,        # profile key: text.kinetic.hold_scale — lúc giữ phóng chậm 100 → 103 %
+    "min_hold_frames": 12,    # profile key: text.kinetic.min_hold_frames — giữ ngắn hơn thì không phóng
+    "exit_frames": 5,         # profile key: text.kinetic.exit_frames — ra 5 khung (≈ nửa lúc vào)
+    "exit_dy": -24,           # profile key: text.kinetic.exit_dy — Y 0 → −24 px
+    "exit_blur": 6,           # profile key: text.kinetic.exit_blur — blur 0 → 6
+}
+MIN_ENTRY_FRAMES = 3        # clip rất ngắn: vào co lại, tối thiểu 3 khung
 SKIP_KEYS = ("src", "text", "name", "font", "style", "color", "shadow", "position", "align", "tracking", "size")
 
 
@@ -109,18 +132,15 @@ def soft_in(c: dict, lane: str) -> None:
                                         "params": {"blurriness": [[min(t, end), v] + (["easeIn"] if i else []) for i, (t, v) in enumerate(bl)]}})
 
 
+def kinetic_params(prof: dict | None) -> dict:
+    """Bộ thông số typography chuyển động: KIN, ghi đè bằng `text.kinetic` của hồ sơ nếu có."""
+    return {**KIN, **((prof or {}).get("text", {}).get("kinetic") or {})}
+
+
 def profile_in_frames(prof: dict) -> tuple[int, int]:
-    """(khung vào chữ nhỏ, khung vào chữ chính) của hồ sơ: chữ nhỏ = giữa dải, chữ chính = đầu dải (Brooks: chủ yếu 3 khung)."""
-    lo, hi = get(prof, "text.small_in_frames", [1, 3])
-    return round((lo + hi) / 2), get(prof, "text.hero_blur_in_frames", [3, 6])[0]
-
-
-def soft_in_frames(c: dict, n: int, fps: float, blur_from: float = 22) -> None:
-    """Vào ngắn n khung: opacity 0 → 100 trong ~60 % thời gian, nhoè blur_from → 0 đúng n khung (mốc nằm trên bội số khung)."""
-    end = max(1e-3, c["dur"] - 1e-3)
-    t_op, t_bl = min(max(1, round(0.6 * n)) / fps, end), min(n / fps, end)
-    c["opacity"] = [[0, 0], [t_op, 100]]
-    c.setdefault("effects", []).append({"effect": "gaussian_blur", "params": {"blurriness": [[0, blur_from], [t_bl, 0, "easeIn"]]}})
+    """(khung vào chữ nhỏ, khung vào chữ chính) của hồ sơ: một bộ vật lý cho cả hai (kinetic.in_frames, 10 khung)."""
+    n = kinetic_params(prof)["in_frames"]
+    return n, n
 
 
 def hold_drift(c: dict, lane: str, t0: float, t1: float) -> None:
@@ -178,17 +198,121 @@ def _trim_to_cut(c: dict, cuts: list[float], fps: float, frames: int) -> bool:
     return True
 
 
+def _t(frame: float, fps: float) -> float:
+    return round(frame / fps, 6)
+
+
+def _keys(v, t: float = 0.0) -> list:
+    """Giá trị tĩnh hoặc chuỗi key → chuỗi key mới (bản sao)."""
+    if isinstance(v, list) and v and isinstance(v[0], list) and v[0] and isinstance(v[0][0], (int, float)):
+        return [list(k) for k in v]
+    return [[t, v]]
+
+
+def _kin_fx(c: dict, anchor: list[float] | None = None) -> dict:
+    """Hiệu ứng `transform` chung của chữ (anchor = position lúc đứng yên): lấy cái đã có hoặc tạo mới, đặt TRƯỚC track matte."""
+    fx = next((e for e in c.get("effects", []) if e.get("effect") == "transform" and e["params"].get("uniform_scale")), None)
+    if fx is None:
+        ax = list(anchor) if anchor else _anchor(c)
+        fx = {"effect": "transform", "params": {"anchor": ax, "position": list(ax), "uniform_scale": True, "scale_height": 100.0}}
+        effects = c.setdefault("effects", [])
+        mi = next((i for i, e in enumerate(effects) if e.get("effect") == "track_matte"), None)
+        effects.insert(len(effects) if mi is None else mi, fx)
+    return fx
+
+
+def stagger_times(times: list[float], fps: float, kin: dict | None = None) -> list[float]:
+    """Mốc vào của từng từ theo thứ tự đọc: cách từ trước ≥ stagger_frames khung, lệch so với lúc nói ≤ stagger_cap_frames khung."""
+    k = kin or KIN
+    out: list[float] = []
+    for t in times:
+        floor = out[-1] + k["stagger_frames"] / fps if out else t
+        out.append(min(max(t, floor), t + k["stagger_cap_frames"] / fps))
+    return out
+
+
+def kinetic_in(c: dict, fps: float, kin: dict | None = None, overshoot: bool = False, anchor: list[float] | None = None) -> None:
+    """Vào mượt: Y +dy → 0, scale scale_from → 100 (decelerate: easeIn ở key đến), blur blur_from → 0 trong blur_frames khung đầu,
+    opacity 0 → 100 trong opacity_frames khung đầu. overshoot: scale vọt `overshoot` % rồi lắng xong sau overshoot_frames khung
+    (chỉ từ lớn, không áp cho số / tiền). Clip ngắn: co lại, tối thiểu MIN_ENTRY_FRAMES khung."""
+    k = kin or KIN
+    n = max(MIN_ENTRY_FRAMES, min(k["in_frames"], round(c["dur"] * fps) - 1))
+    nb, no = min(k["blur_frames"], n), min(k["opacity_frames"], n)
+    fx = _kin_fx(c, anchor)
+    ax, ay = fx["params"]["anchor"]
+    c["opacity"] = [[0, 0], [_t(no, fps), 100]]
+    c.setdefault("effects", []).insert(0, {"effect": "gaussian_blur", "params": {
+        "blurriness": [[0, k["blur_from"]], [_t(nb, fps), 0, "easeIn"]]}})
+    pos = [[0, [ax, ay + k["dy"]]], [_t(n, fps), [ax, ay], "easeIn"]]
+    if overshoot:
+        peak, end = max(1, round(n * 0.6)), max(n, min(k["overshoot_frames"], round(c["dur"] * fps) - 1))
+        scale = [[0, k["scale_from"]], [_t(peak, fps), k["overshoot"], "bezier"], [_t(end, fps), 100, "easeIn"]]
+    else:
+        scale = [[0, k["scale_from"]], [_t(n, fps), 100, "easeIn"]]
+    fx["params"]["position"], fx["params"]["scale_height"] = pos, scale
+
+
+def kinetic_hold(c: dict, t0: float, t1: float, kin: dict | None = None) -> None:
+    """Giữ: scale phóng chậm đều từ lúc đáp (t0) tới t1 → hold_scale %, key đáp mềm cả hai phía (bezier)."""
+    k = kin or KIN
+    fx = _kin_fx(c)
+    sk = _keys(fx["params"]["scale_height"])
+    if sk[-1][0] < t0 - 1e-6:
+        sk.append([_t(t0, 1.0), sk[-1][1]])
+    sk[-1] = [sk[-1][0], sk[-1][1], "bezier"]
+    fx["params"]["scale_height"] = sk + [[round(t1, 6), float(k["hold_scale"])]]
+
+
+def _upto(keys: list, t: float) -> list:
+    return [k for k in keys if k[0] < t - 1e-3]
+
+
+def kinetic_exit(c: dict, fps: float, kin: dict | None = None) -> None:
+    """Ra: opacity → 0, Y → exit_dy, blur 0 → exit_blur trong exit_frames khung (accelerate: easeOut ở key đi), kết thúc đúng cuối clip."""
+    k = kin or KIN
+    d = c["dur"]
+    t0 = max(round(d - min(k["exit_frames"] / fps, d / 2), 6), 1 / fps)
+    op = _upto(_keys(c.get("opacity", 100)), t0)
+    c["opacity"] = op + [[t0, op[-1][1] if op else 100, "easeOut"], [d, 0]]
+    fx = next((e for e in c.get("effects", []) if e.get("effect") == "gaussian_blur" and isinstance(e["params"].get("blurriness"), list)), None)
+    if fx is None:
+        fx = {"effect": "gaussian_blur", "params": {"blurriness": [[0, 0]]}}
+        c.setdefault("effects", []).insert(0, fx)
+    fx["params"]["blurriness"] = _upto(fx["params"]["blurriness"], t0) + [[t0, 0, "easeOut"], [d, k["exit_blur"]]]
+    tf = _kin_fx(c)["params"]
+    ax, ay = tf["anchor"]
+    pos = _upto(_keys(tf["position"]), t0)
+    tf["position"] = pos + [[t0, [ax, ay], "easeOut"], [d, [ax, ay + k["exit_dy"]]]]
+
+
+def _profile_motion(c: dict, lane: str, fps: float, kin: dict, n: dict) -> None:
+    """Hồ sơ minimal-edu: bổ sung vào (nếu chưa có kiểu vào) / giữ phóng chậm / ra cho một clip chữ."""
+    ts = _anim_times(c)
+    if not any(t <= ENTRANCE_WINDOW for t in ts):
+        kinetic_in(c, fps, kin)
+        n["in"] += 1
+        ts = _anim_times(c)
+    d, has_out = c["dur"], _has_out(c)
+    out_s = 0.0 if has_out else min(kin["exit_frames"] / fps, d / 2)
+    in_end = max([t for t in ts if t <= ENTRANCE_WINDOW + 0.25] or [0.0])
+    if d - out_s - in_end >= kin["min_hold_frames"] / fps and not has_hold_motion(c, in_end, d - out_s):
+        kinetic_hold(c, in_end, d - out_s, kin)
+        n["hold"] += 1
+    if not has_out:
+        kinetic_exit(c, fps, kin)
+        n["out"] += 1
+
+
 def ensure_motion(items: list[tuple[str, dict]], fps: float = 30.0, profile: dict | None = None,
                   cuts: list[float] | None = None) -> dict:
     """Bổ sung vào / giữ / ra cho mọi clip chữ còn thiếu. Trả số clip được thêm từng phần.
-    profile = hồ sơ 'minimal-edu' đã nạp (style_profile.load) → vào ngắn theo khung, ra mờ `exit_frames` khung, cắt clip theo `cuts`
-    (mốc điểm cắt trên timeline, giây); hồ sơ khác / None → hành vi cũ."""
+    profile = hồ sơ 'minimal-edu' đã nạp (style_profile.load) → typography chuyển động (kinetic_in / hold / exit, KIN), cắt clip
+    theo `cuts` (mốc điểm cắt trên timeline, giây) để ra kết thúc `end_before_cut_frames` khung trước cắt; hồ sơ khác / None → hành vi cũ."""
     prof = profile if active(profile, "minimal-edu") else None
     n = {"in": 0, "hold": 0, "out": 0, "text": 0}
     if prof:
         n["trim"] = 0
-        f_small, f_hero = profile_in_frames(prof)
-        out_s = get(prof, "text.exit_frames", 2) / fps
+        kin = kinetic_params(prof)
         end_f = get(prof, "text.end_before_cut_frames", [0, 2])[1]
     for lane, c in items:
         if lane not in TEXT_LANES or c.get("dur", 0) < MIN_CLIP_S:
@@ -196,23 +320,23 @@ def ensure_motion(items: list[tuple[str, dict]], fps: float = 30.0, profile: dic
         n["text"] += 1
         if prof and cuts and not _has_out(c) and _trim_to_cut(c, cuts, fps, end_f):
             n["trim"] += 1
+        if prof:
+            _profile_motion(c, lane, fps, kin, n)
+            continue
         d = c["dur"]
         ts = _anim_times(c)
         if not any(t <= ENTRANCE_WINDOW for t in ts):
-            if prof:
-                soft_in_frames(c, f_hero if lane in KEY_LANES else f_small, fps, 22 if lane in KEY_LANES else 14)
-            else:
-                soft_in(c, lane)
+            soft_in(c, lane)
             n["in"] += 1
             ts = _anim_times(c)
         in_end = max([t for t in ts if t <= ENTRANCE_WINDOW + 0.25] or [0.0])
         has_out = _has_out(c)
-        out_start = d if has_out else d - (out_s if prof else SOFT_OUT_S)
+        out_start = d if has_out else d - SOFT_OUT_S
         if d >= MIN_HOLD_S and out_start - in_end > 0.2 and not has_hold_motion(c, in_end, out_start):
             hold_drift(c, lane, in_end, out_start)
             n["hold"] += 1
         if not has_out:
-            soft_out(c, out_s, None) if prof else soft_out(c)
+            soft_out(c)
             n["out"] += 1
     return n
 

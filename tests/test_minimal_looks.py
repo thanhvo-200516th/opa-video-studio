@@ -16,7 +16,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import brooks_text as bt  # noqa: E402
 import edit_rules  # noqa: E402
 import style_profile as sp  # noqa: E402
-from motion_fx import GLOW, MX_SHADOW  # noqa: E402
+from motion_fx import MX_SHADOW  # noqa: E402
+import text_motion as tm  # noqa: E402
 
 PROF = sp.load(name="minimal-edu")
 T = PROF["text"]
@@ -71,8 +72,9 @@ def test_gradient_png_and_clip() -> None:
     lane, c = hero(items)
     assert lane == "text_img" and c["dur"] > 0 and c["opacity"][0] == [0, 0] and c["opacity"][-1][1] == 100
     blur = c["effects"][0]
-    assert blur["effect"] == "gaussian_blur" and blur["params"]["blurriness"][0] == [0, bt.BLUR_FROM] and blur["params"]["blurriness"][1][1] == 0
-    assert glow_of(c) and glow_of(c)["params"]["radius"] == GLOW["soft"]["radius"]          # gradient: glow nhẹ
+    assert blur["effect"] == "gaussian_blur" and blur["params"]["blurriness"][0] == [0, tm.KIN["blur_from"]] and blur["params"]["blurriness"][1][1] == 0
+    assert [e["effect"] for e in c["effects"]] == ["gaussian_blur", "transform", "wonder_glow"]   # PNG gradient cũng vào mượt
+    assert glow_of(c) and glow_of(c)["params"]["radius"] == bt.GLOW_LEVEL["soft"]["radius"]    # gradient: glow nhẹ
     plain = hero(group())[1]
     assert (c["at"], c["dur"]) == (plain["at"], plain["dur"])                                # cùng thời gian với clip chữ
     bbox = Image.open(c["src"]).getchannel("A").getbbox()
@@ -112,12 +114,12 @@ def test_shadow_deep_no_outline() -> None:
 def test_glow_normal_level() -> None:
     c = hero(group(look="glow", color="#19C6F5"))[1]
     g = glow_of(c)["params"]
-    assert g["radius"] == GLOW["normal"]["radius"] and g["intensity"][0][1] == GLOW["normal"]["peak"] and g["intensity"][1][1] == GLOW["normal"]["hold"], g
+    assert g["radius"] == bt.GLOW_LEVEL["normal"]["radius"] and g["intensity"][0][1] == bt.GLOW_LEVEL["normal"]["peak"] and g["intensity"][1][1] == bt.GLOW_LEVEL["normal"]["hold"], g
     assert c["shadow"] == MX_SHADOW
     white = hero(group(look="glow", color="#FFFFFF"))[1]
     assert glow_of(white), "chữ trắng + kiểu glow vẫn phát sáng"
     eff = [e["effect"] for e in c["effects"]]
-    assert eff == ["gaussian_blur", "wonder_glow"], eff                                    # blur-in giữ nguyên
+    assert eff == ["gaussian_blur", "transform", "wonder_glow"], eff                       # blur-in + dời / phóng, glow ở sau cùng
 
 
 def test_light_background_no_glow() -> None:

@@ -30,6 +30,11 @@ W, H = 1080, 1920
 SHIFT = 4                                  # cv2 vẽ toạ độ con 1/16 px
 HAND_WIDTH_RATIO = 0.025                   # nét tay (xoắn, mũi tên, zig-zag, đồ thị) ≈ 2,5 % W (đo từ mẫu; chưa có trong JSON)
 HAND_JITTER = 0.15                         # run tay nhẹ: biên độ = 15 % bề dày nét
+GRAPH_GLOW = "#3D8BFF"                     # quầng sáng của nét đồ thị + bóng (profile key: graphics.graph_glow)
+BALL_CORE = 1.7                            # bóng đầu nét: lõi trắng = 1,7 × bề dày nét (profile key: graphics.graph_ball_core)
+BALL_AURA = 2.0                            # quầng xanh quanh bóng: bán kính 2,0 × bề dày nét (profile key: graphics.graph_ball_aura)
+BALL_POP_FRAMES = 5                        # bóng nở từ 0 → đủ cỡ trong 5 khung (profile key: graphics.graph_ball_pop_frames)
+BALL_PULSE = (0.06, 24)                    # bóng thở ±6 % chu kỳ 24 khung (profile key: graphics.graph_ball_pulse)
 
 
 def _g(key: str):
@@ -88,6 +93,54 @@ def _ease(kind: str, u: float) -> float:
     raise ValueError(f"easing lạ: {kind} (linear | ease_out | ease_in_out)")
 
 
+def rounded_path(points, radius: float, per_corner: int = 14) -> tuple[np.ndarray, list[float]]:
+    """Bo tròn các góc của đường gấp khúc (Bezier bậc 2, bán kính ≤ nửa đoạn ngắn kề). Trả (điểm, marks): marks[i] = tỉ lệ độ
+    dài cung (0..1) tại đỉnh gốc thứ i (giữa cung bo) — mốc để neo tiến độ vẽ vào đỉnh bậc thang."""
+    p = np.asarray(points, dtype=np.float64)
+    out, mid = [p[0]], [0]
+    for i in range(1, len(p) - 1):
+        a, b = p[i - 1] - p[i], p[i + 1] - p[i]
+        la, lb = np.hypot(*a), np.hypot(*b)
+        r = min(radius, la / 2, lb / 2)
+        s, e = p[i] + a / la * r, p[i] + b / lb * r
+        t = np.linspace(0, 1, per_corner)[:, None]
+        out.extend((1 - t) ** 2 * s + 2 * (1 - t) * t * p[i] + t ** 2 * e)
+        mid.append(len(out) - 1 - per_corner // 2)
+    out.append(p[-1])
+    mid.append(len(out) - 1)
+    pts = np.asarray(out, dtype=np.float32)
+    cum = np.concatenate([[0], np.cumsum(np.hypot(*np.diff(pts, axis=0).T))])
+    return pts, [float(cum[m] / cum[-1]) for m in mid]
+
+
+def progress_curve(times, arcs, at_times, edge_slope: float = 0.3) -> np.ndarray:
+    """Tiến độ vẽ (tỉ lệ cung) tại `at_times`: Hermite khối đơn điệu (Fritsch–Butland) đi qua các mốc (times[i], arcs[i]).
+    Tốc độ liên tục qua mốc (không dừng); hai đầu vào/ra chậm = edge_slope × tốc độ trung bình đoạn kề (không đứng yên).
+    Trước mốc đầu = arcs[0], sau mốc cuối = arcs[-1]."""
+    t, y = np.asarray(times, np.float64), np.asarray(arcs, np.float64)
+    if len(t) < 2 or np.any(np.diff(t) <= 0) or np.any(np.diff(y) < 0):
+        raise ValueError("mốc phải có ≥ 2 điểm, thời gian tăng chặt, tiến độ không giảm")
+    h, d = np.diff(t), np.diff(y) / np.diff(t)
+    m = np.empty(len(t))
+    m[0], m[-1] = edge_slope * d[0], edge_slope * d[-1]
+    for k in range(1, len(t) - 1):
+        w1, w2 = 2 * h[k] + h[k - 1], h[k] + 2 * h[k - 1]
+        m[k] = 0.0 if d[k - 1] * d[k] <= 0 else (w1 + w2) / (w1 / d[k - 1] + w2 / d[k])
+    x = np.clip(np.asarray(at_times, np.float64), t[0], t[-1])
+    k = np.clip(np.searchsorted(t, x, side="right") - 1, 0, len(t) - 2)
+    u = (x - t[k]) / h[k]
+    out = ((2 * u ** 3 - 3 * u ** 2 + 1) * y[k] + (u ** 3 - 2 * u ** 2 + u) * h[k] * m[k]
+           + (-2 * u ** 3 + 3 * u ** 2) * y[k + 1] + (u ** 3 - u ** 2) * h[k] * m[k + 1])
+    return np.clip(out, y[0], y[-1])
+
+
+def path_points(points, progress) -> np.ndarray:
+    """Toạ độ đầu nét (N×2) tại mỗi giá trị tiến độ — cùng phép chia cung như render_frames (không run tay)."""
+    pts = resample(points)
+    idx = np.clip(np.round(np.asarray(progress, np.float64) * (len(pts) - 1)).astype(int), 0, len(pts) - 1)
+    return pts[idx]
+
+
 # ---------- vẽ ----------
 def _polyline(mask: np.ndarray, pts: np.ndarray, width: float) -> None:
     import cv2
@@ -117,9 +170,11 @@ def _over(prem: np.ndarray, alpha: np.ndarray, mask: np.ndarray, color: np.ndarr
 
 
 def _compose(stroke: np.ndarray, dot: np.ndarray | None, color: np.ndarray, glow: np.ndarray | None,
-             width: float, dot_color: np.ndarray) -> np.ndarray:
+             width: float, dot_color: np.ndarray, aura: np.ndarray | None = None) -> np.ndarray:
     import cv2
     prem, alpha = np.zeros((H, W, 3), np.float32), np.zeros((H, W), np.float32)
+    if aura is not None:
+        _over(prem, alpha, cv2.GaussianBlur(aura, (0, 0), width * 0.9), glow if glow is not None else color)
     if glow is not None:
         both = stroke if dot is None else np.maximum(stroke, dot)
         halo = cv2.GaussianBlur(both, (0, 0), max(2.0, width * 0.6))
@@ -134,31 +189,51 @@ def _compose(stroke: np.ndarray, dot: np.ndarray | None, color: np.ndarray, glow
     return out
 
 
+def _head_masks(tip: np.ndarray, head: str, f: int, width: float) -> tuple:
+    """Mặt nạ chấm đầu nét + quầng. `dot`: chấm cỡ 1,7 × nét; `ball`: lõi trắng nở dần + thở nhẹ + quầng xanh lớn."""
+    k = 1.0
+    if head == "ball":
+        k = min(1.0, (f + 1) / BALL_POP_FRAMES) * (1 + BALL_PULSE[0] * np.sin(2 * np.pi * f / BALL_PULSE[1]))
+    dot = np.zeros((H, W), np.uint8)
+    _polyline(dot, np.stack([tip, tip]), width * (BALL_CORE if head == "ball" else 1.7) * k)
+    aura = None
+    if head == "ball":
+        import cv2
+        aura = np.zeros((H, W), np.uint8)
+        cv2.circle(aura, (int(round(tip[0] * (1 << SHIFT))), int(round(tip[1] * (1 << SHIFT)))),
+                   int(width * BALL_AURA * k * (1 << SHIFT)), 255, -1, cv2.LINE_AA, SHIFT)
+    return dot, aura
+
+
 def render_frames(points, frames: int, width: float, color: str, glow: str | None = None, head: str = "none",
-                  easing: str = "ease_out", jitter: float = 0.0, seed: int = 0, dot_color: str = "#FFFFFF") -> Iterator[np.ndarray]:
+                  easing: str = "ease_out", jitter: float = 0.0, seed: int = 0, dot_color: str = "#FFFFFF",
+                  progress=None) -> Iterator[np.ndarray]:
     """Sinh `frames` khung RGBA (H×W×4 uint8, alpha thẳng). Khung 0 trống, khung cuối đủ nét; head: none | arrow (chỉ hiện
-    ở khung cuối) | dot (chấm bám đầu nét, có quầng nếu glow)."""
+    ở khung cuối) | dot (chấm bám đầu nét, có quầng nếu glow) | ball (bóng sáng: lõi trắng + quầng xanh, hiện cả khi nét
+    chưa bắt đầu). `progress` (len = frames, tỉ lệ độ dài cung 0..1) thay cho `easing` — để tiến độ đi qua các mốc."""
     if frames < 2:
         raise ValueError("frames phải ≥ 2 (khung 0 trống + ít nhất 1 khung vẽ)")
-    if head not in ("none", "arrow", "dot"):
+    if head not in ("none", "arrow", "dot", "ball"):
         raise ValueError(f"head lạ: {head}")
+    if progress is not None and len(progress) != frames:
+        raise ValueError("progress phải có đúng `frames` phần tử")
     pts = _wobble(resample(points), jitter * width, seed)
     col, gcol = _hex(color), (_hex(glow) if glow else None)
     for f in range(frames):
-        p = _ease(easing, f / (frames - 1))
+        p = float(progress[f]) if progress is not None else _ease(easing, f / (frames - 1))
         n = round(p * (len(pts) - 1))
-        if f == 0 or n < 1:
+        if (f == 0 or n < 1) and head != "ball":
             yield np.zeros((H, W, 4), np.uint8)
             continue
-        part = pts[: n + 1]
-        stroke, dot = np.zeros((H, W), np.uint8), None
-        _polyline(stroke, part, width)
+        part = pts[: max(n, 0) + 1]
+        stroke, dot, aura = np.zeros((H, W), np.uint8), None, None
+        if n >= 1:
+            _polyline(stroke, part, width)
         if head == "arrow" and f == frames - 1:
             _arrow_head(stroke, part, width)
-        if head == "dot":
-            dot = np.zeros((H, W), np.uint8)
-            _polyline(dot, part[-1:].repeat(2, 0), width * 1.7)
-        yield _compose(stroke, dot, col, gcol, width, _hex(dot_color))
+        if head in ("dot", "ball"):
+            dot, aura = _head_masks(part[-1], head, f, width)
+        yield _compose(stroke, dot, col, gcol, width, _hex(dot_color), aura)
 
 
 def write(spec: dict, out: str | Path, fps: int = 30) -> Path:
@@ -238,6 +313,13 @@ def graph_curve(points, frames: int | None = None) -> dict:
     """Đường đồ thị mượt qua các điểm, chấm trắng có quầng chạy ở đầu nét; thời lượng = graph_axis_frames."""
     return dict(points=smooth(points), frames=frames or _g("graph_axis_frames"), width=HAND_WIDTH_RATIO * W,
                 color=_g("accent_line"), glow=_g("accent_line"), head="dot", easing="linear", jitter=0.0, seed=0)
+
+
+def graph_track(points, progress) -> dict:
+    """Một nét đồ thị liền mạch: bề dày line_width_ratio·W, quầng xanh nhẹ, bóng sáng (lõi trắng) dẫn đầu nét; khung f có
+    tiến độ `progress[f]` (tỉ lệ cung) — dùng cho cả cảnh thay vì từng bậc lộ bằng crop."""
+    return dict(points=np.asarray(points, np.float32), frames=len(progress), width=_line_w(), color=_g("accent_line"),
+                glow=GRAPH_GLOW, head="ball", easing="linear", jitter=0.0, seed=0, progress=list(map(float, progress)))
 
 
 # ---------- CLI ----------

@@ -71,10 +71,10 @@ def test_filmcraft_ids_in_catalog() -> None:
     assert KB_IDS >= {"morph_cut", "blur_dissolve", "clock_wipe", "iris_round", "cross_dissolve"}, "đọc sai danh mục"
     for kind, (eff, frames, sfx) in TH.TH_JOINS.items():
         assert eff in KB_IDS, (kind, eff)
-        assert 1 <= frames <= 12 and all(s in CATALOG for s in sfx), kind
+        assert 1 <= frames <= TH.MAX_FRAMES_DISSOLVE and all(s in CATALOG for s in sfx), kind
     for kind in TH.TH_KINDS:
         n = TH.TH_FRAMES[kind]
-        assert n <= (18 if kind in TH.DISSOLVE_OK else 12), (kind, n)
+        assert n <= (TH.MAX_FRAMES_DISSOLVE if kind in TH.DISSOLVE_OK else TH.MAX_FRAMES), (kind, n)
     fx, (_, after) = fresh(), clips()
     fx.th_join(after, "dip_to_paper", black=True)
     assert after["transition_in"]["effect"] == "dip_to_black" and "dip_to_black" in KB_IDS and not fx.items
@@ -125,7 +125,8 @@ def test_punch_settle_and_card_swipe() -> None:
     assert after["motion"]["scale"][0][1] == 110 and after["motion"]["scale"][-1][1] == 100
     fx2, (_, b2) = fresh(), clips()
     fx2.join(b2, "card_swipe")
-    assert [e["effect"] for e in b2["effects"]] == ["rounded_crop", "drop_shadow"] and b2["motion"]["scale"] == 92
+    assert [e["effect"] for e in b2["effects"]] == ["directional_blur", "rounded_crop", "drop_shadow"]
+    assert b2["motion"]["scale"][0][1] > 92 and b2["motion"]["scale"][-1][1] == 92
     assert b2["motion"]["position"][0][1][0] > 1080 and b2["motion"]["position"][-1][1] == [540, 960]
 
 
@@ -198,7 +199,7 @@ def check_rotation(plan: list[cp.Cut], share: float = 0.4, row: int = 2, kinds: 
     for i, j in enumerate(joins):
         assert j in TH.HARD_KINDS or j not in joins[max(0, i - gap):i], ("lặp trong 3 điểm cắt", i, joins)
         assert j not in cp.FLASHY, ("nháy sáng", joins)
-        assert TH.TH_FRAMES.get(j, 0) <= (18 if j in TH.DISSOLVE_OK else 12), j
+        assert TH.TH_FRAMES.get(j, 0) <= (TH.MAX_FRAMES_DISSOLVE if j in TH.DISSOLVE_OK else TH.MAX_FRAMES), j
         assert j in cp.SFX_OF and plan[i].info["sfx"], j
     for k in TH.ONE_PER_VIDEO:
         assert joins.count(k) <= 1, (k, joins)

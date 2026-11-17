@@ -604,6 +604,8 @@ Phong cách giáo dục tối giản (kiểu Joseph | Video Editing / Arthur Bro
 
 Ghi đè B5 (phụ đề 2 dòng): mỗi cụm ≤ 5 từ, đúng 1 từ lớn (hoặc cặp 2 từ) do kịch bản / KEY_SPECS chọn — không tự đoán; tỉ lệ cỡ lớn : nhỏ 2,7–3,5 (≈ 156 : 50 px); từ nhỏ xếp "sandwich" thẳng mép trái / phải với từ lớn (`scripts/brooks_text.py`). Vẫn đặt trong vùng chữ B8, né mặt.
 
+
+3.6.3 (người dùng 2026-11-17): vùng chữ an toàn TOP y 260–680 · LOWER y 1180–1430 x 120–880 (né dải mô tả y > 1440 và cột nút phải x > 890) · MID cạnh mặt y 720–1100; A-roll mặc định LOWER dưới cằm, đổi vùng luân phiên (brooks_text.pick_zone); chữ vào 10 khung trượt + phóng + rõ dần, chữ nhỏ lệch 2 khung, từ lớn nảy nhẹ (trừ số / tiền), giữ phóng chậm, ra 5 khung; phát sáng hay gradient chọn theo khoảnh khắc (looks="auto")
 - Kiểm: brooks_text (test) · Nguồn: phân tích video Joseph | Video Editing (Arthur Brooks) 2026-11-17 · Độ tin: medium
 - Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
 
