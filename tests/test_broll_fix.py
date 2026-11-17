@@ -210,17 +210,17 @@ def main() -> None:
         newp.write_text(json.dumps([{"seq": 3, "prompt": GOOD3, "anchor_quote": ANCHOR3}], ensure_ascii=False), encoding="utf-8")
         backup_root = root / "backup"
         cli = [sys.executable, str(SCRIPTS / "broll_fix.py")]
-        r = subprocess.run([*cli, "lint", str(f), "--prompts", str(newp)], capture_output=True, text=True)
+        r = subprocess.run([*cli, "lint", str(f), "--prompts", str(newp), "--no-strict-layers"], capture_output=True, text=True)
         assert r.returncode == 0, r.stdout
         before = (f / "00_storyboard_manifest.json").read_text(encoding="utf-8")
-        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newp), "--dry-run", "--backup-root", str(backup_root)], capture_output=True, text=True)
+        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newp), "--no-strict-layers", "--dry-run", "--backup-root", str(backup_root)], capture_output=True, text=True)
         assert r.returncode == 0 and (f / "03_b-roll-2.mp4").exists() and not backup_root.exists()
         assert (f / "00_storyboard_manifest.json").read_text(encoding="utf-8") == before
         badp = root / "bad.json"
         badp.write_text(json.dumps([{"seq": 3, "prompt": "Clip thư viện: KB07", "anchor_quote": ANCHOR3}], ensure_ascii=False), encoding="utf-8")
         r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(badp), "--backup-root", str(backup_root)], capture_output=True, text=True)
         assert r.returncode == 1 and (f / "03_b-roll-2.mp4").exists() and not backup_root.exists()
-        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newp), "--source", "muse", "--backup-root", str(backup_root)], capture_output=True, text=True)
+        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newp), "--no-strict-layers", "--source", "muse", "--backup-root", str(backup_root)], capture_output=True, text=True)
         assert r.returncode == 0, r.stdout + r.stderr
         assert not (f / "03_b-roll-2.mp4").exists() and not (f / "media/x110/03_b-roll-2_x110.mp4").exists()
         assert (f / "04_b-roll-10.mp4").exists()                                   # cảnh khác nguyên vẹn
@@ -243,7 +243,7 @@ def main() -> None:
         # --- prepare mặc định (--source flow) + plan mặc định (--engine flow)
         newp4 = root / "p4.json"
         newp4.write_text(json.dumps([{"seq": 4, "prompt": GOOD3, "anchor_quote": ANCHOR3}], ensure_ascii=False), encoding="utf-8")
-        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newp4), "--backup-root", str(backup_root)],
+        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newp4), "--no-strict-layers", "--backup-root", str(backup_root)],
                            capture_output=True, text=True)
         assert r.returncode == 0, r.stdout + r.stderr
         i4 = json.loads((f / "prompts_muse_veo_broll.json").read_text(encoding="utf-8"))[1]
@@ -257,7 +257,7 @@ def main() -> None:
         GOOD4 = GOOD3.replace("Slow push-in", "Gentle handheld drift")
         newk = root / "pk.json"
         newk.write_text(json.dumps([{"seq": 4, "prompt": GOOD4, "anchor_quote": ANCHOR3}], ensure_ascii=False), encoding="utf-8")
-        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newk), "--source", "flow", "--keep-clips",
+        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newk), "--no-strict-layers", "--source", "flow", "--keep-clips",
                             "--backup-root", str(backup_root)], capture_output=True, text=True)
         assert r.returncode == 0, r.stdout + r.stderr
         assert (f / "04_b-roll-10.mp4").exists(), "keep-clips đã chuyển clip đi"
@@ -423,7 +423,7 @@ def main() -> None:
         newm = root / "pm.json"
         newm.write_text(json.dumps([{"seq": 3, "prompt": GOOD3, "anchor_quote": ANCHOR3},
                                     {"seq": 4, "prompt": GOOD4M, "anchor_quote": ANCHOR3}], ensure_ascii=False), encoding="utf-8")
-        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newm), "--source", "flow", "--keep-clips",
+        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newm), "--no-strict-layers", "--source", "flow", "--keep-clips",
                             "--backup-root", str(root / "bk")], capture_output=True, text=True)
         assert r.returncode == 0, r.stdout + r.stderr
         insp = {"models": {"image": [{"id": "nano-banana", "label": "Nano Banana"}],

@@ -41,6 +41,7 @@ class Cut:
     before: str = ""                          # lời ngay trước điểm cắt
     after: str = ""                           # lời ngay sau
     section: bool = False                     # đổi phần lớn (tiêu đề mới, điều kiện mới…)
+    emphasis: bool = False                    # điểm cắt rơi vào từ khoá / câu chốt (chỉ plan_cuts_min: nhóm máy quay rung / punch / whip / spin)
     info: dict = field(default_factory=dict)
 
 
@@ -97,7 +98,7 @@ OPTIONS_E = {
     "đổi cảnh": ["neon_wipe", "mosaic_pixel"],
     "đổi góc gần": ["pop_in", "impact_shake"],
 }
-FLASHY = {"flash_burst", "flash_shake", "shutter", "flicker", "vhs_rewind"}   # họ nháy sáng / nhấp nháy (Rule 2: hạn chế)
+FLASHY = {"flash_burst", "flash_shake", "shutter", "flicker"} | TH.FLASHY_TH   # họ nháy sáng / nhấp nháy (Rule 2: hạn chế)
 MAX_FLASHY_SHARE = 0.2      # tối đa 20 % điểm cắt dùng họ nháy sáng
 FLASHY_GAP = 3              # hai lần nháy sáng cách nhau ít nhất 3 điểm cắt
 RECENT_N = 4                # không lặp cùng chuyển cảnh trong 4 điểm cắt gần nhất
@@ -118,7 +119,12 @@ SFX_OF = {"flash_burst": "flash hit (thump + màn trập) đúng khung trắng",
           "card_swipe": "whoosh", "luma_fade_soft": "—", "clock_wipe_step": "pop", "smoke_veil": "swell nhẹ (leak)",
           "iris_round_focus": "pop", "impact_shake": "boom_pre + key_hit", "chapter_card_slam": "key_hit khi thẻ đập vào",
           "page_peel_in": "pop", "pop_in": "pop", "neon_wipe": "whoosh", "mosaic_pixel": "data_beep",
-          "vhs_rewind": "glitch ngắn"}
+          "vhs_rewind": "glitch ngắn",
+          # kiểu năng động minimal-edu (3.6.4)
+          "flash_cut": "flash hit đúng khung trắng", "double_flash": "flash hit + màn trập ở nhịp loé thứ hai",
+          "flicker_cut": "glitch ngắn ở xung nháy đầu", "zoom_punch_in": "whoosh tăng dần, đỉnh đúng khung cắt",
+          "zoom_punch_out": "pop đúng khung cắt", "whip_pan": "whoosh căn đuôi cú lia", "spin_roll": "whoosh căn giữa cú xoay",
+          "lens_warp": "whoosh căn giữa cú méo", "rgb_split_cut": "glitch ngắn đúng khung tách màu"}
 
 
 def _pick(options: list[str], recent: list[str], used: dict | None = None, n_done: int = 0, seed: int = 0) -> str:
@@ -219,21 +225,32 @@ def plan_cuts_best(cuts: list[Cut], seed: int = 0, tries: int = 8, energetic: bo
 
 
 # ---------- hồ sơ minimal-edu: xoay vòng chuyển cảnh thay cho "cắt cứng 80 %" (th_transitions) ----------
-# Ngữ cảnh giống plan_cuts; "jump · sau dấu phẩy" gộp vào "giữa câu". hard_cut / j_cut_return = cắt cứng (≤ 40 %, ≤ 2 liền).
+# Ngữ cảnh giống plan_cuts; "jump · sau dấu phẩy" gộp vào "giữa câu". hard_cut / j_cut_return = cắt cứng (≤ 25 %, ≤ 2 liền).
 OPTIONS_MIN = {
-    "jump · giữa câu": ["punch_settle", "drift_reset", "morph_smooth", "camera_continue", "hard_cut"],
-    "jump cut · câu mới": ["j_cut_return", "hard_cut", "soft_wipe", "luma_fade_soft", "clock_wipe_step"],
-    "jump cut · đổi phần": ["dip_to_paper", "paper_rip", "smoke_veil", "chapter_card_slam", "blur_dissolve_cut", "clock_wipe_step"],
-    "vào B-roll": ["card_swipe", "page_peel_in", "soft_wipe", "blur_dissolve_cut"],
-    "ra B-roll": ["iris_round_focus", "soft_wipe", "luma_fade_soft", "dip_to_paper"],
-    "đổi cảnh": ["dip_to_paper", "blur_dissolve_cut", "luma_fade_soft", "clock_wipe_step", "chapter_card_slam"],
-    "đổi góc gần": ["camera_continue", "soft_wipe", "blur_dissolve_cut", "punch_settle"],
+    # jump cut cùng khung: nhóm máy quay (punch / whip / spin) xen với kiểu nhẹ; "nhấn" = rơi vào từ khoá (Cut.emphasis)
+    "jump · giữa câu": ["punch_settle", "zoom_punch_in", "drift_reset", "whip_pan", "morph_smooth", "camera_continue", "rgb_split_cut",
+                        "hard_cut", "spin_roll", "lens_warp"],
+    "jump · nhấn": ["impact_shake", "zoom_punch_in", "flash_cut", "spin_roll", "whip_pan", "zoom_punch_out", "double_flash", "rgb_split_cut",
+                    "lens_warp", "flicker_cut"],
+    "jump cut · câu mới": ["j_cut_return", "zoom_punch_out", "hard_cut", "impact_shake", "soft_wipe", "flash_cut", "spin_roll", "luma_fade_soft",
+                           "whip_pan", "flicker_cut", "clock_wipe_step", "lens_warp"],
+    # đổi chủ đề: rò sáng / cháy phim (khung sáng nhất đúng điểm cắt) xen giấy / khói / thẻ chương
+    "jump cut · đổi phần": ["light_leak", "dip_to_paper", "film_burn", "paper_rip", "smoke_veil", "chapter_card_slam", "double_flash",
+                            "blur_dissolve_cut", "clock_wipe_step", "lens_warp"],
+    "vào B-roll": ["card_swipe", "whip_pan", "page_peel_in", "soft_wipe", "light_leak", "flash_cut", "blur_dissolve_cut", "lens_warp"],
+    "ra B-roll": ["iris_round_focus", "zoom_punch_out", "soft_wipe", "light_leak", "luma_fade_soft", "rgb_split_cut", "dip_to_paper"],
+    "đổi cảnh": ["dip_to_paper", "film_burn", "blur_dissolve_cut", "whip_pan", "luma_fade_soft", "double_flash", "clock_wipe_step", "spin_roll",
+                 "chapter_card_slam"],
+    "đổi góc gần": ["camera_continue", "zoom_punch_in", "soft_wipe", "spin_roll", "blur_dissolve_cut", "whip_pan", "punch_settle",
+                    "flicker_cut"],
 }
-# dùng được ở mọi ngữ cảnh: bể dự phòng khi bảng ngữ cảnh hết lượt (đủ 6 kiểu, mỗi kiểu ≤ 20 %)
+# dùng được ở mọi ngữ cảnh: bể dự phòng khi bảng ngữ cảnh hết lượt (không có kiểu nháy sáng: chỉ đi qua bảng ngữ cảnh để giữ hạn mức)
 POOL_MIN = ["punch_settle", "drift_reset", "morph_smooth", "camera_continue", "blur_dissolve_cut", "soft_wipe", "luma_fade_soft",
-            "clock_wipe_step", "dip_to_paper", "iris_round_focus"]
-MIN_DEFAULTS = {"max_hard_cut_share": 0.4, "max_hard_in_row": 2, "min_distinct_transitions": 6, "max_kind_share": 0.2,
-                "no_repeat_within": 3, "max_flashy_share": 0.0}
+            "clock_wipe_step", "dip_to_paper", "iris_round_focus", "zoom_punch_in", "zoom_punch_out", "whip_pan", "spin_roll", "lens_warp",
+            "rgb_split_cut", "impact_shake"]
+# profile key: cuts.<khoá> (JSON minimal-edu-style.json còn số cũ 0.4 / 6 / 0.0: orchestrator đổi thành 0.25 / 8 / 0.2)
+MIN_DEFAULTS = {"max_hard_cut_share": 0.25, "max_hard_in_row": 2, "min_distinct_transitions": 8, "max_kind_share": 0.2,
+                "no_repeat_within": 3, "max_flashy_share": 0.2}
 
 
 def _context(c: Cut, sim: float) -> str:
@@ -242,7 +259,9 @@ def _context(c: Cut, sim: float) -> str:
     if c.a_kind == "broll" and c.b_kind != "broll":
         return "ra B-roll"
     if sim >= 0.8 or (c.a[0] == c.b[0] and c.a_kind == c.b_kind == "aroll" and sim >= 0.3):
-        return "jump cut · đổi phần" if c.section else ("jump cut · câu mới" if _sentence_break(c.before) else "jump · giữa câu")
+        if c.section:
+            return "jump cut · đổi phần"
+        return "jump · nhấn" if c.emphasis else ("jump cut · câu mới" if _sentence_break(c.before) else "jump · giữa câu")
     return "đổi cảnh" if sim < 0.5 else "đổi góc gần"
 
 
@@ -265,8 +284,8 @@ def _allowed(k: str, st: dict, lim: dict, level: int, mid: bool = False) -> bool
         return False
     if k in TH.HARD_KINDS:
         return st["hard"] < lim["hard"] and st["run"] < lim["row"]
-    if k in FLASHY and st["flashy"] >= lim["flashy"]:
-        return False
+    if k in FLASHY and (st["flashy"] >= lim["flashy"] or set(st["recent"][-(FLASHY_GAP - 1):]) & FLASHY):
+        return False                                   # nháy sáng: ≤ max_flashy_share và cách nhau ≥ FLASHY_GAP điểm cắt (mọi level)
     if level >= 2:
         return True
     if k in st["recent"][-lim["gap"]:] or (k in TH.ONE_PER_VIDEO and st["count"].get(k)):
@@ -292,7 +311,7 @@ def _pick_min(opts: list[str], st: dict, lim: dict, left: int, seed: int, mid: b
 def plan_cuts_min(cuts: list[Cut], seed: int = 0, rules: dict | None = None) -> list[Cut]:
     """Bản plan_cuts cho hồ sơ minimal-edu. `rules` = hồ sơ phong cách (style_profile.load(name="minimal-edu")); số trong
     rules["cuts"] (max_hard_cut_share 0,4 · max_hard_in_row 2 · min_distinct_transitions 6 · max_kind_share 0,2 ·
-    no_repeat_within 3 · max_flashy_share 0), thiếu thì dùng MIN_DEFAULTS. Điền c.info như plan_cuts (+ "frames", "lead_s")."""
+    no_repeat_within 3 · max_flashy_share 0,2 · max_hard_cut_share 0,25 · min_distinct_transitions 8), thiếu thì dùng MIN_DEFAULTS. Điền c.info như plan_cuts (+ "frames", "lead_s")."""
     lim = _min_limits(rules, len(cuts))
     st = {"hard": 0, "run": 0, "flashy": 0, "recent": [], "count": {}, "distinct": set()}
     for i, c in enumerate(cuts):

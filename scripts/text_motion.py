@@ -16,6 +16,7 @@ Hồ sơ tuỳ chọn 'minimal-edu' (references/minimal-edu-style.json, chỉ kh
 profile=prof, cuts=[...]) — vào ngắn theo khung của chữ chính / chữ nhỏ, ra = mờ `exit_frames` khung (không nhoè), và
 clip kết thúc `end_before_cut_frames` khung trước điểm cắt gần cuối clip (chỉ rút ngắn). profile=None → như cũ.
 
+Hồ sơ minimal-edu 3.6.4: thư viện kiểu vào (ENTRANCES) + EntranceStyles xoay vòng 6–10 kiểu mỗi video, giữ / ra như dưới.
 Hồ sơ minimal-edu 3.6.3 — typography chuyển động mượt ("lả lướt"): vào / giữ / ra là MỘT chuỗi keyframe của hiệu ứng `transform`
 (vị trí Y, scale) + gaussian_blur + opacity, easing easeIn (hãm lúc đến) / easeOut (hãm lúc đi); FilmCraft không có bezier tuỳ ý
 nên dùng đúng ba kiểu tích hợp. Một bộ "vật lý" cho cả video (KIN); chỉ khoảng trễ từ (stagger) đổi theo cụm.
@@ -250,6 +251,155 @@ def kinetic_in(c: dict, fps: float, kin: dict | None = None, overshoot: bool = F
     else:
         scale = [[0, k["scale_from"]], [_t(n, fps), 100, "easeIn"]]
     fx["params"]["position"], fx["params"]["scale_height"] = pos, scale
+
+
+# ---- thư viện kiểu vào của chữ minimal-edu (3.6.4): nhiều kiểu xoay vòng, cùng giữ / ra của kinetic_hold / kinetic_exit ----
+# Mỗi kiểu là một bảng keyframe (khung, giá trị[, nội suy]); mọi key đến đều easeIn (hãm lúc đến) — không bao giờ linear.
+ENTRANCE_MIN_STYLES, ENTRANCE_MAX_STYLES = 6, 10    # profile key: text.kinetic.entrance_styles — mỗi video dùng 6–10 kiểu (chọn theo tên video)
+MASK_DY_RATIO = 1.1                                 # profile key: text.kinetic.mask_dy_ratio — mask_reveal_up: chữ trồi từ dưới đường cắt (× cỡ chữ)
+MASK_CUT_RATIO = 0.32                               # profile key: text.kinetic.mask_cut_ratio — đường cắt = baseline + 0,32 × cỡ (chừa dấu / chân chữ)
+WIPE_MARGIN_PX = 40                                 # profile key: text.kinetic.wipe_margin_px — wipe_left: mép quét vượt mép chữ 40 px
+TRACKING_FROM = -90                                 # profile key: text.kinetic.tracking_from — tracking_expand: tracking −90 → giá trị gốc
+FRAME_PX = (1080, 1920)
+
+
+def _entrance_specs() -> dict:
+    """tên → hàm (cỡ chữ, hình học, chỉ số từ) → bảng key. Hình học g = {x0, x1, base, size} (px khung 1080×1920) hoặc None."""
+    return {
+        "drop_bounce": lambda g, i: {"op": [(0, 0), (3, 100)], "blur": [(0, 8), (5, 0)],
+                                     "pos": [(0, 0, -60), (6, 0, 8), (12, 0, 0)]},
+        "scale_pop": lambda g, i: {"op": [(0, 0), (3, 100)], "blur": [(0, 10), (5, 0)],
+                                   "scale": [(0, 60), (6, 108, "bezier"), (12, 100)]},
+        "mask_reveal_up": lambda g, i: {"op": [(0, 0), (1, 100)], "pos": [(0, 0, round(MASK_DY_RATIO * g["size"])), (10, 0, 0)],
+                                        "crop": {"bottom": [(0, _cut_pct(g), "hold"), (10, _cut_pct(g), "hold"), (11, 0)]}},
+        "wipe_left": lambda g, i: {"op": [(0, 0), (2, 100)], "pos": [(0, -36, 0), (10, 0, 0)], "dblur": [(0, 40), (8, 0)],
+                                   "crop": {"right": [(0, _right_pct(g["x0"] - 20)), (10, _right_pct(g["x1"] + WIPE_MARGIN_PX)), (11, 0)],
+                                            "feather": 24}},
+        "tracking_expand": lambda g, i: {"op": [(0, 0), (5, 100)], "blur": [(0, 10), (6, 0)], "scale": [(0, 96), (12, 100)],
+                                         "trk": [(0, TRACKING_FROM), (12, 0)]},
+        "rotate_in": lambda g, i: {"op": [(0, 0), (4, 100)], "blur": [(0, 8), (6, 0)], "scale": [(0, 94), (11, 100)],
+                                   "rot": [(0, -8), (11, 0)], "pos": [(0, 0, 30), (11, 0, 0)]},
+        "blur_zoom": lambda g, i: {"op": [(0, 0), (5, 100)], "blur": [(0, 20), (8, 0)], "scale": [(0, 130), (11, 100)]},
+        "split_rise": lambda g, i: {"op": [(0, 0), (3, 100)], "blur": [(0, 8), (5, 0)], "dblur": [(0, 30), (7, 0)],
+                                    "pos": [(0, -50 if i % 2 == 0 else 50, 16), (10, 0, 0)]},
+        "typewriter_soft": lambda g, i: {"op": [(0, 0), (3, 100)], "blur": [(0, 6), (6, 0)], "pos": [(0, 0, 10), (8, 0, 0)]},
+        "flip_x": lambda g, i: {"op": [(0, 0), (3, 100)], "blur": [(0, 6), (6, 0)], "flip": [(0, 4), (11, 100)]},
+    }
+
+
+def _cut_pct(g: dict) -> float:
+    """Crop `bottom` (% khung) cắt ngay dưới chân chữ."""
+    return round((FRAME_PX[1] - (g["base"] + MASK_CUT_RATIO * g["size"])) / FRAME_PX[1] * 100, 2)
+
+
+def _right_pct(edge_x: float) -> float:
+    """Crop `right` (% khung) để mép phải của vùng hiện nằm ở x = edge_x."""
+    return round(min(100.0, max(0.0, 100 - edge_x / FRAME_PX[0] * 100)), 2)
+
+
+ENTRANCES = ("slide_up_blur", *_entrance_specs())
+NEEDS_GEO = {"mask_reveal_up", "wipe_left"}
+NO_PNG = {"tracking_expand"}                                      # ảnh chữ PNG (gradient) không có tracking
+NUMBER_SAFE = tuple(s for s in ENTRANCES if s not in {"drop_bounce", "scale_pop"})      # drop_bounce / scale_pop vọt quá đích
+
+
+def _frames(pts: list, scale: float) -> list[tuple]:
+    """Mốc khung của chuỗi key co theo `scale` (clip ngắn), tăng ngặt, khung đầu = 0."""
+    out, last = [], -1
+    for j, p in enumerate(pts):
+        f = 0 if j == 0 else max(last + 1, round(p[0] * scale))
+        out.append((f, *p[1:]))
+        last = f
+    return out
+
+
+def _seq(pts: list, fps: float, scale: float, conv=lambda v: v) -> list:
+    """[(khung, giá trị[, nội suy])] → keys [t, giá trị, nội suy]; key đến mặc định easeIn, key đầu chỉ có nội suy nếu ghi rõ."""
+    keys = []
+    for j, p in enumerate(_frames(pts, scale)):
+        interp = p[2] if len(p) > 2 else ("easeIn" if j else None)
+        keys.append([_t(p[0], fps), conv(p[1])] + ([interp] if interp else []))
+    return keys
+
+
+def _apply_spec(c: dict, fps: float, spec: dict, anchor: list[float] | None, scale: float) -> None:
+    """Ghi bảng key của một kiểu vào clip chữ: opacity, blur (đầu danh sách effects), transform (anchor = tâm chữ), crop / rotate_3d (sau transform)."""
+    fx = _kin_fx(c, anchor)
+    prm, (ax, ay) = fx["params"], fx["params"]["anchor"]
+    effs = c.setdefault("effects", [])
+    c["opacity"] = _seq(spec["op"], fps, scale)
+    if "blur" in spec:
+        effs.insert(0, {"effect": "gaussian_blur", "params": {"blurriness": _seq(spec["blur"], fps, scale)}})
+    if "dblur" in spec:
+        effs.insert(0, {"effect": "directional_blur", "params": {"direction": 0, "length": _seq(spec["dblur"], fps, scale)}})
+    if "pos" in spec:
+        prm["position"] = _seq([(p[0], [ax + p[1], ay + p[2]], *p[3:]) for p in spec["pos"]], fps, scale)
+    if "scale" in spec:
+        prm["scale_height"] = _seq(spec["scale"], fps, scale)
+    if "rot" in spec:
+        prm["rotation"] = _seq(spec["rot"], fps, scale)
+    if "trk" in spec:
+        base = c.get("tracking", 0)
+        c["tracking"] = _seq(spec["trk"], fps, scale, lambda v: base + v)
+    if "flip" in spec:       # lật quanh trục ngang của chữ: ép chiều cao 4 → 100 % (rotate_3d xoay quanh tâm KHUNG nên không dùng)
+        effs.append({"effect": "transform", "params": {"anchor": [ax, ay], "position": [ax, ay], "uniform_scale": False,
+                                                      "scale_height": _seq(spec["flip"], fps, scale), "scale_width": 100.0}})
+    if "crop" in spec:
+        params = {k: _seq(v, fps, scale) for k, v in spec["crop"].items() if k != "feather"}
+        params.update({"feather": spec["crop"]["feather"]} if "feather" in spec["crop"] else {})
+        effs.append({"effect": "crop", "params": params})
+
+
+def entrance_in(c: dict, fps: float, style: str, kin: dict | None = None, overshoot: bool = False,
+                anchor: list[float] | None = None, geo: dict | None = None, idx: int = 0) -> str:
+    """Vào theo kiểu `style` (ENTRANCES). slide_up_blur = kinetic_in. Thiếu hình học cho kiểu cần nó, hoặc ảnh PNG với kiểu cần tracking →
+    quay về blur_zoom. Clip ngắn: mọi mốc khung co lại cho vừa. Trả tên kiểu thật sự dùng."""
+    if style not in ENTRANCES:
+        raise ValueError(f"kiểu vào phải là một trong {ENTRANCES}, nhận {style!r}")
+    if (style in NEEDS_GEO and not geo) or (style in NO_PNG and "src" in c):
+        style = "blur_zoom"
+    if style == "slide_up_blur":
+        kinetic_in(c, fps, kin, overshoot, anchor)
+        return style
+    spec = _entrance_specs()[style](geo, idx)
+    last = max(p[0] for v in spec.values() for k in (v.values() if isinstance(v, dict) else [v]) if isinstance(k, list) for p in k)
+    scale = min(1.0, max(MIN_ENTRY_FRAMES, round(c["dur"] * fps) - 1) / last)
+    _apply_spec(c, fps, spec, anchor, scale)
+    return style
+
+
+class EntranceStyles:
+    """Bộ xoay kiểu vào của MỘT video: chọn 6–10 kiểu trong ENTRANCES theo tên video (seed; luôn ≥ 4 kiểu không vọt vì chỉ 2 kiểu vọt), rồi lần lượt qua chúng cho chữ lớn / chữ nhỏ.
+    `.pick(kind, number, png)` → tên kiểu; kind 'hero' | 'small'. Không trùng kiểu cụm trước (cùng kind); chữ nhỏ cố tránh trùng kiểu chữ lớn
+    của cùng cụm; số / tiền chỉ lấy kiểu không vọt (NUMBER_SAFE); ảnh PNG tránh NO_PNG; typewriter_soft chỉ cho chữ nhỏ."""
+
+    def __init__(self, prof: dict | None, seed):
+        import random
+        import zlib
+        rnd = random.Random(zlib.crc32(str(seed).encode()))
+        cfg = (prof or {}).get("text", {}).get("kinetic", {}).get("entrance_styles") or [ENTRANCE_MIN_STYLES, ENTRANCE_MAX_STYLES]
+        pool = rnd.sample(ENTRANCES, rnd.randint(cfg[0], cfg[1]))
+        self.styles = tuple(pool)
+        self._pos = {"hero": rnd.randrange(len(pool)), "small": rnd.randrange(len(pool))}
+        self._last: dict[str, str | None] = {"hero": None, "small": None}
+        self._hero_now: str | None = None
+
+    def pick(self, kind: str = "hero", number: bool = False, png: bool = False) -> str:
+        if kind not in self._pos:
+            raise ValueError("kind phải là 'hero' hoặc 'small'")
+        n = len(self.styles)
+        ok = [s for s in self.styles if (kind == "small" or s != "typewriter_soft") and (not number or s in NUMBER_SAFE)
+              and not (png and s in NO_PNG)] or ["blur_zoom"]
+        for avoid in ({self._last[kind], self._hero_now if kind == "small" else None}, {self._last[kind]}, set()):
+            for step in range(n):
+                s = self.styles[(self._pos[kind] + step) % n]
+                if s in ok and s not in avoid:
+                    self._pos[kind] = (self._pos[kind] + step + 1) % n
+                    self._last[kind] = s
+                    self._hero_now = s if kind == "hero" else self._hero_now
+                    return s
+        self._last[kind] = ok[0]
+        return ok[0]
 
 
 def kinetic_hold(c: dict, t0: float, t1: float, kin: dict | None = None) -> None:

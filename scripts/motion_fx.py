@@ -948,12 +948,13 @@ class MotionFX(FX):
         return self.enter(c, ent, cps=9)
 
     # ---------- chuyển cảnh ----------
-    def join(self, clip: dict, kind: str = "flash", cue_sfx: bool = True) -> dict:
+    def join(self, clip: dict, kind: str = "flash", cue_sfx: bool = True, before: dict | None = None) -> dict:
         """Gắn chuyển cảnh vào đầu `clip` (clip sau điểm cắt trên V1/B-roll) + SFX tương ứng.
         kind: flash | zoom | whip | glitch | leak | slide | cross_zoom (bảng JOINS) hoặc kiểu talking-head của
-        th_transitions.TH_KINDS (morph_smooth, soft_wipe, paper_rip, card_swipe…)."""
+        th_transitions.TH_KINDS (morph_smooth, soft_wipe, paper_rip, card_swipe, flash_cut, whip_pan, spin_roll…); `before` = clip ngay
+        trước điểm cắt (chỉ kiểu talking-head dùng: đuôi nó chuyển động cùng đầu `clip`)."""
         if kind in TH.TH_KINDS:
-            return TH.th_join(self, clip, kind, cue_sfx)
+            return TH.th_join(self, clip, kind, cue_sfx, before=before)
         eff, frames, sfx = JOINS[kind]
         clip["transition_in"] = {"effect": eff, "frames": frames}
         if cue_sfx:                                    # chuyển cảnh căn giữa điểm cắt: tiếng chỉ được vào từ nửa đầu của nó
@@ -1099,11 +1100,11 @@ class MotionFX(FX):
             return self.join(clip_after, "zoom")
         if kind == "hard_cut":                                       # hồ sơ minimal-edu: cắt cứng là một kiểu hợp lệ
             return clip_after
-        if kind in TRANS:
+        if kind in TRANS:                                            # light_leak / film_burn có cả ở TH_KINDS: đường mặc định giữ nguyên
             return self.transition(cut, kind, clip_after=clip_after, variant=variant)
         if kind in COMBO_KINDS:
             return self.combo(cut, kind, clip_after, variant=variant, clip_before=clip_before)
-        return self.join(clip_after, kind)
+        return self.join(clip_after, kind, before=clip_before)       # kiểu talking-head của minimal-edu dựng hai phía (before=)
 
     def _sub(self, src: str, src_in: float, at: float, dur: float, crop: dict, motion: dict | None, white_f: int,
              name: str) -> dict:

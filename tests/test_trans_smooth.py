@@ -82,7 +82,7 @@ def test_overlays_use_bezier_not_linear() -> None:
 
 
 def test_durations_longer_and_capped() -> None:
-    visible = [k for k in cp.POOL_MIN if k not in ("punch_settle", "morph_smooth", "drift_reset")]
+    visible = [k for k in cp.POOL_MIN if k not in ("punch_settle", "morph_smooth", "drift_reset") and k not in TH.ENERGY]   # năng động: nhanh có chủ đích
     for k in visible:
         assert TH.TH_FRAMES[k] >= 12, (k, TH.TH_FRAMES[k])
     assert TH.TH_FRAMES["morph_smooth"] >= 8 and TH.TH_FRAMES["punch_settle"] >= 12

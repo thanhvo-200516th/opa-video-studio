@@ -25,7 +25,7 @@ import fx_gfx
 import style_profile as sp
 import text_fx as tf
 from motion_fx import MX_SHADOW, PALETTES
-from text_motion import MIN_ENTRY_FRAMES, kinetic_in, kinetic_params, stagger_times
+from text_motion import ENTRANCES, MIN_ENTRY_FRAMES, EntranceStyles, entrance_in, kinetic_in, kinetic_params, stagger_times
 
 ROOT = Path(__file__).resolve().parent.parent
 _FX = inspect.signature(tf.FX.__init__).parameters
@@ -114,9 +114,16 @@ def _pivot(M: Meter, role: str, text: str, size: int, x: float, y: float, align:
     return [round(cx), round(y - PIVOT_Y * size)]
 
 
+def _geo(width: float, size: int, x: float, y: float, align: str) -> dict:
+    """Hình học chữ cho kiểu vào cần mép chữ (mask_reveal_up / wipe_left): mép trái / phải của mực và baseline, px khung."""
+    left = {"center": x - width / 2, "left": x, "right": x - width}[align]
+    return {"x0": left, "x1": left + width, "base": y, "size": size}
+
+
 def _clip(M: Meter, role: str, text: str, size: int, x: float, y: float, align: str, color: str, shadow: bool | dict,
-          at: float, end: float, fps: float, kin: dict, ov: bool = False) -> dict:
+          at: float, end: float, fps: float, kin: dict, ov: bool = False, ent: str | None = None, idx: int = 0) -> dict:
     """Một clip chữ + kiểu vào mượt text_motion.kinetic_in (Y / scale / blur / opacity; ov = vọt 106 % cho từ lớn, không cho số / tiền).
+    ent: tên kiểu vào (text_motion.ENTRANCES) thay cho kiểu mặc định; idx: số thứ tự từ trong cụm (split_rise đổi bên theo idx).
     shadow: True = bóng chuẩn text_fx.SHADOW, dict = bóng chỉ định (kiểu chữ), False = không bóng. Không bao giờ có viền chữ (B2)."""
     a, e = _span(text, at, end, fps)
     spec = M.spec(role)
@@ -125,7 +132,11 @@ def _clip(M: Meter, role: str, text: str, size: int, x: float, y: float, align: 
          "name": f"Chữ · {text[:24]}"}
     if shadow:
         c["shadow"] = dict(tf.SHADOW if shadow is True else shadow)
-    kinetic_in(c, fps, kin, ov, _pivot(M, role, text, size, x, y, align))
+    pivot = _pivot(M, role, text, size, x, y, align)
+    if ent is None:
+        kinetic_in(c, fps, kin, ov, pivot)
+    else:
+        entrance_in(c, fps, ent, kin, ov, pivot, _geo(M.width(role, size, text), size, x, y, align), idx)
     return c
 
 
@@ -221,7 +232,7 @@ def _pick_look(prof: dict, on_dark: bool, looks: HeroLooks | None, name: str | N
 
 
 def _gradient_hero(M: Meter, role: str, text: str, size: int, x: float, y: float, align: str, look: dict,
-                   at: float, end: float, fps: float, kin: dict, ov: bool) -> tuple[str, dict]:
+                   at: float, end: float, fps: float, kin: dict, ov: bool, ent: str | None = None, idx: int = 0) -> tuple[str, dict]:
     """Từ lớn tô gradient: PNG 1080×1920 nền trong suốt (fx_gfx.gradient_text, cùng baseline / cỡ / mép căn như clip chữ) + vào mượt như chữ thường.
     PNG vẽ không giãn chữ (tracking) nên tâm tính theo độ rộng thật của font."""
     font = M.font(role, size)
@@ -233,20 +244,23 @@ def _gradient_hero(M: Meter, role: str, text: str, size: int, x: float, y: float
     a, e = _span(text, at, end, fps)
     tag = "Chữ gradient" if look["on_dark"] else LIGHT_TAG
     c = {"src": png, "at": a, "dur": e - a, "name": f"{tag} · {text[:24]}"}
-    kinetic_in(c, fps, kin, ov)                  # neo = tâm phần có nét của PNG
+    if ent is None:
+        kinetic_in(c, fps, kin, ov)              # neo = tâm phần có nét của PNG
+    else:
+        entrance_in(c, fps, ent, kin, ov, None, _geo(w, size, x, y, align), idx)
     return "text_img", c
 
 
 def _hero_item(M: Meter, role: str, text: str, size: int, x: float, y: float, align: str, color: str, shadow: bool,
                at: float, end: float, fps: float, kin: dict, look: dict | None, glow: str | None,
-               ov: bool = False) -> list[tuple[str, dict]]:
+               ov: bool = False, ent: str | None = None, idx: int = 0) -> list[tuple[str, dict]]:
     """Một chữ lớn hoàn chỉnh (clip + glow). look=None: hành vi cũ (bóng chuẩn, glow nhẹ theo `glow`); có look: bóng / glow / gradient theo kiểu."""
     if look is None:
-        return _with_glow([("text", _clip(M, role, text, size, x, y, align, color, shadow, at, end, fps, kin, ov))], glow, fps)
+        return _with_glow([("text", _clip(M, role, text, size, x, y, align, color, shadow, at, end, fps, kin, ov, ent, idx))], glow, fps)
     if look["name"] == "gradient":
-        item = _gradient_hero(M, role, text, size, x, y, align, look, at, end, fps, kin, ov)
+        item = _gradient_hero(M, role, text, size, x, y, align, look, at, end, fps, kin, ov, ent, idx)
     else:
-        item = ("text", _clip(M, role, text, size, x, y, align, color, look["shadow"], at, end, fps, kin, ov))
+        item = ("text", _clip(M, role, text, size, x, y, align, color, look["shadow"], at, end, fps, kin, ov, ent, idx))
     return _with_glow([item], look["glow"], fps, look["level"])
 
 
@@ -309,10 +323,10 @@ def _baselines(M: Meter, band: tuple[float, float], hero_role: str, hs: int, her
 
 def _hero_clips(M: Meter, role: str, heroes: list[str], hs: int, y: float, color: str, shadow: bool, times: list[float],
                 end: float, fps: float, kin: dict, p: dict, look: dict | None = None, glow: str | None = None,
-                cx: float = CX, ov: bool = False) -> list[tuple[str, dict]]:
+                cx: float = CX, ov: bool = False, ent: str | None = None) -> list[tuple[str, dict]]:
     """Từ lớn (1 clip căn giữa) hoặc cặp 2 từ cạnh nhau theo advance(); từ thứ hai vào trễ second_hero_delay_frames khung.
     Đã gồm glow (`glow` nhẹ khi look=None; theo kiểu khi có look). Gradient: đo bằng font không tracking (khớp PNG)."""
-    args = (fps, kin, look, glow, ov)
+    args = (fps, kin, look, glow, ov, ent)
     if len(heroes) == 1:
         return _hero_item(M, role, heroes[0], hs, cx, y, "center", color, shadow, times[0], end, *args)
     lo, hi = p["second_hero_delay_frames"]
@@ -321,8 +335,8 @@ def _hero_clips(M: Meter, role: str, heroes: list[str], hs: int, y: float, color
     left = cx - (f.getlength(" ".join(heroes)) if grad else M.width(role, hs, " ".join(heroes))) / 2
     x2 = left + (f.getlength(heroes[0] + " ") if grad else M.advance(role, hs, heroes[0] + " "))
     at2 = min(max(times[1], times[0] + lo / fps), times[0] + hi / fps)
-    return [it for w, x, at in ((heroes[0], left, times[0]), (heroes[1], x2, at2))
-            for it in _hero_item(M, role, w, hs, x, y, "left", color, shadow, at, end, *args)]
+    return [it for j, (w, x, at) in enumerate(((heroes[0], left, times[0]), (heroes[1], x2, at2)))
+            for it in _hero_item(M, role, w, hs, x, y, "left", color, shadow, at, end, *args, j)]
 
 
 def _fit(M: Meter, p: dict, role: str, zone: str, band: tuple[float, float], heroes: list[str], before: list[str],
@@ -425,11 +439,22 @@ def auto_look(prof: dict, on_dark: bool, number: bool, serif: bool, key: bool, h
     return ("gradient", None) if has_gfx else ("shadow_light", None)
 
 
+def _group_entrances(entrances: EntranceStyles | None, entrance: str | None, number: bool, png: bool) -> tuple[str | None, str | None]:
+    """(kiểu vào chữ lớn, kiểu vào chữ nhỏ) của một cụm: entrance ép cả cụm, entrances xoay vòng, không có = None (kiểu mặc định)."""
+    if entrance is not None:
+        if entrance not in ENTRANCES:
+            raise ValueError(f"entrance phải là một trong {ENTRANCES}")
+        return entrance, entrance
+    if entrances is None:
+        return None, None
+    return entrances.pick("hero", number, png), entrances.pick("small")
+
+
 def caption_group(hero, before, after, times, end: float, fps: float = 30, style: str = "sans", on_dark: bool = True,
                   accent: bool = False, zone: str = "top", span_ratio: float | None = None, prof: dict | None = None,
                   color: str | None = None, colors: HeroColors | None = None, looks: HeroLooks | str | None = None,
-                  look: str | None = None, gfx_dir=None, key: bool = False, band: tuple[float, float] | None = None
-                  ) -> list[tuple[str, dict]]:
+                  look: str | None = None, gfx_dir=None, key: bool = False, band: tuple[float, float] | None = None,
+                  entrances: EntranceStyles | None = None, entrance: str | None = None) -> list[tuple[str, dict]]:
     """Một cụm chữ ≤ max_words_per_group từ, đúng 1 từ lớn (hoặc cặp 2 từ) do người gọi chỉ định.
     hero: str | [str, str]; before / after: chữ nhỏ trước / sau từ lớn; times: giây bắt đầu của TỪNG từ theo thứ tự đọc
     (before + hero + after), được giãn ≥ 2 khung giữa hai từ liền nhau; end: giây kết thúc cả cụm; style 'sans' (Inter ExtraBold) |
@@ -440,7 +465,9 @@ def caption_group(hero, before, after, times, end: float, fps: float = 30, style
     Vào mượt text_motion.kinetic_in cho mọi chữ; từ lớn vọt 106 % trừ số / tiền (is_number_word). Ra / giữ do ensure_motion lo.
     looks: HeroLooks(prof) — kiểu kế tiếp của vòng xoay; hoặc "auto" — chọn theo khoảnh khắc (auto_look: số / tiền = vàng đặc + bóng
     sâu; serif = glow vàng; key=True = gradient, mỗi cảnh chỉ nên gọi key=True một lần; còn lại glow nền tối / gradient đậm nền sáng).
-    look: chỉ định tay, thắng looks. Nền sáng: không glow. gradient cần gfx_dir. Không looks / look: hành vi cũ."""
+    look: chỉ định tay, thắng looks. Nền sáng: không glow. gradient cần gfx_dir. Không looks / look: hành vi cũ.
+    entrances: EntranceStyles(prof, tên video) — mỗi cụm một kiểu vào cho chữ lớn và một kiểu cho chữ nhỏ (xoay vòng, không trùng cụm trước,
+    số / tiền không vọt); entrance: ép một kiểu (text_motion.ENTRANCES) cho cả cụm, thắng entrances. Cả hai None: kiểu mặc định (slide_up_blur)."""
     prof = prof or sp.load(name="minimal-edu")
     p = prof["text"]
     zone = ZONE_ALIAS.get(zone, zone)
@@ -452,7 +479,6 @@ def caption_group(hero, before, after, times, end: float, fps: float = 30, style
     if nb + nh + len(after) > p["max_words_per_group"] or len(times) != nb + nh + len(after):
         raise ValueError(f"cụm ≤ {p['max_words_per_group']} từ và `times` phải có đúng một mốc cho mỗi từ")
     M, role, kin = Meter(prof), "hero_sans" if style == "sans" else "hero_serif", kinetic_params(prof)
-    times = stagger_times(times, fps, kin)
     base_c, _, shadow = _palette(p, on_dark, accent)
     words, stops = before + heroes, None
     number = any(is_number_word(w, words[nb + i - 1] if nb + i else None) for i, w in enumerate(heroes))
@@ -461,13 +487,15 @@ def caption_group(hero, before, after, times, end: float, fps: float = 30, style
         look, color, looks = look or auto_name, color or auto_c, None
         stops = list(p["gradients"]["dark" if on_dark else "light"][AUTO_GRADIENT if on_dark else 0]) if look == "gradient" else None
     hero_c, glow = _hero_color(prof, p, on_dark, accent, color, colors)
+    lk = _pick_look(prof, on_dark, looks, look, hero_c, glow, gfx_dir, stops)
+    hero_ent, small_ent = _group_entrances(entrances, entrance, number, lk is not None and lk["name"] == "gradient")
+    times = stagger_times(times, fps, {**kin, "stagger_frames": 1} if small_ent == "typewriter_soft" else kin)
     band = band or zone_band(zone)
     cx = ZONES[zone][2]
     hs, ss, hb, sb, xs = _fit(M, p, role, zone, band, heroes, before, after, p["span_ratio"] if span_ratio is None else span_ratio)
-    smalls = [("text_low", _clip(M, "small", w, ss, x, sb, al, base_c, shadow, t, end, fps, kin))
-              for w, t, (x, al) in zip(before + after, times[:nb] + times[nb + nh:], xs)]
-    lk = _pick_look(prof, on_dark, looks, look, hero_c, glow, gfx_dir, stops)
-    hero_items = _hero_clips(M, role, heroes, hs, hb, hero_c, shadow, times[nb:nb + nh], end, fps, kin, p, lk, glow, cx, not number)
+    smalls = [("text_low", _clip(M, "small", w, ss, x, sb, al, base_c, shadow, t, end, fps, kin, False, small_ent, i))
+              for i, (w, t, (x, al)) in enumerate(zip(before + after, times[:nb] + times[nb + nh:], xs))]
+    hero_items = _hero_clips(M, role, heroes, hs, hb, hero_c, shadow, times[nb:nb + nh], end, fps, kin, p, lk, glow, cx, not number, hero_ent)
     return smalls[:nb] + hero_items + smalls[nb:]
 
 

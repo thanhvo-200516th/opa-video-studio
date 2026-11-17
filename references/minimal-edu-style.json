@@ -161,8 +161,8 @@
   "speed": 1.05,
   "cuts": {
     "hard_cuts_allowed": true,
-    "min_distinct_transitions": 6,
-    "max_flashy_share": 0.0,
+    "min_distinct_transitions": 8,
+    "max_flashy_share": 0.2,
     "painting_entry": {
       "effect": "directional_blur",
       "frames": [
@@ -172,7 +172,7 @@
     },
     "cut_lead_max_s": 0.067,
     "silence_pad_s": 0.03,
-    "max_hard_cut_share": 0.4,
+    "max_hard_cut_share": 0.25,
     "max_hard_in_row": 2,
     "max_kind_share": 0.2,
     "no_repeat_within": 3

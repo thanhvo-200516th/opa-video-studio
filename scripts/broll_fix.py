@@ -7,19 +7,22 @@
     $PY broll_fix.py lint    <thư mục> --prompts broll_new_prompts.json
     $PY broll_fix.py prepare <thư mục> --prompts broll_new_prompts.json [--source muse|flow] [--keep-clips] [--dry-run] [--backup-root DIR]
                                                                   # --keep-clips: tạo lại cảnh xong → ghi prompt cuối, giữ clip
-    $PY broll_fix.py mcp-jobs <thư mục> --inspect inspect.json [--speed 1.10] [--versions 2] [--scenes 3,4]
+    $PY broll_fix.py mcp-jobs <thư mục> [--inspect inspect.json] [--speed 1.10] [--versions 2] [--scenes 3,4]
                                                                   # in MỘT danh sách JSON đối số flow_generate_video (D-b) cho từng cảnh B-roll; inspect.json = kết quả flow_inspect_account
     $PY broll_fix.py verify  <thư mục> --scenes 3,4,5 [--speed 1.10] [--out-dir DIR]
     $PY broll_fix.py normalize <file tải về> <thư mục>/NN_b-roll-M.mp4 [--mark flow]   # clip tạo ngoài Muse (Google Flow…) → chuẩn skill
 
 mcp-jobs (3.5.1): prompt = lõi prompt đã lưu bởi `prepare --source flow` (không đuôi), giây = flow_seconds như `plan --engine flow`; durationSeconds / outputs / aspectRatio / model / upscale
 chỉ lấy giá trị inspect liệt kê (thiếu → ui-default / highest_available / bỏ durationSeconds + `_note`); x2 không được Flow cho phép → tách `--versions` job outputs=1 (fileName …_v1, …_v2).
-inspect.json thiếu / hỏng → mã thoát 2.
+inspect.json hỏng → mã thoát 2; không truyền --inspect → in hướng dẫn + danh sách cảnh B-roll (mã 0).
+--prompts tương đối: tìm trong thư mục video trước, rồi thư mục hiện tại.
 
 normalize (v2.8+): 1080x1920, 30 fps, KHÔNG tiếng, x264 CRF 12 BT.709; tự cắt viền trắng/đen/đồng màu ≥ 2 % từ khung đầu (1.2.2 F3: `trim_uniform_borders`) trước khi scale; `--mark flow` xoá dấu ngôi sao của Google Flow ở góc dưới phải
 (đo trên khung 1080x1920: x≈860–940, y≈1700–1780) bằng `delogo`. Chạy sau `prepare` (file cũ đã được sao lưu), trước `verify`.
 
-broll_new_prompts.json = [{"seq": 3, "prompt": "<câu tiếng Anh H5>", "anchor_quote": "<đoạn nguyên văn của tts_text>"}, …]
+broll_new_prompts.json = [{"seq": 3, "layers": {l1_shot_subject..l5_camera_motion}, "prompt": "<câu tiếng Anh H5>", "anchor_quote": "<đoạn nguyên văn của tts_text>",
+                           "anchor_en": "<lời cảnh dịch sang tiếng Anh, để cảnh báo ẩn dụ D9>"}, …]
+lint/prepare: thiếu `layers` → FAIL (trừ --no-strict-layers); prompt không chung từ nội dung nào với anchor_en → [CẢNH BÁO] (không FAIL); thiếu anchor_en → "không kiểm được".
 Không gọi API nào ngoại trừ `ready` (GET /readyz). Bước render do `render_muse_broll.py <thư mục> --shot NN_b-roll-M.mp4` làm.
 
 lint (H5 + 1.2.2–1.2.3 F2): lõi prompt 8–60 chữ tiếng Anh, không dấu tiếng Việt; cấm text/caption/subtitle/sign/logo/number/chart/dashboard/UI/chat/app/
@@ -368,6 +371,8 @@ def lint_new(folder: Path, new: list[dict], *, strict_layers: bool = True) -> li
             if not isinstance(beat, str) or not beat.strip():
                 out.append(f"cảnh {e['seq']}: script_beat_vi phải là chuỗi không rỗng")
         layers = e.get("layers")
+        if strict_layers and layers is None:
+            out.append(f"cảnh {e.get('seq')}: thiếu `layers` 5 tầng (l1_shot_subject..l5_camera_motion) — H5 bắt buộc; chỉ có `prompt` là chưa đạt")
         core = resolve_entry_prompt(e)
         out += [
             f"cảnh {e['seq']}: {p}"
@@ -382,13 +387,56 @@ def lint_new(folder: Path, new: list[dict], *, strict_layers: bool = True) -> li
     return out
 
 
+# D9 literal match: từ nội dung (không phải từ nối) của prompt phải trùng ít nhất một từ với lời cảnh bản tiếng Anh (anchor_en).
+EN_STOP = frozenset("""a an the and or but of in on at to for from with without by as is are was were be been it its this that these those
+into onto over under near next toward towards while then than up down out off very more most some any each one two three four five
+his her their them they he she we you your our slow slowly shot medium close wide camera lens look light natural subtle soft
+vietnamese behind frame focus background foreground depth field film grain warm window daylight push pull dolly tracking static
+handheld tripod pan tilt orbit drift arc crane mm""".split())
+
+
+def _content_words(text: str) -> set[str]:
+    """Từ nội dung tiếng Anh, bỏ đuôi s/es/ing/ed để so khớp thô."""
+    out = set()
+    for w in re.findall(r"[a-z]+", (text or "").lower()):
+        if len(w) < 3 or w in EN_STOP:
+            continue
+        out.add(re.sub(r"(?:ing|ed|es|s)$", "", w) if len(w) > 4 else w.rstrip("s"))
+    return out
+
+
+def metaphor_warnings(new: list[dict]) -> list[str]:
+    """CẢNH BÁO (không làm lint FAIL): prompt không chung từ nội dung nào với `anchor_en` → nghi ẩn dụ (D9); không có anchor_en → không kiểm được."""
+    out = []
+    for e in new:
+        core = resolve_entry_prompt(e)
+        anchor_en = str(e.get("anchor_en") or "").strip()
+        if not anchor_en:
+            out.append(f"cảnh {e.get('seq')}: không kiểm được ẩn dụ D9 (thiếu `anchor_en` = lời cảnh dịch sang tiếng Anh)")
+        elif core and not _content_words(core) & _content_words(anchor_en):
+            out.append(f"cảnh {e.get('seq')}: prompt không chung từ nội dung nào với anchor_en «{anchor_en}» — nghi ẩn dụ, D9 cần nghĩa đen")
+    return out
+
+
+def resolve_prompts_path(folder: str | Path, prompts: str | Path) -> Path:
+    """--prompts tương đối: thử trong thư mục video trước, rồi thư mục hiện tại."""
+    p = Path(prompts)
+    if p.is_absolute():
+        return p
+    inside = Path(folder) / p
+    return inside if inside.exists() else p
+
+
 def cmd_lint(args) -> int:
     strict = not getattr(args, "no_strict_layers", False)
     try:
-        problems = lint_new(Path(args.folder), _read_new(Path(args.prompts)), strict_layers=strict)
+        new = _read_new(resolve_prompts_path(args.folder, args.prompts))
+        problems = lint_new(Path(args.folder), new, strict_layers=strict)
     except (OSError, ValueError, KeyError) as e:
         print(f"[BROLL FAIL] đọc đầu vào: {e}", file=sys.stderr)
         return 2
+    for w in metaphor_warnings(new):
+        print(f"[CẢNH BÁO] {w}")
     for p in problems:
         print(f"[H5 FAIL] {p}")
     print("[H5 OK] mọi prompt đạt" if not problems else f"{len(problems)} lỗi H5")
@@ -465,8 +513,28 @@ def mcp_job_args(insp: dict, name: str, out_dir: Path, prompt: str, secs: int, v
     return [{**base, "fileName": f"{name}_raw_v{i}", "outputs": 1, **tail} for i in range(1, versions + 1)]
 
 
+def _mcp_jobs_pending(folder: Path) -> int:
+    """Thiếu --inspect: hướng dẫn lấy inspect.json + liệt kê cảnh B-roll chưa có clip (chưa dựng tham số được)."""
+    print("[mcp-jobs] thiếu --inspect: chạy flow_inspect_account, lưu kết quả JSON vào một file (vd inspect.json), "
+          "rồi chạy lại với --inspect inspect.json. Dưới đây là các cảnh B-roll cần tạo:", file=sys.stderr)
+    try:
+        segs = segments(folder)
+    except (OSError, ValueError, KeyError) as e:
+        print(f"[BROLL FAIL] đọc manifest trong {folder}: {e}", file=sys.stderr)
+        return 2
+    for seq in sorted(segs):
+        seg = segs[seq]
+        vf = (seg.get("files") or {}).get("video_file")
+        done = bool(vf) and (folder / vf).is_file()
+        print(f"cảnh {seq}: {vf or seg.get('role_id')} · ~{flow_seconds(voice_len(folder, seg), float(seg.get('duration_sec') or 4.0))} s · "
+              + ("đã có clip" if done else "chưa có clip"))
+    return 0
+
+
 def cmd_mcp_jobs(args) -> int:
     folder = Path(args.folder)
+    if not args.inspect:
+        return _mcp_jobs_pending(folder)
     try:
         insp = _load(Path(args.inspect))
         if not isinstance(insp, dict):
@@ -541,11 +609,13 @@ def cmd_prepare(args) -> int:
     folder = Path(args.folder)
     strict = not getattr(args, "no_strict_layers", False)
     try:
-        new = _read_new(Path(args.prompts))
+        new = _read_new(resolve_prompts_path(folder, args.prompts))
         problems = lint_new(folder, new, strict_layers=strict)
     except (OSError, ValueError, KeyError) as e:
         print(f"[BROLL FAIL] đọc đầu vào: {e}", file=sys.stderr)
         return 2
+    for w in metaphor_warnings(new):
+        print(f"[CẢNH BÁO] {w}")
     if problems:
         for p in problems:
             print(f"[H5 FAIL] {p}")
@@ -860,7 +930,7 @@ def main() -> int:
     p.set_defaults(fn=cmd_plan)
     p = sub.add_parser("mcp-jobs")
     p.add_argument("folder")
-    p.add_argument("--inspect", required=True, help="JSON kết quả flow_inspect_account")
+    p.add_argument("--inspect", default=None, help="JSON kết quả flow_inspect_account (thiếu: in hướng dẫn + danh sách cảnh cần tạo)")
     p.add_argument("--speed", type=float, default=1.10)
     p.add_argument("--versions", type=int, default=2, help="số bản mỗi cảnh, mặc định 2")
     p.add_argument("--scenes", help="seq_index cách nhau dấu phẩy; mặc định mọi cảnh B-roll")

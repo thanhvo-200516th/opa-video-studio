@@ -30,15 +30,18 @@ TH_JOINS = {
     "mosaic_pixel": ("mosaic_transition", 8, ["data_beep"]),
 }
 KEYED_TH = {"camera_continue": 12, "punch_settle": 14, "drift_reset": 0, "j_cut_return": 0, "dip_to_paper": 18, "paper_rip": 18, "card_swipe": 14,
-            "smoke_veil": 20, "impact_shake": 8, "chapter_card_slam": 12, "vhs_rewind": 9}
+            "smoke_veil": 20, "impact_shake": 8, "chapter_card_slam": 12, "vhs_rewind": 9,
+            # 3.6.4 năng động: nháy sáng (số khung overlay), nhóm máy quay (khung đầu cảnh sau), rò sáng / cháy phim (cross_dissolve 2 khung)
+            "flash_cut": 9, "double_flash": 12, "flicker_cut": 11, "zoom_punch_in": 10, "zoom_punch_out": 10, "whip_pan": 8, "spin_roll": 10,
+            "lens_warp": 10, "rgb_split_cut": 8, "light_leak": 2, "film_burn": 2}
 TH_KINDS = set(TH_JOINS) | set(KEYED_TH)
 TH_FRAMES = {**{k: v[1] for k, v in TH_JOINS.items()}, **KEYED_TH}   # số khung chuyển cảnh (chapter_card_slam: 6 vào + 6 ra)
 DISSOLVE_OK = {"smoke_veil", "blur_dissolve_cut", "luma_fade_soft", "dip_to_paper"}   # hoà tan: ≤ 20 khung; còn lại ≤ 18
 MAX_FRAMES, MAX_FRAMES_DISSOLVE = 18, 20
 # chuyển cảnh nặng (phủ khung / quét / thẻ): KHÔNG dùng khi cắt giữa câu (cut_plan.plan_cuts_min)
-HEAVY_TH = {"page_peel_in", "card_swipe", "dip_to_paper", "paper_rip", "smoke_veil", "chapter_card_slam", "clock_wipe_step"}
+HEAVY_TH = {"page_peel_in", "card_swipe", "dip_to_paper", "paper_rip", "smoke_veil", "chapter_card_slam", "clock_wipe_step", "light_leak", "film_burn"}
 HARD_KINDS = {"hard_cut", "j_cut_return"}          # j_cut_return = cắt cứng có dẫn hình trước lời 10 khung
-FLASHY_TH = {"vhs_rewind"}                         # nháy bán phần (rgb_split + vhs_damage): chịu hạn mức nháy sáng
+FLASHY_TH = {"vhs_rewind", "flash_cut", "double_flash", "flicker_cut"}   # nháy sáng / bán phần: chịu hạn mức nháy sáng (cut_plan.FLASHY)
 ONE_PER_VIDEO = {"paper_rip", "smoke_veil", "page_peel_in", "ink_matte_reveal"}   # giấy rách / khói / mực / 3D: ≤ 1 lần mỗi video
 J_LEAD_FRAMES = 10
 PRO_DIR = Path.home() / "Thanh/Media/TNEDIT/05_Hieu_Ung_Chuyen_Canh/Overlay_Video/PR_Overlays"
@@ -77,6 +80,18 @@ SMOOTH = {
 }
 
 
+# Kiểu năng động (3.6.4): cùng khuôn với SMOOTH nhưng mạnh hơn (punch 14–28 %, nhoè nặng) nên KHÔNG qua bộ kiểm "mỗi khung đổi ≤ 3 %" của
+# SMOOTH. Đuôi tăng tốc (u²), đầu giảm tốc (cubic): hai phía cùng một chuyển động. Chưa có trong minimal-edu-style.json:
+# profile key: transitions.overlap.<kind> = [tail_frames, tail_scale, tail_blur, head_frames, head_scale, head_blur]
+ENERGY = {
+    "zoom_punch_in": (8, 1.14, 10, 10, 1.14, 10), "zoom_punch_out": (4, 1.03, 4, 10, 1.28, 14),
+    "flash_cut": (4, 1.05, 0, 8, 1.08, 0), "double_flash": (4, 1.05, 0, 10, 1.08, 0), "flicker_cut": (3, 1.04, 0, 6, 1.06, 0),
+    "impact_shake": (4, 1.05, 0, 8, 1.06, 0), "rgb_split_cut": (5, 1.04, 0, 8, 1.06, 0),
+    "whip_pan": (4, 1.16, 0, 8, 1.16, 0), "spin_roll": (5, 1.22, 8, 10, 1.22, 8), "lens_warp": (6, 1.10, 0, 10, 1.10, 0),
+    "light_leak": (6, 1.03, 0, 12, 1.04, 0), "film_burn": (6, 1.03, 0, 12, 1.04, 0),
+}
+
+
 def _scale_fn(clip: dict):
     """Hàm giây-trong-clip → scale hiện có của clip (hằng hoặc nội suy tuyến tính giữa các key; render lấy mẫu theo khung nên đủ chính xác)."""
     sc = clip.get("motion", {}).get("scale", 100)
@@ -109,21 +124,26 @@ def _scale_env(fx, clip: dict, f0: int, f1: int, env) -> None:
     clip.setdefault("motion", {})["scale"] = fx._frame_keys(pre + mid + post, clip["dur"])
 
 
-def _blur_ramp(fx, clip: dict, f0: int, f1: int, peak: float, rising: bool) -> None:
-    """gaussian_blur 0 → peak (tăng tốc dần, đỉnh ở khung f1) hoặc peak → 0 (giảm tốc, hết ở f1)."""
+def _ramp_fx(fx, clip: dict, effect: str, param: str, f0: int, f1: int, peak: float, rising: bool, extra: dict | None = None) -> None:
+    """Tham số `param` của `effect`: 0 → peak (tăng tốc dần, đỉnh ở khung f1) hoặc peak → 0 (giảm tốc, hết ở f1)."""
     n = round(clip["dur"] * fx.fps)
     f0, f1, fps = max(0, f0), min(n - 1, f1), fx.fps
     if f1 <= f0:
         return
     keys = ([[0, 0]] if f0 > 0 else []) + (
         [[f0 / fps, 0, "easeOut"], [f1 / fps, peak]] if rising else [[f0 / fps, peak], [f1 / fps, 0, "easeIn"]])
-    fx._fx(clip, "gaussian_blur", {"blurriness": fx._frame_keys(keys, clip["dur"])})
+    fx._fx(clip, effect, {**(extra or {}), param: fx._frame_keys(keys, clip["dur"])})
+
+
+def _blur_ramp(fx, clip: dict, f0: int, f1: int, peak: float, rising: bool) -> None:
+    """gaussian_blur 0 → peak (tăng tốc dần, đỉnh ở khung f1) hoặc peak → 0 (giảm tốc, hết ở f1)."""
+    _ramp_fx(fx, clip, "gaussian_blur", "blurriness", f0, f1, peak, rising)
 
 
 def _overlap(fx, clip: dict, before: dict | None, kind: str) -> dict:
     """Đầu cảnh sau về 100 % giảm tốc (+ nhoè); nếu có `before` (clip ngay trước điểm cắt) thì đuôi nó cũng phóng tăng tốc (+ nhoè):
     hai phía cùng chuyển động nên chuyển cảnh dựng sẵn của FilmCraft (chỉ nhận {effect, frames}) không còn "cứng"."""
-    n_o, s_o, b_o, n_i, s_i, b_i = SMOOTH[kind]
+    n_o, s_o, b_o, n_i, s_i, b_i = SMOOTH.get(kind) or ENERGY[kind]
     _scale_env(fx, clip, 0, n_i - 1, lambda u: 1 + (s_i - 1) * (1 - u) ** 3)
     if b_i:
         _blur_ramp(fx, clip, 0, n_i - 1, b_i, False)
@@ -152,11 +172,11 @@ def _pan_env(fx, clip: dict, f0: int, f1: int, dx) -> None:
     clip.setdefault("motion", {})["position"] = fx._frame_keys(keys, clip["dur"])
 
 
-def _pan_blur(fx, clip: dict, f0: int, f1: int, rising: bool) -> None:
+def _pan_blur(fx, clip: dict, f0: int, f1: int, rising: bool, peak: float = PAN_BLUR) -> None:
     n = round(clip["dur"] * fx.fps)
     f0, f1 = max(0, f0), min(n - 1, f1)
-    keys = ([[0, 0]] if f0 > 0 else []) + ([[f0 / fx.fps, 0, "easeOut"], [f1 / fx.fps, PAN_BLUR]] if rising else
-                                           [[f0 / fx.fps, PAN_BLUR], [f1 / fx.fps, 0, "easeIn"]])
+    keys = ([[0, 0]] if f0 > 0 else []) + ([[f0 / fx.fps, 0, "easeOut"], [f1 / fx.fps, peak]] if rising else
+                                           [[f0 / fx.fps, peak], [f1 / fx.fps, 0, "easeIn"]])
     fx._fx(clip, "directional_blur", {"direction": 90, "length": fx._frame_keys(keys, clip["dur"])})
 
 
@@ -296,13 +316,18 @@ def smoke_veil(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None)
     return _tin(clip, "cross_dissolve", 8)
 
 
+SHAKE_AMOUNT = 55    # profile key: transitions.impact_shake.amount (28 cũ: rung hầu như không thấy trên bản dựng thử 2026-11-17)
+
+
 def impact_shake(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
-    """Rung máy 28 → 0 (không loé trắng như flash_shake): camera_shake zoom 4, nhoè 40; cho câu chốt / từ khoá."""
-    fx._fx(clip, "camera_shake", {"amount": [[0, 28], [fx._k(clip, 0.35), 0]], "rotation": 1.5, "zoom": 4, "frequency": 9,
-                                  "complexity": 3, "motion_blur": 40})
+    """Rung máy 55 → 0 (không loé trắng như flash_shake): camera_shake zoom 5, nhoè 50; cho câu chốt / từ khoá. Có `before`: đuôi cảnh
+    trước phóng 100 → 105 % (4 khung) vào cú rung; đầu cảnh sau vào 106 → 100 %; hoà tan 2 khung che chỗ nhảy."""
+    _overlap(fx, clip, before, "impact_shake")
+    fx._fx(clip, "camera_shake", {"amount": [[0, SHAKE_AMOUNT], [fx._k(clip, 0.35), 0]], "rotation": 2.0, "zoom": 5, "frequency": 9,
+                                  "complexity": 3, "motion_blur": 50})
     _cue(fx, cue_sfx, clip["at"], "boom_pre", 0.1, "impact_shake")
     _cue(fx, cue_sfx, clip["at"], "key_hit", 0.05, "impact_shake")
-    return clip
+    return _tin(clip, "cross_dissolve", 2)
 
 
 def vhs_rewind(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
@@ -331,9 +356,182 @@ def chapter_card_slam(fx, clip: dict, cue_sfx: bool = True, text: str | None = N
     return _tin(clip, "cross_dissolve", 1)
 
 
+# ---- 3.6.4 năng động: nháy sáng · nhóm máy quay · rò sáng (user 2026-11-17: "flicker, flash, shake, zoom punch, whip, spin") ----
+def _flip(fx) -> int:
+    """+1 / −1 luân phiên mỗi lần gọi (hướng whip_pan / spin_roll đảo chiều, không lặp một phía)."""
+    fx.th_state["flip"] = fx.th_state.get("flip", 0) + 1
+    return 1 if fx.th_state["flip"] % 2 else -1
+
+
+def _flash_overlay(fx, clip: dict, pts: list, name: str, ease: str | None = "bezier") -> dict:
+    """Tấm trắng phủ khung (lane trans: dưới chữ). pts = [(khung so với điểm cắt, độ mờ 0–100)]; điểm đầu / cuối phải 0."""
+    f, at = fx.fps, clip["at"]
+    f0 = pts[0][0]
+    c = fx.image(_white_panel(fx), at + f0 / f, (pts[-1][0] - f0 + 1) / f, lane="trans", name=name)
+    c["opacity"] = fx._frame_keys([[(fr - f0) / f, op, *([ease] if ease else [])] for fr, op in pts], c["dur"])
+    return c
+
+
+def _white_panel(fx) -> str:
+    import fx_gfx as G
+    return G.solid_panel(fx.gfx_dir, "flash_white", "#FFFFFF")
+
+
+def flash_cut(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
+    """Loé trắng: lên 3 khung bezier, đỉnh 95 % phủ đúng khung cắt (giữ 1 khung), tắt 4 khung; punch hai phía (đuôi 105 %, đầu 108 → 100 %)."""
+    _flash_overlay(fx, clip, [(-3, 0), (0, 95), (1, 95), (5, 0)], "Loé trắng")
+    _overlap(fx, clip, before, "flash_cut")
+    _cue(fx, cue_sfx, clip["at"], "flash_hit", 0.1, "flash_cut")
+    return _tin(clip, "cross_dissolve", 1)
+
+
+def double_flash(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
+    """Hai nhịp loé: 95 % đúng khung cắt, tắt hẳn ở +3, loé lại 70 % ở +5…+6 khung (tiếng màn trập)."""
+    pts = [(-3, 0), (0, 95), (1, 95), (3, 0), (5, 70), (6, 70), (8, 0)]
+    _flash_overlay(fx, clip, pts, "Loé đôi")
+    _overlap(fx, clip, before, "double_flash")
+    _cue(fx, cue_sfx, clip["at"], "flash_hit", 0.1, "double_flash")
+    _cue(fx, cue_sfx, clip["at"] + 5 / fx.fps, "shutter", 0.04, "double_flash")
+    return _tin(clip, "cross_dissolve", 1)
+
+
+def flicker_cut(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
+    """Nhấp nháy: 5 xung trắng 1 khung (60 · 80 · 100 đúng khung cắt · 60 · 30 %) cách 1 khung tối — không easing (xung phải gắt)."""
+    pts = [(-5, 0), (-4, 60), (-3, 0), (-2, 80), (-1, 0), (0, 100), (1, 0), (2, 60), (3, 0), (4, 30), (5, 0)]
+    _flash_overlay(fx, clip, pts, "Nhấp nháy", ease=None)
+    _overlap(fx, clip, before, "flicker_cut")
+    _cue(fx, cue_sfx, clip["at"] - 5 / fx.fps, "glitch", 0.04, "flicker_cut")
+    return _tin(clip, "cross_dissolve", 1)
+
+
+def zoom_punch_in(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
+    """Phóng vút vào: đuôi cảnh trước 100 → 114 % (8 khung, tăng tốc, nhoè 10), cảnh sau vào 114 → 100 % (10 khung, giảm tốc)."""
+    _overlap(fx, clip, before, "zoom_punch_in")
+    _cue(fx, cue_sfx, clip["at"], "whoosh", 0.2, "zoom_punch_in")
+    return _tin(clip, "cross_dissolve", 3)
+
+
+def zoom_punch_out(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
+    """Kéo lùi: cảnh sau vào 128 → 100 % trong 10 khung giảm tốc (nhoè 14 → 0), đuôi cảnh trước chỉ nén nhẹ 103 %."""
+    _overlap(fx, clip, before, "zoom_punch_out")
+    _cue(fx, cue_sfx, clip["at"], "pop", 0.05, "zoom_punch_out")
+    return _tin(clip, "cross_dissolve", 1)             # 128 % ≠ 103 % ở điểm cắt: hoà tan dài thành bóng ma, để nhoè 14 che chỗ nhảy
+
+
+WHIP_PX, WHIP_BLUR = 80, 140       # profile key: transitions.whip_pan.{pan_px, blur}; WHIP_PX ≤ (scale-1)·540 = 86 (không hở viền)
+
+
+def whip_pan(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
+    """Lia nhanh: đuôi cảnh trước (4 khung) phóng 116 % + dịch 80 px tăng tốc + nhoè ngang 140; đầu cảnh sau (8 khung) vào từ phía đối
+    diện, giảm tốc về 100 %. Hướng đảo chiều mỗi lần gọi; clip đã có position riêng thì chỉ còn phóng + nhoè."""
+    sg = _flip(fx)
+    n_o, _, _, n_i, _, _ = ENERGY["whip_pan"]
+    _overlap(fx, clip, before, "whip_pan")
+    _pan_env(fx, clip, 0, n_i - 1, lambda u: sg * WHIP_PX * (1 - u) ** 3)
+    _pan_blur(fx, clip, 0, n_i - 1, False, WHIP_BLUR)
+    if before is not None:
+        nb = round(before["dur"] * fx.fps)
+        _pan_env(fx, before, nb - n_o, nb - 1, lambda u: -sg * WHIP_PX * u * u)
+        _pan_blur(fx, before, nb - n_o, nb - 1, True, WHIP_BLUR)
+    _cue(fx, cue_sfx, clip["at"], "whoosh", n_o / fx.fps + 0.02, "whip_pan")
+    return _tin(clip, "cross_dissolve", 3)
+
+
+SPIN_DEG = 6        # profile key: transitions.spin_roll.degrees; scale 1.22 ≥ cosθ + (H/W)·sinθ = 1.18 che hết góc
+
+
+def _rot_env(fx, clip: dict, f0: int, f1: int, deg) -> None:
+    """Xoay motion.rotation theo deg(u) độ trên khung f0..f1 (bỏ qua nếu clip đã có keyframe rotation riêng)."""
+    n = round(clip["dur"] * fx.fps)
+    f0, f1 = max(0, f0), min(n - 1, f1)
+    base = clip.get("motion", {}).get("rotation", 0)
+    if f1 <= f0 or _keyed(base):
+        return
+    keys = ([[0, base]] if f0 > 0 else []) + [[fr / fx.fps, round(base + deg((fr - f0) / (f1 - f0)), 2)] for fr in range(f0, f1 + 1)]
+    keys += [[(n - 1) / fx.fps, base]] if f1 < n - 1 else []
+    clip.setdefault("motion", {})["rotation"] = fx._frame_keys(keys, clip["dur"])
+
+
+def spin_roll(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
+    """Xoay máy: đuôi cảnh trước (5 khung) xoay 6° + phóng 122 % tăng tốc, cảnh sau (10 khung) vào lệch −6° rồi giảm tốc về 0° / 100 %
+    (cùng đường cong nên scale luôn che hết góc); nhoè 8; hướng đảo chiều mỗi lần gọi."""
+    sg = _flip(fx)
+    n_o, _, _, n_i, _, _ = ENERGY["spin_roll"]
+    _overlap(fx, clip, before, "spin_roll")
+    _rot_env(fx, clip, 0, n_i - 1, lambda u: sg * SPIN_DEG * (1 - u) ** 3)
+    if before is not None:
+        nb = round(before["dur"] * fx.fps)
+        _rot_env(fx, before, nb - n_o, nb - 1, lambda u: -sg * SPIN_DEG * u * u)
+    _cue(fx, cue_sfx, clip["at"], "whoosh", n_o / fx.fps + 0.02, "spin_roll")
+    return _tin(clip, "cross_dissolve", 2)
+
+
+LENS_CURVE = 45     # profile key: transitions.lens_warp.curvature; dương = ảnh phình ra (mép kéo ra ngoài, không hở viền; âm thì hở góc đen)
+
+
+def lens_warp(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
+    """Méo ống kính: lens_distortion curvature 0 → +45 (6 khung đuôi, tăng tốc) rồi +45 → 0 (10 khung đầu, giảm tốc) + phóng 110 %."""
+    n_o, _, _, n_i, _, _ = ENERGY["lens_warp"]
+    _overlap(fx, clip, before, "lens_warp")
+    _ramp_fx(fx, clip, "lens_distortion", "curvature", 0, n_i - 1, LENS_CURVE, False)
+    if before is not None:
+        nb = round(before["dur"] * fx.fps)
+        _ramp_fx(fx, before, "lens_distortion", "curvature", nb - n_o, nb - 1, LENS_CURVE, True)
+    _cue(fx, cue_sfx, clip["at"], "whoosh", n_o / fx.fps + 0.02, "lens_warp")
+    return _tin(clip, "cross_dissolve", 3)
+
+
+RGB_SPLIT = 45      # profile key: transitions.rgb_split_cut.amount
+
+
+def rgb_split_cut(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
+    """Tách màu RGB hai phía: đuôi 0 → 45 (5 khung tăng tốc), đầu 45 → 0 (8 khung giảm tốc); không nháy sáng."""
+    n_o, _, _, n_i, _, _ = ENERGY["rgb_split_cut"]
+    _overlap(fx, clip, before, "rgb_split_cut")
+    _ramp_fx(fx, clip, "rgb_split", "amount", 0, n_i - 1, RGB_SPLIT, False, {"mode": "Linear", "angle": 0})
+    if before is not None:
+        nb = round(before["dur"] * fx.fps)
+        _ramp_fx(fx, before, "rgb_split", "amount", nb - n_o, nb - 1, RGB_SPLIT, True, {"mode": "Linear", "angle": 0})
+    _cue(fx, cue_sfx, clip["at"], "glitch", 0.04, "rgb_split_cut")
+    return _tin(clip, "cross_dissolve", 2)
+
+
+def trans_ready(kind: str) -> bool:
+    """Overlay TNEDIT của `kind` (motion_fx.TRANS) có trên máy không."""
+    import motion_fx as M
+    return Path(M.TRANS[kind]["src"]).exists()
+
+
+def _tnedit(fx, clip: dict, kind: str, cue_sfx: bool, before: dict | None) -> dict:
+    """Overlay TNEDIT (motion_fx.TRANS) có khung sáng nhất đúng điểm cắt; mỗi lần gọi một biến thể (xoay vòng). Thiếu thư viện → nháy
+    trắng đơn (flash_cut) thay thế."""
+    if not trans_ready(kind):
+        return flash_cut(fx, clip, cue_sfx, before)
+    n0, v = len(fx.cues), fx.th_state.setdefault("variant", {})
+    fx.transition(clip["at"], kind, clip_after=clip, variant=v.get(kind, 0))
+    v[kind] = v.get(kind, 0) + 1
+    if not cue_sfx:
+        del fx.cues[n0:]
+    _overlap(fx, clip, before, kind)
+    return clip
+
+
+def light_leak(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
+    """Rò sáng (đổi chủ đề): overlay light_leak TNEDIT, khung sáng nhất đúng điểm cắt, SFX suck_in + leak; đuôi / đầu phóng nhẹ hai phía."""
+    return _tnedit(fx, clip, "light_leak", cue_sfx, before)
+
+
+def film_burn(fx, clip: dict, cue_sfx: bool = True, before: dict | None = None) -> dict:
+    """Cháy phim Casey Neistat (đổi chủ đề): overlay film_burn TNEDIT kèm tiếng có sẵn trong file, đỉnh sáng đúng điểm cắt."""
+    return _tnedit(fx, clip, "film_burn", cue_sfx, before)
+
+
 _KEYED_FN = {"camera_continue": camera_continue, "punch_settle": punch_settle, "drift_reset": drift_reset, "j_cut_return": j_cut_return, "dip_to_paper": dip_to_paper,
              "paper_rip": paper_rip, "card_swipe": card_swipe, "smoke_veil": smoke_veil, "impact_shake": impact_shake,
-             "vhs_rewind": vhs_rewind, "chapter_card_slam": chapter_card_slam}
+             "vhs_rewind": vhs_rewind, "chapter_card_slam": chapter_card_slam,
+             "flash_cut": flash_cut, "double_flash": double_flash, "flicker_cut": flicker_cut, "zoom_punch_in": zoom_punch_in,
+             "zoom_punch_out": zoom_punch_out, "whip_pan": whip_pan, "spin_roll": spin_roll, "lens_warp": lens_warp,
+             "rgb_split_cut": rgb_split_cut, "light_leak": light_leak, "film_burn": film_burn}
 
 
 JOIN_MARK = " ⇢ "                                   # tên clip "… ⇢ <kiểu>": dấu cho edit_rules (FilmCraft không nhận khoá lạ)

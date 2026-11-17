@@ -220,43 +220,56 @@ def discover_subfolders(target: Path, filter_id: Optional[str] = None) -> List[P
     return subs
 
 
+def _live_shoot_files(sub: Path) -> set:
+    """File video của các segment quay thật (live_shoot) trong 00_storyboard_manifest.json: không bao giờ gọi HeyGen."""
+    manifest_file = sub / "00_storyboard_manifest.json"
+    if not manifest_file.exists():
+        return set()
+    out = set()
+    for seg in json.loads(manifest_file.read_text(encoding="utf-8")).get("segments", []):
+        if seg.get("live_shoot") or (seg.get("api_routing") or {}).get("video_generator") == "live_shoot":
+            vf = (seg.get("files") or {}).get("video_file")
+            if vf:
+                out.add(vf)
+    return out
+
+
 def collect_aroll_jobs(
     subfolders: List[Path],
     shot_filter: Optional[str] = None,
     force: bool = False,
+    skipped_live: Optional[List[str]] = None,
 ) -> List[Tuple[Path, Dict[str, Any]]]:
-    """Gom danh sách các phân đoạn A-Roll cần render qua HeyGen."""
+    """Gom danh sách các phân đoạn A-Roll cần render qua HeyGen. Shot quay thật bị bỏ qua được ghi vào `skipped_live` (nếu có)."""
     jobs: List[Tuple[Path, Dict[str, Any]]] = []
     for sub in subfolders:
         aroll_file = sub / "prompts_heygen_aroll.json"
         if not aroll_file.exists():
             continue
         items = json.loads(aroll_file.read_text(encoding="utf-8"))
-        # Kiểm tra thêm trong 00_storyboard_manifest.json để chắc chắn không gọi HeyGen cho shot live_shoot
-        live_shoot_files = set()
-        manifest_file = sub / "00_storyboard_manifest.json"
-        if manifest_file.exists():
-            mdata = json.loads(manifest_file.read_text(encoding="utf-8"))
-            for seg in mdata.get("segments", []):
-                routing = seg.get("api_routing") or {}
-                if routing.get("video_generator") == "live_shoot":
-                    vf = (seg.get("files") or {}).get("video_file")
-                    if vf:
-                        live_shoot_files.add(vf)
+        live_shoot_files = _live_shoot_files(sub)
 
+        def wanted(name: str, role: str = "") -> bool:
+            sf = (shot_filter or "").strip().lower()
+            return not sf or sf in name.lower() or sf == role.lower()
+
+        live_seen = set()
         for item in items:
             out_name = item.get("output_file", "")
             role_id = item.get("role_id", "")
-            if out_name in live_shoot_files or item.get("video_generator") == "live_shoot":
+            if not wanted(out_name, role_id):
                 continue
-            if shot_filter:
-                sf = shot_filter.strip().lower()
-                if sf not in out_name.lower() and sf != role_id.lower():
-                    continue
+            if out_name in live_shoot_files or item.get("video_generator") == "live_shoot":
+                live_seen.add(out_name)
+                continue
             out_path = sub / out_name
             if out_path.exists() and out_path.stat().st_size > 10_000 and not force:
                 continue
             jobs.append((sub, item))
+        # shot quay thật không có trong prompts_heygen_aroll.json (scaffold bỏ chúng) -> lấy từ manifest
+        live_seen |= {vf for vf in live_shoot_files if wanted(vf)}
+        if skipped_live is not None:
+            skipped_live.extend(f"{sub.name}/{vf}" for vf in sorted(live_seen))
     return jobs
 
 
@@ -319,6 +332,8 @@ def print_estimate(jobs: List[Tuple[Path, Dict[str, Any]]], usd_per_min: Optiona
     tot += f"{tot_s / 60 * credits_per_min:>9.2f}" if credits_per_min is not None else ""
     print(tot)
     if usd_per_min is None and credits_per_min is None:
+        print(f"Tổng: {tot_n} shot, {tot_s:.1f} giây")
+        print("giá: chưa có (thêm --usd-per-min)")
         print("(Chưa có đơn giá: truyền --usd-per-min / --credits-per-min để tính tiền; chỉ in tổng giây.)")
 
 
@@ -330,6 +345,19 @@ def load_bank(path: Path) -> List[Dict[str, Any]]:
         if not r.get("bank_id") or not r.get("text"):
             raise ValueError(f"Dòng bank thiếu bank_id/text: {r}")
     return list(rows or [])
+
+
+def assign_bank_looks(bank: List[Dict[str, Any]], look_ids: List[str], n_angles: int = 3) -> Dict[Tuple[str, str], str]:
+    """--assign auto cho bank: `look_slot` (1..N, do aroll_bank.py chia) -> look thật theo thứ tự trong looks.json;
+    câu không có look_slot thì chia cân bằng như per-script. Khoá: (tên thư mục bank, output_file)."""
+    counts: Dict[str, int] = {}
+    free = [r for r in bank if not r.get("look_slot")]
+    seq = iter(heygen_looks.pick_for_video(len(free), look_ids, counts, n_angles) if free else [])
+    out: Dict[Tuple[str, str], str] = {}
+    for r in bank:
+        slot = r.get("look_slot")
+        out[("bank", f"{r['bank_id']}.mp4")] = look_ids[(int(slot) - 1) % len(look_ids)] if slot else next(seq)
+    return out
 
 
 def bank_jobs(bank: List[Dict[str, Any]], bank_dir: Path, force: bool = False) -> List[Tuple[Path, Dict[str, Any]]]:
@@ -356,7 +384,7 @@ def link_bank(bank: List[Dict[str, Any]], root: Path, bank_dir: Path, symlink: b
             if bid is None:
                 continue
             tag = f"{sub.name}/{item.get('output_file')}"
-            used = [u.upper() for u in by_id.get(bid, {}).get("used_in") or []]
+            used = [(u.get("script_id", "") if isinstance(u, dict) else str(u)).upper() for u in by_id.get(bid, {}).get("used_in") or []]
             if bid not in by_id:
                 msgs.append(f"missing-bank {tag}: bank_id={bid} không có trong bank.json")
             elif used and not any(u in sub.name.upper() for u in used):
@@ -440,14 +468,21 @@ def build_parser() -> argparse.ArgumentParser:
     return ap
 
 
-def plan_jobs(args: argparse.Namespace) -> Optional[List[Tuple[Path, Dict[str, Any]]]]:
-    """Gom job (đã điền look/engine). None nếu đầu vào sai (đã in lỗi)."""
+def plan_jobs(args: argparse.Namespace, skipped_live: Optional[List[str]] = None) -> Optional[List[Tuple[Path, Dict[str, Any]]]]:
+    """Gom job (đã điền look/engine). None nếu đầu vào sai (đã in lỗi). Shot quay thật bị bỏ qua -> `skipped_live`."""
     looks = heygen_looks.load_looks(args.looks) if args.looks else []
     by_id = {lk["id"]: lk for lk in looks}
     if args.bank:
         bank_dir = args.bank_dir or args.bank.parent / "bank"
-        jobs = bank_jobs(load_bank(args.bank), bank_dir, args.force)
-        return resolve_jobs(jobs, args.avatar_id, by_id, None, args.engine, args.background)
+        bank = load_bank(args.bank)
+        assign = None
+        if args.assign == "auto":
+            if not looks:
+                print("[ERROR] --assign auto cần --looks looks.json")
+                return None
+            assign = {(bank_dir.name, k[1]): v for k, v in assign_bank_looks(bank, [lk["id"] for lk in looks], args.angles).items()}
+        jobs = bank_jobs(bank, bank_dir, args.force)
+        return resolve_jobs(jobs, args.avatar_id, by_id, assign, args.engine, args.background)
     if not args.target_dir or not args.target_dir.exists():
         print(f"[ERROR] Đường dẫn không tồn tại: {args.target_dir}")
         return None
@@ -461,7 +496,7 @@ def plan_jobs(args: argparse.Namespace) -> Optional[List[Tuple[Path, Dict[str, A
             print("[ERROR] --assign auto cần --looks looks.json")
             return None
         assign = auto_assign(subs, [lk["id"] for lk in looks], args.angles)
-    jobs = collect_aroll_jobs(subs, shot_filter=args.shot, force=args.force)
+    jobs = collect_aroll_jobs(subs, shot_filter=args.shot, force=args.force, skipped_live=skipped_live)
     return resolve_jobs(jobs, args.avatar_id, by_id, assign, args.engine, args.background)
 
 
@@ -470,7 +505,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     if argv and argv[0] == "link":
         return link_main(argv[1:])
     args = build_parser().parse_args(argv)
-    jobs = plan_jobs(args)
+    skipped_live: List[str] = []
+    jobs = plan_jobs(args, skipped_live)
     if jobs is None:
         return 1
     total_dur = round(sum(float(it.get("duration_hint_sec", 3.5)) for _, it in jobs), 1)
@@ -478,6 +514,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     print(f"🎬 HEYGEN A-ROLL GENERATOR — {len(jobs)} PHÂN ĐOẠN CẦN RENDER (~{total_dur}s)")
     print(f"   Voice ID  : {args.voice_id}\n   Định dạng : {args.aspect_ratio} @ {args.resolution} ({args.api_version})")
     print("=" * 80)
+    for name in sorted(set(skipped_live)):
+        print(f"⚠️ BỎ QUA (quay thật): {name} — người dùng tự quay, không gọi HeyGen")
     if not jobs:
         print("✅ Tất cả các phân đoạn A-Roll (HeyGen) đã được render hoặc không có shot nào khớp bộ lọc.")
         return 0

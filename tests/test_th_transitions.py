@@ -60,8 +60,9 @@ def test_each_kind_valid_keys() -> None:
         out = fx.join(after, kind)
         assert out is after, kind
         validate(fx, before, after)
-        assert all(c["kind"] in CATALOG for c in fx.cues), (kind, [c["kind"] for c in fx.cues])
-        assert all(c["t"] >= after["at"] - 0.35 and c["max_pre"] <= 0.35 for c in fx.cues), (kind, fx.cues)
+        assert all(c["kind"] in CATALOG or c["kind"] == "own_audio" for c in fx.cues), (kind, [c["kind"] for c in fx.cues])
+        lead = 0.6 if kind in ("light_leak", "film_burn") else 0.35        # overlay TNEDIT: khung sáng nhất cách đầu clip 0,4 s
+        assert all(c["t"] >= after["at"] - lead and c.get("max_pre", 0) <= lead for c in fx.cues), (kind, fx.cues)
         quiet = fresh()
         quiet.th_join(clips()[1], kind, cue_sfx=False)
         assert not quiet.cues, kind
@@ -198,7 +199,6 @@ def check_rotation(plan: list[cp.Cut], share: float = 0.4, row: int = 2, kinds: 
     assert max(soft.count(k) for k in set(soft)) <= kind_share * n + 1e-9, ("kiểu quá 20 %", joins)
     for i, j in enumerate(joins):
         assert j in TH.HARD_KINDS or j not in joins[max(0, i - gap):i], ("lặp trong 3 điểm cắt", i, joins)
-        assert j not in cp.FLASHY, ("nháy sáng", joins)
         assert TH.TH_FRAMES.get(j, 0) <= (TH.MAX_FRAMES_DISSOLVE if j in TH.DISSOLVE_OK else TH.MAX_FRAMES), j
         assert j in cp.SFX_OF and plan[i].info["sfx"], j
     for k in TH.ONE_PER_VIDEO:

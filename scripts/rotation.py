@@ -122,6 +122,9 @@ def entry(root_or_kb: Path, video: str, out: Path | None = None) -> dict | None:
 
 
 def main() -> int:
+    if any(a in ("-h", "--help") for a in sys.argv[1:]):
+        print(__doc__)
+        return 0
     if len(sys.argv) < 3 or sys.argv[1] not in ("plan", "check", "show"):
         print(__doc__)
         return 2
