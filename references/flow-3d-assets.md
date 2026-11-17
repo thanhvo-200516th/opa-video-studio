@@ -59,7 +59,7 @@ $PY scripts/flow_3d_assets.py lint-plan /path/to/work/3d_assets/3d_assets_plan.j
    - `outputDirectory`: `"/path/to/work/3d_assets/_raw"`
    - `fileName`: `"3d_01_raw"`
    - `confirmCreditSpend`: `true`
-3. Với từng mục `video_3d`: gọi `flow_generate_video` với `model: "omni-flash"`, `aspectRatio: "9:16"`, `upscale: "1080p"`, `outputDirectory`, `confirmCreditSpend: true`. Nếu `status="processing"` → poll `flow_job_status` → tải qua `flow_download_job`.
+3. Với từng mục `video_3d`: gọi `flow_generate_video` với `model` và `aspectRatio` đúng mã `flow_inspect_account` trả về (vd `omni-1-2-flash`, `9:16`), `upscale: "1080p"` (không có thì `highest_available`), `outputDirectory`, `confirmCreditSpend: true`. Nếu `status="processing"` → poll `flow_job_status` → tải qua `flow_download_job`.
 
 ### Bước 4: Tách nền RGBA PNG sạch metadata (`extract-alpha`)
 Với các ảnh `image_alpha` sinh trên nền `#00FF00` (hoặc trắng `#FFFFFF` / đen `#0A0E17`):

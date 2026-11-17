@@ -414,6 +414,83 @@ def main() -> None:
         assert float(fr[:10, :].mean()) < 100 and float(fr[-10:, :].mean()) < 100, (fr[:10, :].mean(), fr[-10:, :].mean())
     print("ok  trim_uniform_borders: trắng/đồng màu >= 2 % cắt gọn, < 2 % giữ nguyên, normalize tích hợp")
 
+    # mcp-jobs (D-b): đối số flow_generate_video cho từng cảnh B-roll, theo inspect của Flow
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        f = build_folder(root)
+        cli = [sys.executable, str(SCRIPTS / "broll_fix.py")]
+        GOOD4M = GOOD3.replace("Slow push-in", "Gentle handheld drift")
+        newm = root / "pm.json"
+        newm.write_text(json.dumps([{"seq": 3, "prompt": GOOD3, "anchor_quote": ANCHOR3},
+                                    {"seq": 4, "prompt": GOOD4M, "anchor_quote": ANCHOR3}], ensure_ascii=False), encoding="utf-8")
+        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newm), "--source", "flow", "--keep-clips",
+                            "--backup-root", str(root / "bk")], capture_output=True, text=True)
+        assert r.returncode == 0, r.stdout + r.stderr
+        insp = {"models": {"image": [{"id": "nano-banana", "label": "Nano Banana"}],
+                           "video": [{"id": "veo-3-1-fast", "label": "Veo 3.1 Fast"}, {"id": "omni-1-2-flash", "label": "Omni 1.2 Flash"}]},
+                "aspectRatiosByMedia": {"video": ["16:9", "9:16"]}, "outputCountsByMedia": {"video": [1, 2]},
+                "visibleDurations": [4, 6, 8, 10], "availableUpscales": ["720p", "1080p"]}
+
+        def run_jobs(inspect, *extra, name="insp.json"):
+            ip = root / name
+            if inspect is not None:
+                ip.write_text(json.dumps(inspect), encoding="utf-8")
+            return subprocess.run([*cli, "mcp-jobs", str(f), "--inspect", str(ip), *extra], capture_output=True, text=True)
+
+        r = run_jobs(insp)
+        assert r.returncode == 0, r.stdout + r.stderr
+        jobs = json.loads(r.stdout)
+        assert len(jobs) == 2, jobs
+        j3, j4 = jobs
+        assert j3["prompt"] == GOOD3 and j4["prompt"] == GOOD4M, (j3, j4)           # lõi prompt đã lưu, không đuôi
+        assert j3["outputDirectory"] == str(f / "_google_raw") and j3["fileName"] == "03_b-roll-2_raw" and j4["fileName"] == "04_b-roll-10_raw", (j3, j4)
+        assert j3["aspectRatio"] == "9:16" and j3["model"] == "omni-1-2-flash", j3
+        assert j3["outputs"] == 2 and j3["upscale"] == "1080p" and j3["download"] is True, j3  # x2 được Flow cho phép → một job
+        assert j3["referenceFiles"] == [] and j3["confirmCreditSpend"] is True and "_note" not in j3, j3
+        assert j3["durationSeconds"] == 4 and j4["durationSeconds"] == 4, (j3, j4)  # 4 s có trong danh sách; 3 s → nhỏ nhất ≥ 3 là 4
+        # --scenes chỉ lấy cảnh chỉ định
+        jobs = json.loads(run_jobs(insp, "--scenes", "4").stdout)
+        assert [j["fileName"] for j in jobs] == ["04_b-roll-10_raw"], jobs
+        # x2 không được Flow cho phép → tách 2 job outputs=1, hậu tố _v1/_v2
+        no2 = {**insp, "outputCountsByMedia": {"video": [1]}}
+        jobs = json.loads(run_jobs(no2, "--scenes", "3").stdout)
+        assert [(j["fileName"], j["outputs"]) for j in jobs] == [("03_b-roll-2_raw_v1", 1), ("03_b-roll-2_raw_v2", 1)], jobs
+        assert jobs[0]["prompt"] == jobs[1]["prompt"] == GOOD3, jobs
+        jobs = json.loads(run_jobs(no2, "--scenes", "3", "--versions", "1").stdout)
+        assert [(j["fileName"], j["outputs"]) for j in jobs] == [("03_b-roll-2_raw", 1)], jobs
+        # thời lượng: có trong danh sách → giữ; không có → nhỏ nhất ≥ ; không chỉnh được → bỏ + ghi chú
+        jobs = json.loads(run_jobs({**insp, "visibleDurations": [3, 5, 8]}, "--scenes", "3,4").stdout)
+        assert [j["durationSeconds"] for j in jobs] == [5, 3], jobs                 # 4 s không có → 5 ; 3 s có
+        for bad_dur in ({k: v for k, v in insp.items() if k != "visibleDurations"}, {**insp, "visibleDurations": [2]}):
+            j = json.loads(run_jobs(bad_dur, "--scenes", "3").stdout)[0]
+            assert "durationSeconds" not in j and j["_note"] == "duration not settable — check length after download", j
+        # model: ưu tiên omni 1.2 flash theo id/nhãn; không có thì omni flash đầu tiên; không có nữa → ui-default
+        j = json.loads(run_jobs({**insp, "models": {"video": [{"id": "x1", "label": "Veo 3.1"}, {"id": "omni-1-flash", "label": "Omni 1 Flash"},
+                                                                {"id": "o12", "label": "Omni 1.2 Flash"}]}}, "--scenes", "3").stdout)[0]
+        assert j["model"] == "o12", j
+        j = json.loads(run_jobs({**insp, "models": {"video": [{"id": "x1", "label": "Veo 3.1"}, {"id": "omni-1-flash", "label": "Omni 1 Flash"}]}},
+                                "--scenes", "3").stdout)[0]
+        assert j["model"] == "omni-1-flash", j
+        j = json.loads(run_jobs({**insp, "models": {"video": [{"id": "x1", "label": "Veo 3.1"}]}}, "--scenes", "3").stdout)[0]
+        assert j["model"] == "ui-default", j
+        # tỉ lệ + upscale: không liệt kê → ui-default / highest_available; upscale dạng {id}; khoá thiếu = không liệt kê
+        j = json.loads(run_jobs({"visibleDurations": [4], "availableUpscales": [{"id": "720p"}]}, "--scenes", "3").stdout)[0]
+        assert j["aspectRatio"] == "ui-default" and j["model"] == "ui-default" and j["upscale"] == "highest_available" and j["outputs"] == 1, j
+        j = json.loads(run_jobs({**insp, "availableUpscales": [{"id": "1080p"}]}, "--scenes", "3").stdout)[0]
+        assert j["upscale"] == "1080p", j
+        j = json.loads(run_jobs({**insp, "aspectRatiosByMedia": {"video": ["16:9"]}}, "--scenes", "3").stdout)[0]
+        assert j["aspectRatio"] == "ui-default", j
+        # inspect hỏng / thiếu → mã 2 + thông báo tiếng Việt, stdout trống
+        r = run_jobs(None, name="khong_co.json")
+        assert r.returncode == 2 and r.stdout == "" and "inspect" in r.stderr, r.stdout + r.stderr
+        (root / "hong.json").write_text("{không phải json", encoding="utf-8")
+        r = subprocess.run([*cli, "mcp-jobs", str(f), "--inspect", str(root / "hong.json")], capture_output=True, text=True)
+        assert r.returncode == 2 and "inspect" in r.stderr, r.stdout + r.stderr
+        (root / "mang.json").write_text("[1, 2]", encoding="utf-8")
+        r = subprocess.run([*cli, "mcp-jobs", str(f), "--inspect", str(root / "mang.json")], capture_output=True, text=True)
+        assert r.returncode == 2, r.stdout + r.stderr
+        print("ok  mcp-jobs: x2 vs tách job, thời lượng có/lớn hơn gần nhất/không chỉnh được, chọn model, upscale, inspect hỏng → 2")
+
     print("TẤT CẢ ĐẠT")
 
 

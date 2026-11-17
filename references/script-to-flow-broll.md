@@ -1,17 +1,17 @@
-# Quy trình chuẩn hoá: Video / Kịch bản → 3 Agent hiểu kịch bản → Prompt 5 tầng H5 → Google Flow MCP
+# Quy trình chuẩn hoá: Video / Kịch bản → 3 Agent hiểu kịch bản → Prompt 5 tầng H5 → Google Flow (MCP hoặc trình duyệt Cindy)
 
-Tài liệu này chuẩn hoá toàn bộ quy trình từ đầu vào thô (**Video Talking Head chưa có kịch bản** hoặc **Kịch bản văn bản `SPEC.md` / JSON**) đi qua **Quy trình 3 Agent** đến khi xuất bản xong bộ B-Roll đời thực chân thực, không nhựa/AI, đạt chuẩn **1080×1920, 30 fps, không tiếng, sạch chữ/logo** bằng MCP `google-flow`.
+Tài liệu này chuẩn hoá toàn bộ quy trình từ đầu vào thô (**Video Talking Head chưa có kịch bản** hoặc **Kịch bản văn bản `SPEC.md` / JSON**) đi qua **Quy trình 3 Agent** đến khi xuất bản xong bộ B-Roll đời thực chân thực, không nhựa/AI, đạt chuẩn **1080×1920, 30 fps, không tiếng, sạch chữ/logo** bằng Google Flow (MCP `google-flow` hoặc trình duyệt Cindy, chọn theo phiên — xem `references/flow-broll.md`).
 
 > **Kiến trúc Prompt nền tảng:** Xem thêm [`references/master-video-prompt-architecture.md`](master-video-prompt-architecture.md) (đặc biệt **Mục 5b: Công thức 5 Tầng T2V Anti-Plastic cho Flow B-roll**) để nắm nguyên lý *Positional Bias*, *Anti-Slop*, *Frozen Descriptor*, *4-Axis I2V Motion* và bảng thuật ngữ *DOP Cinematography Lexicon*.
 
 > **Luật cứng áp dụng xuyên suốt:**
-> - **D15 (Nguồn B-roll mặc định 100 % Google Flow MCP):** Mục tiêu **100 %** thời lượng B-roll tạo bằng **Google Flow MCP** (tối thiểu **≥ 95 %**); footage thật / stock (`auto-footage`, kho D5) chỉ là ngoại lệ tối đa **2–5 %** (trần cứng `≤ 5 %`). Muse local chỉ là dự phòng khẩn khi Google Flow không khả dụng và người dùng đồng ý (D3).
+> - **D15 (Nguồn B-roll mặc định 100 % Google Flow):** Mục tiêu **100 %** thời lượng B-roll tạo bằng **Google Flow (MCP hoặc trình duyệt Cindy)** (tối thiểu **≥ 95 %**); footage thật / stock (`auto-footage`, kho D5) chỉ là ngoại lệ tối đa **2–5 %** (trần cứng `≤ 5 %`). Muse local chỉ là dự phòng khẩn khi Google Flow không khả dụng và người dùng đồng ý (D3).
 > - **D9 (Nghĩa đen đời thực, cấm ẩn dụ CGI trừu tượng):** B-roll phải minh hoạ **đúng nghĩa đen đời thực** của từng câu thoại `tts_text` qua **Quy trình 3 Agent**. CẤM các ẩn dụ CGI trừu tượng xa rời lời nói (như khối lập phương hổ phách phát sáng trên giàn kim loại, hai thanh ray thép trượt hộp đèn, lăng kính, bánh răng, lõi năng lượng, các nút phát sáng trôi nổi).
 > - **D8 (Giới hạn lặp B-roll):** Mỗi cảnh / clip B-roll tối đa **2 lần trong 1 video** và qua tối đa **2 video khác nhau** (`scripts/media_reuse.py audit` + `scripts/edit_rules.py`).
 > - **D1 (Nhịp hình):** Không để đoạn A-Roll nói trơ kéo dài quá **8 giây** (`MAX_AROLL_ONLY_S = 8.0`), cảnh chèn B-Roll phải đạt **≥ 25 %** tổng thời lượng video (`MIN_BROLL_SHARE = 0.25`), đoạn nói liền `> 4 s` ưu tiên chèn hoặc zoom.
 > - **E2 (Nỗi đau):** Câu nói chứa từ khoá nỗi đau (`edit_rules.PAIN_LEXICON`) ưu tiên chèn B-Roll minh hoạ đúng hoàn cảnh đời thực của nỗi đau đó.
-> - **D3 (Tín dụng & công cụ):** Google Flow MCP là mặc định (trình duyệt Cindy phụ nếu MCP lỗi; Muse chỉ dự phòng khẩn khi Flow hỏng và có đồng ý). Luôn tính trước giây và tín dụng Flow (`flow_seconds` / `flow_credits`) và kiểm tra số dư qua `flow_inspect_account`. Thiếu tín dụng → báo người dùng và dừng; không tự nâng cấp/mua thêm.
-> - **MCP-first:** Mọi thao tác Google Flow đi qua MCP `google-flow` (`flow_*`), tuyệt đối không mở `labs.google/fx/tools/flow` bằng trình duyệt ngoài (trừ khi MCP lỗi chuyển sang trình duyệt Cindy theo D3).
+> - **D3 (Tín dụng & công cụ):** Google Flow là mặc định, chạy bằng MCP khi phiên có tool `flow_*`, bằng trình duyệt Cindy khi không có (cả hai đều chính thức; Muse chỉ dự phòng khẩn khi Flow hỏng và có đồng ý). Luôn tính trước giây và tín dụng Flow (`flow_seconds` / `flow_credits`) và kiểm tra số dư qua `flow_inspect_account` (đường MCP) hoặc bảng tài khoản Flow (đường trình duyệt). Thiếu tín dụng → báo người dùng và dừng; không tự nâng cấp/mua thêm.
+> - **Chọn bên thực thi theo phiên (D-a):** Phiên có tool `flow_*` → MCP `google-flow`; phiên không có (Claude Code / Cindy mặc định) → trình duyệt Cindy theo `references/flow-broll.md` mục 0–5. Không chạy hai đường song song cho cùng một cảnh.
 
 ---
 
@@ -70,7 +70,7 @@ Tuyệt đối **không** dịch thô `visual_direction` hoặc bịa ẩn dụ 
   - **ĐÚNG (Nghĩa đen đời thực):** *"Nữ nhân viên văn phòng người Việt đang ngồi trước bàn gỗ mở một tệp ảnh mẫu in trên bàn và đặt cạnh hộp sản phẩm mẫu"* hoặc *"Góc qua vai người trẻ Việt Nam kéo dây sạc hoặc gõ bàn phím laptop mờ hoàn toàn, đồng nghiệp bên cạnh cùng bấm chuột đồng loạt."*
   - **CẤM TUYỆT ĐỐI (Ẩn dụ CGI trừu tượng):** khối lập phương hổ phách phát sáng (`glowing amber cube`), giàn kim loại, hai thanh ray thép trượt hộp đèn (`metal pipeline rails`), lăng kính (`glowing prism`), bánh răng (`gears`), lõi năng lượng (`energy core`), các nút trôi nổi (`floating nodes`), `hologram`, `sci-fi`, `neon circuit`.
 
-#### Agent 2 — 5-Layer Anti-Plastic Prompt Architect (Kiến trúc sư Prompt 5 tầng cho Google Flow `omni-flash`)
+#### Agent 2 — 5-Layer Anti-Plastic Prompt Architect (Kiến trúc sư Prompt 5 tầng cho Google Flow Omni Flash)
 Từ `script_beat_vi` và `anchor_quote`, viết cấu trúc **`layers` 5 tầng** tối ưu cho bộ mã hoá **T5-XXL / Gemma**, rồi ghép thành chuỗi `prompt` tiếng Anh **`18–95` từ** đạt chuẩn **H5**:
 
 1. **Tầng 1 — `l1_shot_subject` (Primacy Zone — Trọng số đầu câu cao nhất):**
@@ -116,7 +116,7 @@ Từ `script_beat_vi` và `anchor_quote`, viết cấu trúc **`layers` 5 tầng
 6. **Một clip — một cảnh liền mạch (`MULTI_SHOT_RE`):** Cấm `transition from/to, cut to, montage, split-screen, before-and-after, picture-in-picture, pip, overlay`. Một hành động, một bối cảnh, một chuyển động máy.
 7. **KHÔNG nối đuôi `NO text...` khi gửi Google Flow:** Chỉ gửi lõi `prompt` sạch. Flow không có negative prompt box; thêm `"no text, no logo"` dễ bị mô hình hiểu ngược và vẽ ra chữ/logo.
 
-### Bước 5: Kiểm `check-prompts` → Tạo qua MCP `google-flow` → Agent 3 duyệt → Chuẩn hoá
+### Bước 5: Kiểm `check-prompts` → Tạo qua Google Flow (MCP hoặc trình duyệt) → Agent 3 duyệt → Chuẩn hoá
 1. Lưu danh sách prompt theo schema 3 Agent ra `prompts.json`:
    ```json
    [
@@ -143,20 +143,21 @@ Từ `script_beat_vi` và `anchor_quote`, viết cấu trúc **`layers` 5 tầng
      --out /path/to/work_dir/flow_ready.json
    ```
    Phải đạt `[H5 OK]` (0 lỗi, mã thoát `0`) trước khi gọi Flow.
-3. Thực thi tạo qua **MCP `google-flow`** (xem thêm chi tiết trong `references/flow-broll.md`):
+3. Thực thi tạo qua Google Flow — chọn theo phiên (D-a; chi tiết `references/flow-broll.md`). Phiên **không có** tool `flow_*` → làm theo đường trình duyệt Cindy (mục 0–5 của `flow-broll.md`), bỏ qua phần MCP dưới đây. Phiên **có** `flow_*` thì:
    - `flow_list_accounts` → lấy `defaultAccountId` nếu `readyForGeneration=true` (chưa kết nối → `flow_begin_account_connection`, chờ người dùng bấm *Connect Flow* → `flow_complete_account_connection`).
-   - `flow_inspect_account` → kiểm tra `models`, `aspectRatios`, `visibleDurations`, `upscales`, và **số dư tín dụng** (`balance >= total_credits`, thiếu thì dừng và báo người dùng).
-   - Với từng job trong `flow_ready.json`, gọi `flow_generate_video`:
-     - `prompt`: prompt sạch đã qua lint
-     - `outputDirectory`: `<work_dir>/_google_raw`
-     - `fileName`: `<seq_prefix>_b-roll-<M>_raw`
-     - `model`: `"omni-flash"` (theo `flow_inspect_account`)
-     - `aspectRatio`: `"9:16"`
-     - `durationSeconds`: giá trị `duration_seconds` từ `flow_ready.json`
-     - `outputs`: `2`, `upscale`: `"none"`, `download`: `true`, `referenceFiles`: `[]`, `confirmCreditSpend`: `true`
-   - Nếu trả `status="processing"`: poll `flow_job_status(jobId, waitSeconds=10)` với đúng `jobId` đó (tuyệt đối không gọi `flow_generate_video` lại).
-   - **Agent 3 xem chọn 1 trong 2 bản 720p bằng mắt:** Loại ngay bản da nhựa, ngón tay méo, đồ vật phi vật lý, dính chữ/logo, màn hình lộ nội dung, mặt người lạ khi đang quay founder, cắt cảnh ngầm, hoặc lệch `anchor_quote`.
-   - Nâng 1080p bản đã chọn & tải về: `flow_upscale_video(jobId, factor="1080p", confirmCreditSpend=true)` → poll `flow_job_status` nếu cần → `flow_download_job(jobId)`.
+   - `flow_inspect_account` (bắt buộc, lưu ra `inspect.json`) → kiểm tra `models`, `aspectRatios`, `visibleDurations`, số bản video, `upscales`, và **số dư tín dụng** (`balance >= total_credits`, thiếu thì dừng và báo người dùng).
+   - Dựng đối số từng job bằng `$PY scripts/broll_fix.py mcp-jobs <thư_mục_video> --inspect inspect.json [--speed 1.10]` (in một danh sách JSON các object đối số `flow_generate_video`, mỗi cảnh một object), rồi gọi `flow_generate_video` cho từng object. Quy tắc (D-b):
+     - `prompt`: prompt sạch đã qua lint; `outputDirectory`: `<work_dir>/_google_raw`; `fileName`: `<seq_prefix>_b-roll-<M>_raw`
+     - `model` và `aspectRatio`: đúng id `flow_inspect_account` trả (ví dụ `omni-1-2-flash`, `9:16`), không gõ cứng
+     - `durationSeconds`: `duration_seconds` từ `flow_ready.json`, chỉ truyền khi nằm trong `visibleDurations`
+     - `outputs`: chỉ truyền khi số bản đó được inspect liệt kê; cần 2 bản mà `outputs: 2` không có → 2 job riêng, mỗi job `outputs: 1`
+     - `upscale`: `"1080p"` khi inspect liệt kê (không thì `highest_available`); không lấy bản 720p làm clip cuối
+     - `download`: `true`, `referenceFiles`: `[]`, `confirmCreditSpend`: `true`
+   - Nếu trả `status="processing"`: poll `flow_job_status(jobId, waitSeconds=10)` với đúng `jobId` đó; cấm gọi lại `flow_generate_video` cho cảnh đó khi job còn `processing`.
+   - **Agent 3 xem chọn bản đúng nhất bằng mắt:** Loại ngay bản da nhựa, ngón tay méo, đồ vật phi vật lý, dính chữ/logo, màn hình lộ nội dung, mặt người lạ khi đang quay founder, cắt cảnh ngầm, hoặc lệch `anchor_quote`.
+   - Chưa có bản 1080p (upscale không áp trong lúc tạo) → `flow_upscale_video(jobId, factor="1080p", confirmCreditSpend=true)` → poll `flow_job_status` → `flow_download_job(jobId)`.
+   - Agent UI của Flow có thể viết lại prompt: báo cáo ghi prompt thực sự đã gửi; Visual Critic chấm theo `anchor_quote`, không theo prompt (D-d).
+   - Sau khi tải, `broll_fix.py verify` FAIL clip ngắn hơn lời − 0,3 s: nếu MCP không đặt được `durationSeconds` → tạo lại cảnh bằng đường trình duyệt đúng số giây, hoặc tách câu thành 2 beat; ghi báo cáo (D-c).
 4. Chuẩn hoá clip về chuẩn dựng `1080×1920, 30 fps, không tiếng, BT.709` bằng `broll_fix.py normalize`:
    ```bash
    $PY scripts/broll_fix.py normalize \
@@ -182,7 +183,7 @@ Dùng `scripts/analyze_and_scaffold.py` để phân tích kịch bản và chia 
 $PY scripts/analyze_and_scaffold.py --spec /path/to/SPEC.md --out /path/to/output_root
 ```
 
-### Bước 2: Chạy Quy trình 3 Agent → Prompt 5 tầng H5 → Tạo qua Google Flow MCP
+### Bước 2: Chạy Quy trình 3 Agent → Prompt 5 tầng H5 → Tạo qua Google Flow (MCP hoặc trình duyệt)
 1. **Agent 1 (Script Semantic Analyst)** đọc trọn `tts_text` trong `00_storyboard_manifest.json`, tách đoạn `> 7,5 s` hoặc có 2 vế đối lập thành sub-beats và viết `script_beat_vi` (nghĩa đen đời thực, **CẤM ẩn dụ CGI trừu tượng**).
 2. **Agent 2 (5-Layer Anti-Plastic Prompt Architect)** viết `broll_new_prompts.json` cho mọi phân đoạn `"type": "b-roll"` (mỗi phần tử gồm `seq`, `anchor_quote` trích nguyên văn từ `tts_text`, `script_beat_vi`, `layers` 5 tầng `l1_shot_subject`..`l5_camera_motion`, và `prompt` ghép `18–95` từ tiếng Anh đạt H5).
 3. **Agent 3 (Cổng 1 — Lint)** kiểm tra luật H5 (strict layers & anti-plastic) & lập kế hoạch tín dụng:
@@ -192,13 +193,14 @@ $PY scripts/analyze_and_scaffold.py --spec /path/to/SPEC.md --out /path/to/outpu
    $PY scripts/broll_fix.py plan /path/to/script_dir --engine flow --outputs 2
    ```
    Báo tổng giây và tổng tín dụng Flow cho người dùng xác nhận trước khi tiêu tín dụng (D3).
-4. Gọi MCP `google-flow` theo đúng thứ tự:
-   `flow_list_accounts` → `flow_inspect_account` → `flow_generate_video` → `flow_job_status` → **Agent 3 (Cổng 2 — Visual Critic)** xem chọn 1 trong 2 bản 720p (loại ngay bản da nhựa, ngón tay méo, đồ vật phi vật lý, cắt cảnh ngầm hoặc lệch `anchor_quote`) → `flow_upscale_video(factor="1080p")` → `flow_download_job`.
+4. Tạo qua Google Flow, chọn theo phiên (D-a): phiên không có `flow_*` → đường trình duyệt Cindy (`references/flow-broll.md` mục 0–5). Phiên có `flow_*` → gọi MCP `google-flow` theo thứ tự:
+   `flow_list_accounts` → `flow_inspect_account` (lưu `inspect.json`) → `$PY scripts/broll_fix.py mcp-jobs <script_dir> --inspect inspect.json [--speed 1.10]` dựng đối số → `flow_generate_video` → `flow_job_status` (cùng `jobId`, không gọi lại khi đang `processing`) → **Agent 3 (Cổng 2 — Visual Critic)** xem chọn bản đúng nhất (loại ngay bản da nhựa, ngón tay méo, đồ vật phi vật lý, cắt cảnh ngầm hoặc lệch `anchor_quote`) → `flow_upscale_video(factor="1080p")` nếu chưa có bản 1080p → `flow_download_job`. Tham số chỉ truyền khi inspect cho phép (D-b); không có `outputs: 2` thì 2 job `outputs: 1`; ghi prompt thực sự đã gửi (D-d).
 5. Chuẩn hoá & xác minh hàng loạt:
    ```bash
    $PY scripts/broll_fix.py normalize <raw_1080p.mp4> <script_dir>/<STT>_b-roll-<M>.mp4 [--mark flow]
    $PY scripts/broll_fix.py verify <script_dir> --scenes <danh_sách_seq>
    ```
+   `verify` FAIL clip ngắn hơn lời − 0,3 s → tạo lại cảnh bằng đường trình duyệt đúng số giây hoặc tách câu thành 2 beat (D-c).
    Mở `qa/broll_check_sheet.jpg` kiểm tra bằng mắt từng cảnh (không da nhựa/CGI, không chữ/logo, đúng nghĩa đen `anchor_quote`), sau đó chạy `scripts/scene_check.py` (0 FAIL).
 
 ---

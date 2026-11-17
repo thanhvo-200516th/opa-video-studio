@@ -7,8 +7,14 @@
     $PY broll_fix.py lint    <thư mục> --prompts broll_new_prompts.json
     $PY broll_fix.py prepare <thư mục> --prompts broll_new_prompts.json [--source muse|flow] [--keep-clips] [--dry-run] [--backup-root DIR]
                                                                   # --keep-clips: tạo lại cảnh xong → ghi prompt cuối, giữ clip
+    $PY broll_fix.py mcp-jobs <thư mục> --inspect inspect.json [--speed 1.10] [--versions 2] [--scenes 3,4]
+                                                                  # in MỘT danh sách JSON đối số flow_generate_video (D-b) cho từng cảnh B-roll; inspect.json = kết quả flow_inspect_account
     $PY broll_fix.py verify  <thư mục> --scenes 3,4,5 [--speed 1.10] [--out-dir DIR]
     $PY broll_fix.py normalize <file tải về> <thư mục>/NN_b-roll-M.mp4 [--mark flow]   # clip tạo ngoài Muse (Google Flow…) → chuẩn skill
+
+mcp-jobs (3.5.1): prompt = lõi prompt đã lưu bởi `prepare --source flow` (không đuôi), giây = flow_seconds như `plan --engine flow`; durationSeconds / outputs / aspectRatio / model / upscale
+chỉ lấy giá trị inspect liệt kê (thiếu → ui-default / highest_available / bỏ durationSeconds + `_note`); x2 không được Flow cho phép → tách `--versions` job outputs=1 (fileName …_v1, …_v2).
+inspect.json thiếu / hỏng → mã thoát 2.
 
 normalize (v2.8+): 1080x1920, 30 fps, KHÔNG tiếng, x264 CRF 12 BT.709; tự cắt viền trắng/đen/đồng màu ≥ 2 % từ khung đầu (1.2.2 F3: `trim_uniform_borders`) trước khi scale; `--mark flow` xoá dấu ngôi sao của Google Flow ở góc dưới phải
 (đo trên khung 1080x1920: x≈860–940, y≈1700–1780) bằng `delogo`. Chạy sau `prepare` (file cũ đã được sao lưu), trước `verify`.
@@ -390,6 +396,113 @@ def cmd_lint(args) -> int:
 
 
 # ---------------------------------------------------------------- prepare
+# ---------------------------------------------------------------- mcp-jobs (D-b)
+OMNI_12_FLASH_RE = re.compile(r"omni.*1[.-]2.*flash", re.I)
+OMNI_FLASH_RE = re.compile(r"omni.*flash", re.I)
+NOTE_NO_DURATION = "duration not settable — check length after download"
+
+
+def _as_int(v) -> int | None:
+    """Số nguyên từ 8 / '8' / '8s' / 'x2' / {'id': ...}; không đọc được → None."""
+    if isinstance(v, dict):
+        v = v.get("id", v.get("value", v.get("label")))
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, float)):
+        return int(v)
+    m = re.search(r"\d+", str(v or ""))
+    return int(m.group()) if m else None
+
+
+def _video_list(insp: dict, *path: str) -> list:
+    """insp[path0][path1]… nếu là list; thiếu / sai kiểu → [] (coi như không liệt kê)."""
+    cur = insp
+    for key in path:
+        cur = cur.get(key) if isinstance(cur, dict) else None
+    return cur if isinstance(cur, list) else []
+
+
+def _opt_text(v) -> tuple[str, str]:
+    """(id, label) của một phần tử inspect: chuỗi hoặc {id, label}."""
+    if isinstance(v, dict):
+        return str(v.get("id") or ""), str(v.get("label") or "")
+    return str(v), str(v)
+
+
+def pick_video_model(insp: dict) -> str:
+    models = [_opt_text(m) for m in _video_list(insp, "models", "video")]
+    for rx in (OMNI_12_FLASH_RE, OMNI_FLASH_RE):
+        for mid, label in models:
+            if mid and (rx.search(mid) or rx.search(label)):
+                return mid
+    return "ui-default"
+
+
+def pick_duration(secs: int, listed: list[int]) -> int | None:
+    if secs in listed:
+        return secs
+    bigger = [d for d in listed if d >= secs]
+    return min(bigger) if bigger else None
+
+
+def mcp_job_args(insp: dict, name: str, out_dir: Path, prompt: str, secs: int, versions: int) -> list[dict]:
+    """Đối số flow_generate_video cho một cảnh: một job outputs=versions nếu Flow cho, ngược lại `versions` job outputs=1."""
+    ratios = [str(x) for x in _video_list(insp, "aspectRatiosByMedia", "video")]
+    counts = [n for n in map(_as_int, _video_list(insp, "outputCountsByMedia", "video")) if n is not None]
+    durations = [n for n in map(_as_int, _video_list(insp, "visibleDurations")) if n is not None]
+    upscales = [_opt_text(u)[0].lower() for u in _video_list(insp, "availableUpscales")]
+    base = {"prompt": prompt, "outputDirectory": str(out_dir), "aspectRatio": "9:16" if "9:16" in ratios else "ui-default",
+            "model": pick_video_model(insp)}
+    dur = pick_duration(secs, durations)
+    if dur is not None:
+        base["durationSeconds"] = dur
+    else:
+        base["_note"] = NOTE_NO_DURATION
+    tail = {"upscale": "1080p" if "1080p" in upscales else "highest_available", "download": True,
+            "referenceFiles": [], "confirmCreditSpend": True}
+    if versions <= 1 or versions in counts:
+        return [{**base, "fileName": f"{name}_raw", "outputs": max(1, versions), **tail}]
+    return [{**base, "fileName": f"{name}_raw_v{i}", "outputs": 1, **tail} for i in range(1, versions + 1)]
+
+
+def cmd_mcp_jobs(args) -> int:
+    folder = Path(args.folder)
+    try:
+        insp = _load(Path(args.inspect))
+        if not isinstance(insp, dict):
+            raise ValueError("phải là một object JSON (kết quả flow_inspect_account)")
+    except (OSError, ValueError) as e:
+        print(f"[BROLL FAIL] không đọc được file inspect {args.inspect}: {e}. Chạy flow_inspect_account rồi lưu kết quả JSON vào file này.", file=sys.stderr)
+        return 2
+    try:
+        segs = segments(folder)
+        prompts = {i.get("seq_index"): i for i in _load(folder / "prompts_muse_veo_broll.json")}
+    except (OSError, ValueError, KeyError) as e:
+        print(f"[BROLL FAIL] đọc manifest / prompts trong {folder}: {e}", file=sys.stderr)
+        return 2
+    wanted = None
+    if args.scenes:
+        try:
+            wanted = [int(x) for x in args.scenes.split(",") if x.strip()]
+        except ValueError:
+            print(f"[BROLL FAIL] --scenes phải là các seq_index cách nhau dấu phẩy, nhận '{args.scenes}'", file=sys.stderr)
+            return 2
+        unknown = [q for q in wanted if q not in segs]
+        if unknown:
+            print(f"[BROLL FAIL] không có cảnh B-roll {unknown}", file=sys.stderr)
+            return 2
+    jobs: list[dict] = []
+    for seq in (wanted if wanted is not None else sorted(segs)):
+        seg, item = segs[seq], prompts.get(seq) or {}
+        prompt = (item.get("prompt_core") or core_of(item.get("prompt_full") or "")
+                  or seg.get("visual_direction") or core_of(seg.get("broll_prompt") or "")).strip()
+        stem = Path((seg.get("files") or {}).get("video_file") or f"{seg.get('seq_prefix', f'{seq:02d}')}_{seg['role_id']}.mp4").stem
+        secs = flow_seconds(voice_len(folder, seg), float(seg.get("duration_sec") or 4.0))
+        jobs += mcp_job_args(insp, stem, folder / "_google_raw", prompt, secs, args.versions)
+    print(json.dumps(jobs, ensure_ascii=False, indent=2))
+    return 0
+
+
 def _backup_dir(root: Path, folder: Path) -> Path:
     base = root / time.strftime("%Y-%m-%d") / folder.name
     return base if not base.exists() else base.with_name(f"{base.name}_{time.strftime('%H%M%S')}")
@@ -745,6 +858,13 @@ def main() -> int:
     p.add_argument("--engine", choices=("muse", "flow"), default="flow")
     p.add_argument("--outputs", type=int, default=2, help="số bản Flow mỗi cảnh (x1–x4), mặc định x2")
     p.set_defaults(fn=cmd_plan)
+    p = sub.add_parser("mcp-jobs")
+    p.add_argument("folder")
+    p.add_argument("--inspect", required=True, help="JSON kết quả flow_inspect_account")
+    p.add_argument("--speed", type=float, default=1.10)
+    p.add_argument("--versions", type=int, default=2, help="số bản mỗi cảnh, mặc định 2")
+    p.add_argument("--scenes", help="seq_index cách nhau dấu phẩy; mặc định mọi cảnh B-roll")
+    p.set_defaults(fn=cmd_mcp_jobs)
     p = sub.add_parser("lint")
     p.add_argument("folder")
     p.add_argument("--prompts", required=True)
