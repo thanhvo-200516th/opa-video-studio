@@ -326,6 +326,19 @@ def gfx_cta(X) -> None:
                      hero["dur"] + 0.1, lane="card", name="Hộp tô CTA")
     box.setdefault("motion", {})["position"] = [540, round(hero["position"][1] - top / 2 + bot / 2)]
     X.fx.box_wipe(box)
+    X.cta_pair = (box, hero)
+
+
+def sync_cta_box(X) -> None:
+    """Sau ensure_motion (chữ đã bị cắt trước điểm cắt + có kiểu ra): hộp CTA kết thúc cùng chữ và mờ ra cùng nhịp."""
+    pair = getattr(X, "cta_pair", None)
+    if not pair:
+        return
+    box, hero = pair
+    box["dur"] = round(hero["at"] + hero["dur"] - box["at"], 4)
+    out = 5 / X.fps
+    keep = [k for k in box.get("opacity", [[0, 100]]) if k[0] < box["dur"] - out - 1e-6] or [[0, 100]]
+    box["opacity"] = keep + [[round(box["dur"] - out, 4), 100], [round(box["dur"] - 1 / X.fps, 4), 0]]
 
 
 def graphics(X) -> None:
@@ -398,6 +411,7 @@ def main() -> int:
     sfx = sfx_plan(X, heroes_at)
     print("ensure_motion:", ensure_motion(X.fx.items, X.fps, profile=X.prof, cuts=X.cuts))
     X.fx._motion_done = True
+    sync_cta_box(X)
     spec = {"name": f"{X.code} · minimal-edu", "width": 1080, "height": 1920, "fps": X.fps, "duration": X.end,
             "markers": X.base["markers"],
             "tracks": [{"type": "video", "name": "V1 Chuỗi A-Roll & B-Roll (cắt cứng)", "clips": X.v1},
