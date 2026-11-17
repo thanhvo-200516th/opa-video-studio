@@ -85,8 +85,21 @@ def test_c1_profile() -> None:
     on = edit_rules.audit_spec(hard, profile=PROF)
     check(rule(on, c1)["status"] == "OK", "C1 có hồ sơ: cắt cứng được phép → OK", rule(on, c1)["detail"])
     div = rule(on, "Chuyển cảnh đa dạng")
-    check("cross_dissolve" in div["detail"] and div["status"] == "OK",
-          "cross_dissolve 1 khung vẫn tính là chuyển cảnh (hồ sơ: cắt cứng + 1 kiểu = đủ 2)", div["detail"])
+    check("cross_dissolve" in div["detail"] and div["status"] == "CẢNH BÁO",
+          "3.6.2: cắt cứng 67 % + 1 kiểu → CẢNH BÁO (cắt cứng ≤ 40 %, ≥ 6 kiểu)", div["detail"])
+    kinds = ["soft_wipe", "punch_settle", "blur_dissolve_cut", "card_swipe", "drift_reset", "iris_round_focus", "j_cut_return"]
+    mix = spec(starts=tuple(range(0, 16, 2)), dur=16)
+    v1 = mix["tracks"][0]["clips"]
+    for c, k in zip(v1[1:], kinds):
+        c["join_kind"] = k
+    dm = rule(edit_rules.audit_spec(mix, profile=PROF), "Chuyển cảnh đa dạng")
+    check(dm["status"] == "OK" and "cắt cứng 14%" in dm["detail"],
+          "3.6.2: 6 kiểu talking-head + 1 j_cut (tính là cắt cứng) → OK", dm["detail"])
+    twice = spec(starts=tuple(range(0, 16, 2)), dur=16)
+    for c, k in zip(twice["tracks"][0]["clips"][1:], kinds[:3] + ["paper_rip", "soft_wipe", "paper_rip", "card_swipe"]):
+        c["join_kind"] = k
+    dt = rule(edit_rules.audit_spec(twice, profile=PROF), "Chuyển cảnh đa dạng")
+    check(dt["status"] == "CẢNH BÁO" and "paper_rip" in dt["detail"], "3.6.2: giấy rách 2 lần → CẢNH BÁO", dt["detail"])
     only_hard = edit_rules.audit_spec(spec(starts=(0, 2, 4, 6), dur=8), profile=PROF)
     check(rule(only_hard, "Chuyển cảnh đa dạng")["status"] == "CẢNH BÁO", "hồ sơ: toàn cắt cứng → thiếu kiểu (< 2) CẢNH BÁO")
     flashy = spec(starts=(0, 2, 4), dur=6, trans={1: {"effect": "flash_burst", "frames": 4}})

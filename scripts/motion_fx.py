@@ -20,6 +20,7 @@ TNEDIT_DIR = Path(os.environ.get("TNEDIT_DIR", str(Path.home() / "Thanh/Media/TN
 
 import fx_gfx as G
 import text_fx as _T
+import th_transitions as TH
 from style_profile import get as _sp_get, load as _sp_load
 from text_fx import FONTS, FX, SHADOW, TRACKING, nfc, no_commas
 from text_motion import ensure_motion
@@ -228,6 +229,7 @@ class MotionFX(FX):
         self._ent_last = {"cap": None, "key": None}
         self._fly_side = 1
         self._lead_i = 0
+        self.th_state = {"drift": 0}                        # th_transitions: hướng trôi đảo chiều mỗi lần drift_reset
         # mỗi video một bộ 10–15 kiểu cho chữ chính; key_seed do sổ luân phiên cấp, không có → theo tên video
         rnd = random.Random(zlib.crc32(name.encode()) if key_seed is None else key_seed)
         self.key_kinds = rnd.sample(KEY_POOL, rnd.randint(*KEY_KINDS_PER_VIDEO))
@@ -939,7 +941,10 @@ class MotionFX(FX):
     # ---------- chuyển cảnh ----------
     def join(self, clip: dict, kind: str = "flash", cue_sfx: bool = True) -> dict:
         """Gắn chuyển cảnh vào đầu `clip` (clip sau điểm cắt trên V1/B-roll) + SFX tương ứng.
-        kind: flash | zoom | whip | glitch | leak | slide | cross_zoom (bảng JOINS)."""
+        kind: flash | zoom | whip | glitch | leak | slide | cross_zoom (bảng JOINS) hoặc kiểu talking-head của
+        th_transitions.TH_KINDS (morph_smooth, soft_wipe, paper_rip, card_swipe…)."""
+        if kind in TH.TH_KINDS:
+            return TH.th_join(self, clip, kind, cue_sfx)
         eff, frames, sfx = JOINS[kind]
         clip["transition_in"] = {"effect": eff, "frames": frames}
         if cue_sfx:                                    # chuyển cảnh căn giữa điểm cắt: tiếng chỉ được vào từ nửa đầu của nó
@@ -947,6 +952,10 @@ class MotionFX(FX):
                 self.cues.append({"t": clip["at"], "kind": s, "max_pre": frames / 2 / self.fps + 0.02,
                                   "why": f"chuyển cảnh {kind}"})
         return clip
+
+    def th_join(self, clip: dict, kind: str, cue_sfx: bool = True, **opts) -> dict:
+        """Như join nhưng nhận tham số riêng của kiểu talking-head (vd text="2." cho chapter_card_slam, black=True cho dip_to_paper)."""
+        return TH.th_join(self, clip, kind, cue_sfx, **opts)
 
     def transition(self, cut: float, kind: str, clip_after: dict | None = None, variant: int = 0) -> dict:
         """T0 Chuyển cảnh overlay TNEDIT (bảng TRANS): khung sáng nhất trúng `cut`, SFX căn đỉnh vào đó (hoặc tiếng có sẵn
@@ -1079,6 +1088,8 @@ class MotionFX(FX):
         grid_reveal / strip_reveal riêng (xem assets/motion-fx/example_build_spec.py)."""
         if kind == "zoom + punch":
             return self.join(clip_after, "zoom")
+        if kind == "hard_cut":                                       # hồ sơ minimal-edu: cắt cứng là một kiểu hợp lệ
+            return clip_after
         if kind in TRANS:
             return self.transition(cut, kind, clip_after=clip_after, variant=variant)
         if kind in COMBO_KINDS:

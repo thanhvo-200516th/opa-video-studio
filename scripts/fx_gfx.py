@@ -217,6 +217,23 @@ def paper_bg(out_dir: Path, name: str, kind: str = "white", seed: int = 0) -> st
     return _save(Image.fromarray(img, "RGB").convert("RGBA"), out_dir, name)
 
 
+def torn_paper(out_dir: Path, name: str, half: str = "top", seed: int = 0) -> str:
+    """Nửa giấy rách 1080×1920 (chuyển cảnh paper_rip): nền `paper_bg` trắng giữ phần trên ('top') hoặc dưới ('bottom') của đường rách
+    quanh y = 960 (sóng chậm ±70 px + răng cưa 5 px); mép có dải xơ giấy sáng ~9 px, lỗ lác đác. Cùng seed → hai nửa khớp nhau."""
+    import numpy as np
+    if half not in ("top", "bottom"):
+        raise ValueError(f"half lạ: {half} (top | bottom)")
+    rgba = np.asarray(Image.open(paper_bg(out_dir, f"{name}_src", "white", seed)).convert("RGBA"), dtype=np.float32)
+    rng = np.random.default_rng(seed + 11)
+    line = H / 2 + np.interp(np.arange(W), np.linspace(0, W, 14), rng.uniform(-70, 70, 14)) + rng.normal(0, 5, W)
+    ys = np.arange(H, dtype=np.float32)[:, None]
+    inside = (line[None, :] - ys) if half == "top" else (ys - line[None, :])      # > 0: phía được giữ lại
+    edge = np.clip(1 - inside / 9.0, 0, 1) * (inside > 0)
+    rgba[..., :3] = rgba[..., :3] * (1 - 0.75 * edge[..., None]) + 255 * 0.75 * edge[..., None]
+    rgba[..., 3] = np.where((inside > 0) & ~((edge > 0.5) & (rng.random((H, W)) > 0.8)), 255, 0)
+    return _save(Image.fromarray(rgba.astype(np.uint8), "RGBA"), out_dir, name)
+
+
 def box_fill(out_dir: Path, name: str, w: int, h: int, color: str | None = None, radius: int = 24) -> str:
     """Hộp bo góc tô đặc kích thước w×h (khít, không phải khung 1080×1920) — đặt bằng motion.position, lộ bằng box_wipe."""
     k = 4                                                  # siêu mẫu 4× cho mép bo mượt

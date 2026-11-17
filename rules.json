@@ -1,6 +1,6 @@
 {
  "skill": "opa-video-studio",
- "version": "3.6.1",
+ "version": "3.6.2",
  "updated": "2026-11-16",
  "_doc": "Bộ luật DUY NHẤT của skill. Mỗi luật: id, group, title, text, params, check, source, confidence (high|medium|low), status (active|superseded|optional), superseded_by, origin (đoạn nguồn trong references/kb-*.md). Thứ tự ưu tiên: lời người dùng trong chat > rules.json > SKILL.md > references/kb-*.md. Toàn văn + lý do: references/rules-full.md.",
  "params": {
@@ -1358,10 +1358,10 @@
   {
    "id": "P10",
    "group": "P",
-   "title": "minimal-edu: cắt cứng là chính",
-   "text": "Ghi đè C1/C2 chỉ khi hồ sơ bật: điểm cắt được phép không có chuyển cảnh (cắt cứng thật, không dùng cross_dissolve 1 khung giả); tối thiểu 2 kiểu chuyển cảnh; không nháy sáng; vào tranh bằng mờ ngang 5–7 khung; whip-pan 7–9 khung khi camera chạy theo đường. Cắt lặng chừa 30 ms, điểm cắt đầu câu ≤ 2 khung (C7).",
+   "title": "minimal-edu: chuyển cảnh talking-head đa dạng",
+   "text": "Ghi đè C1/C2 chỉ khi hồ sơ bật (người dùng đổi 2026-11-17: cắt cứng quá đơn điệu): chuyển cảnh talking-head đa dạng theo `cut_plan.plan_cuts_min` + `MotionFX.th_join` (scripts/th_transitions.py: punch_settle, drift_reset, soft_wipe, blur_dissolve_cut, luma_fade_soft, clock_wipe_step, camera_continue, card_swipe, iris_round_focus, page_peel_in, dip_to_paper, paper_rip, smoke_veil, chapter_card_slam, j_cut_return…); cắt cứng ≤ 40 % (j_cut_return tính là cắt cứng) và ≤ 2 lần liền; ≥ 6 kiểu; mỗi kiểu ≤ 20 %; không lặp trong 3 điểm cắt; giấy rách / khói / lật trang ≤ 1 lần mỗi video; không nháy sáng; ≤ 12 khung (khói ≤ 18). Vào tranh bằng mờ ngang 5–7 khung; whip-pan 7–9 khung. Cắt lặng chừa 30 ms, điểm cắt đầu câu ≤ 2 khung (C7).",
    "check": "edit_rules (C1/C2 theo hồ sơ, C7)",
-   "source": "người dùng 2026-11-17 (chữ mờ ra 2 khung, cho cắt cứng trong hồ sơ, giữ vùng B8)",
+   "source": "người dùng 2026-11-17 (cắt cứng quá đơn điệu → chuyển cảnh đa dạng; catalog .handoff/minimal-361/transitions_catalog.md)",
    "confidence": "medium",
    "status": "optional",
    "superseded_by": null,

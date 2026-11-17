@@ -24,6 +24,9 @@ from functools import lru_cache
 
 import numpy as np
 
+import th_transitions as TH
+from style_profile import get as _sp_get, load as _sp_load
+
 FF = "ffmpeg"
 W, H = 72, 128
 
@@ -86,7 +89,15 @@ OPTIONS = {
     # bố cục khác vừa: trượt / chém / xuyên
     "đổi góc gần": ["slice", "zoom_through", "travel", "slide", "spring", "spin_zoom", "flash_burst", "shutter", "flicker"],
 }
-FLASHY = {"flash_burst", "flash_shake", "shutter", "flicker"}   # họ nháy sáng / nhấp nháy (Rule 2: hạn chế)
+# Kiểu hợp phong cách năng động (th_transitions: impact_shake / pop_in / neon_wipe / mosaic_pixel / vhs_rewind): chỉ vào bảng khi
+# plan_cuts(energetic=True) — mặc định giữ nguyên kết quả cũ.
+OPTIONS_E = {
+    "jump cut · câu mới": ["impact_shake", "pop_in", "neon_wipe"],
+    "jump cut · đổi phần": ["mosaic_pixel", "vhs_rewind"],
+    "đổi cảnh": ["neon_wipe", "mosaic_pixel"],
+    "đổi góc gần": ["pop_in", "impact_shake"],
+}
+FLASHY = {"flash_burst", "flash_shake", "shutter", "flicker", "vhs_rewind"}   # họ nháy sáng / nhấp nháy (Rule 2: hạn chế)
 MAX_FLASHY_SHARE = 0.2      # tối đa 20 % điểm cắt dùng họ nháy sáng
 FLASHY_GAP = 3              # hai lần nháy sáng cách nhau ít nhất 3 điểm cắt
 RECENT_N = 4                # không lặp cùng chuyển cảnh trong 4 điểm cắt gần nhất
@@ -99,7 +110,15 @@ SFX_OF = {"flash_burst": "flash hit (thump + màn trập) đúng khung trắng",
           "slice": "whoosh căn giữa cú chém", "spring": "whoosh căn giữa cú nảy", "spin": "whoosh căn giữa cú xoay",
           "zoom_through": "whoosh tăng dần, đỉnh đúng khung cắt", "panel_wipe": "2 whoosh: tấm vào (đỉnh khi phủ kín) · tấm ra",
           "split_slide": "whoosh khi hai nửa khung trượt ra",
-          "flicker": "glitch ngắn đúng khung nháy đầu", "shutter": "tiếng màn trập máy ảnh đúng khung trắng"}
+          "flicker": "glitch ngắn đúng khung nháy đầu", "shutter": "tiếng màn trập máy ảnh đúng khung trắng",
+          # kiểu talking-head (th_transitions): "—" = không thêm tiếng
+          "hard_cut": "—", "j_cut_return": "— (hình vào trước lời 10 khung, tiếng giữ nguyên)", "morph_smooth": "—",
+          "punch_settle": "swish nhẹ (paper)", "drift_reset": "—", "blur_dissolve_cut": "swish nhẹ (paper)",
+          "soft_wipe": "swish nhẹ (paper)", "dip_to_paper": "—", "camera_continue": "whoosh", "paper_rip": "tiếng giấy rách (paper) đúng khung cắt",
+          "card_swipe": "whoosh", "luma_fade_soft": "—", "clock_wipe_step": "pop", "smoke_veil": "swell nhẹ (leak)",
+          "iris_round_focus": "pop", "impact_shake": "boom_pre + key_hit", "chapter_card_slam": "key_hit khi thẻ đập vào",
+          "page_peel_in": "pop", "pop_in": "pop", "neon_wipe": "whoosh", "mosaic_pixel": "data_beep",
+          "vhs_rewind": "glitch ngắn"}
 
 
 def _pick(options: list[str], recent: list[str], used: dict | None = None, n_done: int = 0, seed: int = 0) -> str:
@@ -116,7 +135,9 @@ def _pick(options: list[str], recent: list[str], used: dict | None = None, n_don
     return min(ok, key=lambda o: (used.get(o, 0), (options.index(o) - seed) % n if seed else options.index(o)))
 
 
-def plan_cuts(cuts: list[Cut], seed: int = 0) -> list[Cut]:
+def plan_cuts(cuts: list[Cut], seed: int = 0, energetic: bool = False) -> list[Cut]:
+    """energetic=True: thêm các kiểu hợp phong cách năng động (OPTIONS_E) vào cuối từng bảng."""
+    opts = lambda k: OPTIONS[k] + (OPTIONS_E.get(k, []) if energetic else [])      # noqa: E731
     recent: list[str] = []
     used: dict[str, int] = {}
     recent_all: list[str] = []
@@ -138,7 +159,7 @@ def plan_cuts(cuts: list[Cut], seed: int = 0) -> list[Cut]:
             sfx = "click mỗi ô / dải + " + ("flash hit" if seam == "flash_burst" else SFX_OF["light_leak"])
         elif c.a_kind == "broll" and c.b_kind != "broll":
             kind = "ra B-roll"
-            rec = _pick(OPTIONS[kind], recent, used, len(recent_all), seed)
+            rec = _pick(opts(kind), recent, used, len(recent_all), seed)
             why, sfx = "về lại người nói: overlay nhẹ / zoom ngắn", SFX_OF[rec]
         elif same:
             kind = "jump cut · đổi phần" if c.section else ("jump cut · câu mới" if brk else "jump · giữa câu")
@@ -149,17 +170,17 @@ def plan_cuts(cuts: list[Cut], seed: int = 0) -> list[Cut]:
                 light = OPTIONS["jump · sau dấu phẩy"]          # xoay vòng riêng (2 lần trước luôn là zoom → _pick chỉ ra slice)
                 rec = light[(comma_n // 3 - 1) % len(light)] if comma_n % 3 == 0 else "zoom + punch"
             else:
-                rec = _pick(OPTIONS[kind], recent, used, len(recent_all), seed)
+                rec = _pick(opts(kind), recent, used, len(recent_all), seed)
             why = (f"cùng khung (sim {sim:.2f}), " + ("sang phần mới" if c.section else "hết câu trước" if brk else "câu đang nói dở")
                    + f" → {rec}; không dải/ô (lộ mặt lệch)")
             sfx = SFX_OF[rec]
         elif sim < 0.5:
             kind = "đổi cảnh"
-            rec = _pick(OPTIONS[kind], recent, used, len(recent_all), seed)
+            rec = _pick(opts(kind), recent, used, len(recent_all), seed)
             why, sfx = f"bố cục khác hẳn (sim {sim:.2f}) → overlay che chỗ nối", SFX_OF[rec]
         else:
             kind = "đổi góc gần"
-            rec = _pick(OPTIONS[kind], recent, used, len(recent_all), seed)
+            rec = _pick(opts(kind), recent, used, len(recent_all), seed)
             why, sfx = f"bố cục khác vừa (sim {sim:.2f})", SFX_OF[rec]
         c.info = {"sim": round(sim, 2), "kind": kind, "join": rec, "why": why, "sfx": sfx,
                   "b_mean": round(mean_b), "b_std": round(std_b)}
@@ -181,12 +202,12 @@ def _violations(plan: list[Cut]) -> tuple[int, int, int]:
             int(len(set(joins)) < min(MIN_KINDS, len(joins))))
 
 
-def plan_cuts_best(cuts: list[Cut], seed: int = 0, tries: int = 8) -> list[Cut]:
+def plan_cuts_best(cuts: list[Cut], seed: int = 0, tries: int = 8, energetic: bool = False) -> list[Cut]:
     """plan_cuts với các hạt seed, seed+1, … (tối đa `tries`) rồi giữ bản không lặp liền kề, nháy sáng ≤ 20 %, ≥ 6 kiểu
     (cùng mức vi phạm thấp nhất nếu không bản nào đủ). Điền c.info của `cuts` theo bản tốt nhất."""
     best = None
     for k in range(tries):
-        plan = plan_cuts(cuts, seed + k)
+        plan = plan_cuts(cuts, seed + k, energetic)
         v = _violations(plan)
         if best is None or v < best[0]:
             best = (v, [dict(c.info) for c in plan])
@@ -194,6 +215,96 @@ def plan_cuts_best(cuts: list[Cut], seed: int = 0, tries: int = 8) -> list[Cut]:
             break
     for c, info in zip(cuts, best[1]):
         c.info = info
+    return cuts
+
+
+# ---------- hồ sơ minimal-edu: xoay vòng chuyển cảnh thay cho "cắt cứng 80 %" (th_transitions) ----------
+# Ngữ cảnh giống plan_cuts; "jump · sau dấu phẩy" gộp vào "giữa câu". hard_cut / j_cut_return = cắt cứng (≤ 40 %, ≤ 2 liền).
+OPTIONS_MIN = {
+    "jump · giữa câu": ["punch_settle", "drift_reset", "morph_smooth", "camera_continue", "hard_cut"],
+    "jump cut · câu mới": ["j_cut_return", "hard_cut", "soft_wipe", "luma_fade_soft", "clock_wipe_step"],
+    "jump cut · đổi phần": ["dip_to_paper", "paper_rip", "smoke_veil", "chapter_card_slam", "blur_dissolve_cut", "clock_wipe_step"],
+    "vào B-roll": ["card_swipe", "page_peel_in", "soft_wipe", "blur_dissolve_cut"],
+    "ra B-roll": ["iris_round_focus", "soft_wipe", "luma_fade_soft", "dip_to_paper"],
+    "đổi cảnh": ["dip_to_paper", "blur_dissolve_cut", "luma_fade_soft", "clock_wipe_step", "chapter_card_slam"],
+    "đổi góc gần": ["camera_continue", "soft_wipe", "blur_dissolve_cut", "punch_settle"],
+}
+# dùng được ở mọi ngữ cảnh: bể dự phòng khi bảng ngữ cảnh hết lượt (đủ 6 kiểu, mỗi kiểu ≤ 20 %)
+POOL_MIN = ["punch_settle", "drift_reset", "morph_smooth", "camera_continue", "blur_dissolve_cut", "soft_wipe", "luma_fade_soft",
+            "clock_wipe_step", "dip_to_paper", "iris_round_focus"]
+MIN_DEFAULTS = {"max_hard_cut_share": 0.4, "max_hard_in_row": 2, "min_distinct_transitions": 6, "max_kind_share": 0.2,
+                "no_repeat_within": 3, "max_flashy_share": 0.0}
+
+
+def _context(c: Cut, sim: float) -> str:
+    if c.b_kind == "broll" and c.a_kind != "broll":
+        return "vào B-roll"
+    if c.a_kind == "broll" and c.b_kind != "broll":
+        return "ra B-roll"
+    if sim >= 0.8 or (c.a[0] == c.b[0] and c.a_kind == c.b_kind == "aroll" and sim >= 0.3):
+        return "jump cut · đổi phần" if c.section else ("jump cut · câu mới" if _sentence_break(c.before) else "jump · giữa câu")
+    return "đổi cảnh" if sim < 0.5 else "đổi góc gần"
+
+
+def _min_limits(rules: dict | None, n: int) -> dict:
+    g = lambda k: _sp_get(rules, f"cuts.{k}", MIN_DEFAULTS[k])                         # noqa: E731
+    return {"hard": int(g("max_hard_cut_share") * n + 1e-9), "row": g("max_hard_in_row"), "kinds": g("min_distinct_transitions"),
+            "kind_cap": max(1, int(g("max_kind_share") * n + 1e-9)), "gap": g("no_repeat_within"),
+            "flashy": int(g("max_flashy_share") * n + 1e-9)}
+
+
+def _allowed(k: str, st: dict, lim: dict, level: int) -> bool:
+    """level 0 = mọi luật; 1 = bỏ trần 20 % / kiểu; 2 = bỏ thêm không lặp trong N điểm cắt và 1 lần / video."""
+    if k in TH.HARD_KINDS:
+        return st["hard"] < lim["hard"] and st["run"] < lim["row"]
+    if k in FLASHY and st["flashy"] >= lim["flashy"]:
+        return False
+    if level >= 2:
+        return True
+    if k in st["recent"][-lim["gap"]:] or (k in TH.ONE_PER_VIDEO and st["count"].get(k)):
+        return False
+    return level >= 1 or st["count"].get(k, 0) < lim["kind_cap"]
+
+
+def _pick_min(opts: list[str], st: dict, lim: dict, left: int, seed: int) -> str:
+    """Kiểu ít dùng nhất trong bảng ngữ cảnh (lệch vòng theo seed); hết thì lấy từ POOL_MIN; sắp hết điểm cắt mà chưa đủ số kiểu
+    (`min_distinct_transitions`) thì chỉ nhận kiểu chưa dùng."""
+    need_new = lim["kinds"] - len(st["distinct"]) >= left
+    n = len(opts)
+    for level in (0, 1, 2):
+        for pool in (opts, [k for k in POOL_MIN if k not in opts]):
+            ok = [k for k in pool if _allowed(k, st, lim, level) and not (need_new and (k in TH.HARD_KINDS or k in st["distinct"]))]
+            if ok:
+                return min(ok, key=lambda k: (st["count"].get(k, 0), (pool.index(k) - seed) % len(pool) if seed else pool.index(k)))
+        if need_new and level == 2:
+            need_new = False                                   # hết kiểu mới thì thôi, chọn bất kỳ
+    return min(POOL_MIN, key=lambda k: st["count"].get(k, 0))
+
+
+def plan_cuts_min(cuts: list[Cut], seed: int = 0, rules: dict | None = None) -> list[Cut]:
+    """Bản plan_cuts cho hồ sơ minimal-edu. `rules` = hồ sơ phong cách (style_profile.load(name="minimal-edu")); số trong
+    rules["cuts"] (max_hard_cut_share 0,4 · max_hard_in_row 2 · min_distinct_transitions 6 · max_kind_share 0,2 ·
+    no_repeat_within 3 · max_flashy_share 0), thiếu thì dùng MIN_DEFAULTS. Điền c.info như plan_cuts (+ "frames", "lead_s")."""
+    lim = _min_limits(rules, len(cuts))
+    st = {"hard": 0, "run": 0, "flashy": 0, "recent": [], "count": {}, "distinct": set()}
+    for i, c in enumerate(cuts):
+        fa, fb = frame(*c.a), frame(*c.b)
+        sim = similarity(fa, fb)
+        mean_b, std_b = contrast(fb)
+        ctx = _context(c, sim)
+        rec = _pick_min(OPTIONS_MIN[ctx], st, lim, len(cuts) - i, seed)
+        hard = rec in TH.HARD_KINDS
+        st["hard"] += hard
+        st["run"] = st["run"] + 1 if hard else 0
+        st["flashy"] += rec in FLASHY
+        st["count"][rec] = st["count"].get(rec, 0) + 1
+        st["recent"].append(rec)
+        if not hard:
+            st["distinct"].add(rec)
+        c.info = {"sim": round(sim, 2), "kind": ctx, "join": rec, "why": f"hồ sơ minimal-edu, {ctx} (sim {sim:.2f}) → {rec}",
+                  "sfx": SFX_OF[rec], "b_mean": round(mean_b), "b_std": round(std_b), "frames": TH.TH_FRAMES.get(rec, 0)}
+        if rec == "j_cut_return":
+            c.info["lead_s"] = round(TH.J_LEAD_FRAMES / 30, 4)
     return cuts
 
 

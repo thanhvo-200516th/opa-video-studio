@@ -326,6 +326,17 @@
    ],
    "max_dur": 0.3
   },
+  "paper": {
+   "tier": "soft",
+   "align": "peak",
+   "why": "swish ngắn nhẹ cho chuyển cảnh minimal-edu (paper_rip, punch_settle, blur / soft wipe); tầng soft, không to như whoosh",
+   "files": [
+    "HMC:01_vut_gio_chuyen_canh/vut_ngan_doi_chu_01.mp3",
+    "HMC:01_vut_gio_chuyen_canh/vut_ngan_doi_chu_02.wav",
+    "HMC:01_vut_gio_chuyen_canh/vut_ngan_khung_truot_vao_01.wav"
+   ],
+   "max_dur": 0.5
+  },
   "riser": {
    "tier": "mid",
    "align": "onset",

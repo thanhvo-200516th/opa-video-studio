@@ -21,6 +21,7 @@ import unicodedata
 from pathlib import Path
 
 import style_profile
+from th_transitions import HARD_KINDS as TH_HARD, ONE_PER_VIDEO as TH_ONCE
 
 # ---------------------------------------------------------------- 1. Từ khoá nỗi đau
 PAIN_LEXICON = [
@@ -295,10 +296,17 @@ def _diversity(primary: list[str], prof: dict | None) -> dict:
     share, distinct = flashy / len(primary), len(set(primary))
     adjacent = sum(1 for x, y in zip(primary, primary[1:]) if x == y and not (prof and x == "hard_cut"))
     bad = share > max_fl or distinct < min(min_d, len(primary)) or adjacent
+    extra = ""
+    if prof:                                       # 3.6.2: cắt cứng ≤ max_hard_cut_share, kiểu nặng (giấy rách / khói…) ≤ 1 lần
+        max_h = style_profile.get(prof, "cuts.max_hard_cut_share", 1.0)
+        hard_share = primary.count("hard_cut") / len(primary)
+        twice = sorted(k for k in TH_ONCE if primary.count(k) > 1)
+        bad = bad or hard_share > max_h + 1e-9 or bool(twice)
+        extra = f" · cắt cứng {hard_share:.0%} (≤ {max_h:.0%})" + (f" · lặp kiểu 1 lần/video: {', '.join(twice)}" if twice else "")
     name = (f"Chuyển cảnh đa dạng (hồ sơ minimal-edu: nháy sáng ≤ {max_fl:.0%}, ≥ {min_d} kiểu gồm cắt cứng, không lặp liền)"
             if prof else "Chuyển cảnh đa dạng (flash / flicker ≤ 25 %, ≥ 6 kiểu, không lặp liền)")
     return {"rule": name, "status": "CẢNH BÁO" if bad else "OK",
-            "detail": f"nháy sáng {flashy}/{len(primary)} = {share:.0%} · {distinct} kiểu · lặp liền {adjacent}; dùng: "
+            "detail": f"nháy sáng {flashy}/{len(primary)} = {share:.0%} · {distinct} kiểu · lặp liền {adjacent}{extra}; dùng: "
                       + ", ".join(sorted(set(primary))[:12])}
 
 
@@ -435,14 +443,17 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
         keyed = any(e.get("effect") == "transform" and isinstance(e["params"].get("scale_height"), list)
                     for e in a.get("effects", []) + b.get("effects", []))
         blur = prof_on and any(e.get("effect") == "directional_blur" for e in b.get("effects", []))   # hồ sơ: mờ ngang vào tranh
-        if not (tin or tout or near or keyed or blur):
+        jk = b.get("join_kind")                                                          # 3.6.2: chuyển cảnh talking-head
+        if jk in TH_HARD:
+            jk = "hard_cut" if prof_on else None
+        if not (tin or tout or near or keyed or blur or jk):
             uncovered.append(round(t, 2))
         kinds += [x["effect"] for x in (tin, tout) if x]
         kinds += [c.get("name", "").replace("Chuyển cảnh ", "").strip() for c in near]
         kinds += ["zoom_through"] if keyed else []
         names = [_trans_name(c.get("name", "")) for c in near]                           # kiểu chính của điểm cắt
         hard = "directional_blur" if blur else ("hard_cut" if prof_on else "?")        # hồ sơ: cắt cứng là một kiểu hợp lệ
-        primary.append((names[0] if names else (tin or {}).get("effect") or ("zoom_through" if keyed else (tout or {}).get("effect"))) or hard)
+        primary.append(jk or (names[0] if names else (tin or {}).get("effect") or ("zoom_through" if keyed else (tout or {}).get("effect"))) or hard)
     if not cuts:
         add("Mọi điểm cắt có chuyển cảnh", "CHƯA KIỂM", "không tìm thấy track V1 có từ 2 clip")
     elif prof_on:

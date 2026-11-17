@@ -621,12 +621,11 @@ Ghi đè thời lượng vào của B14: từ nhỏ hiện từng từ đúng nh
 - Kiểm: text_motion (test) · edit_rules C8 · Nguồn: người dùng 2026-11-17 (chữ mờ ra 2 khung, cho cắt cứng trong hồ sơ, giữ vùng B8) · Độ tin: medium
 - Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
 
-### P10 — minimal-edu: cắt cứng là chính · *tuỳ chọn*
+### P10 — minimal-edu: chuyển cảnh talking-head đa dạng · *tuỳ chọn*
 
-Ghi đè C1/C2 chỉ khi hồ sơ bật: điểm cắt được phép không có chuyển cảnh (cắt cứng thật, không dùng cross_dissolve 1 khung giả); tối thiểu 2 kiểu chuyển cảnh; không nháy sáng; vào tranh bằng mờ ngang 5–7 khung; whip-pan 7–9 khung khi camera chạy theo đường. Cắt lặng chừa 30 ms, điểm cắt đầu câu ≤ 2 khung (C7).
+Ghi đè C1/C2 chỉ khi hồ sơ bật (người dùng đổi 2026-11-17: cắt cứng quá đơn điệu): chuyển cảnh talking-head đa dạng theo `cut_plan.plan_cuts_min` + `MotionFX.th_join` (scripts/th_transitions.py: punch_settle, drift_reset, soft_wipe, blur_dissolve_cut, luma_fade_soft, clock_wipe_step, camera_continue, card_swipe, iris_round_focus, page_peel_in, dip_to_paper, paper_rip, smoke_veil, chapter_card_slam, j_cut_return…); cắt cứng ≤ 40 % (j_cut_return tính là cắt cứng) và ≤ 2 lần liền; ≥ 6 kiểu; mỗi kiểu ≤ 20 %; không lặp trong 3 điểm cắt; giấy rách / khói / lật trang ≤ 1 lần mỗi video; không nháy sáng; ≤ 12 khung (khói ≤ 18). Vào tranh bằng mờ ngang 5–7 khung; whip-pan 7–9 khung. Cắt lặng chừa 30 ms, điểm cắt đầu câu ≤ 2 khung (C7).
 
-- Kiểm: edit_rules (C1/C2 theo hồ sơ, C7) · Nguồn: người dùng 2026-11-17 (chữ mờ ra 2 khung, cho cắt cứng trong hồ sơ, giữ vùng B8) · Độ tin: medium
-- Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
+- Kiểm: edit_rules (C1/C2 theo hồ sơ: cắt cứng ≤ 40 %, kiểu 1 lần/video, C7) · tests/test_th_transitions.py · Nguồn: người dùng 2026-11-17 (cắt cứng quá đơn điệu → chuyển cảnh đa dạng; catalog .handoff/minimal-361/transitions_catalog.md) · Độ tin: medium
 
 ### P11 — minimal-edu: màu · *tuỳ chọn*
 
