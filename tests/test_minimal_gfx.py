@@ -329,8 +329,11 @@ def test_graph_scene() -> None:
 
 
 # ---------- không hồi quy ----------
+BASELINE = "8e971da"   # opa-video-studio 3.5.1 — bản trước khi thêm hồ sơ minimal-edu
+
+
 def head_module():
-    src = subprocess.run(["git", "show", "HEAD:scripts/motion_fx.py"], cwd=ROOT, capture_output=True, text=True)
+    src = subprocess.run(["git", "show", f"{BASELINE}:scripts/motion_fx.py"], cwd=ROOT, capture_output=True, text=True)
     if src.returncode != 0:
         return None
     p = TMP / "motion_fx_head.py"
@@ -357,7 +360,9 @@ def scripted(mod) -> str:
 
 def test_no_regression() -> None:
     old = head_module()
-    assert old is not None, "không đọc được motion_fx.py ở HEAD"
+    if old is None:   # bản cài (không có .git): phép so chỉ chạy trong repo
+        print(f"bỏ qua không-hồi-quy: không có git / commit {BASELINE}")
+        return
     assert scripted(old) == scripted(M), "hàm MotionFX cũ đổi kết quả"
 
 
