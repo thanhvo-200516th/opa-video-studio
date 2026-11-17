@@ -43,7 +43,7 @@ CTA_WORD: từ lớn trắng trên hộp xanh (box_wipe), None = không có. PAI
 # ]
 # SCENE_GFX = [("polaroid", 7, 1.6), ("arrow", "vẽ", 8), ("graph", "biểu", 9, ["vốn", "dòng", "bung", "con"]),
 #              ("quote", 11, ["Độ tin cậy tăng lên", "gấp mười lần", "so với video cắt ghép"], 1),
-#              ("cutaway", "khoanh", 8, 2.4)]
+#              ("cutaway", "khoanh", 7, 2.4)]
 # CTA_WORD = "Bất Động Sản"
 # PAIN = ["bãi đất trống", "quên ngay"]
 # --- hết ví dụ ---
