@@ -93,6 +93,34 @@ def test_choose_speed() -> None:
         print("[BỎ QUA] build_kit.at_speed chưa có (thuộc bộ mẫu build_spec)")
 
 
+def test_speed_args() -> None:
+    import speed_media
+    import style_profile
+    parse = lambda *a: speed_media.make_parser().parse_args(["plan", "D", "--manifest", "m.json", "--transcripts", "t", *a])  # noqa: E731
+    check(parse().speed is None and parse().profile is None, "plan: không cờ → speed / profile None (hành vi cũ)")
+    check([parse("--speed", v).speed for v in ("1.0", "1.05", "1.10")] == [1.0, 1.05, 1.1], "plan --speed 1.0 / 1.05 / 1.10 đọc được")
+    check(parse("--profile", "minimal-edu").profile == "minimal-edu", "plan --profile minimal-edu đọc được")
+    for bad in ("1.15", "1.25", "1.2"):
+        try:
+            parse("--speed", bad)
+            check(False, f"plan --speed {bad} phải bị chặn")
+        except SystemExit as e:
+            check(e.code == 2, f"plan --speed {bad} bị chặn (D4)")
+    prof = style_profile.load(name="minimal-edu")
+    check(prof["speed"] == 1.05, "hồ sơ minimal-edu: speed = 1.05")
+    pick = speed_media.pick_speed
+    check(pick(53) == 1.1 and pick(48) == 1.05 and pick(44) == 1.0, "pick_speed mặc định = choose_speed (không đổi)")
+    check(pick(53, None, prof) == 1.05 and pick(60, None, prof) == 1.05, "pick_speed + hồ sơ: 1.05 kể cả khi 1.10 đạt 45 s")
+    check(pick(46, None, prof) == 1.0 and pick(44, None, prof) == 1.0, "pick_speed + hồ sơ: < 45 s sau tăng tốc → 1.0 (D4)")
+    check(pick(53, 1.1, prof) == 1.1 and pick(53, 1.0, prof) == 1.0 and pick(60, 1.05) == 1.05, "--speed thắng hồ sơ")
+    check(pick(48, 1.1) == 1.0, "ép 1.10 khi 48 s → 43,6 s < 45 → 1.0 (D4)")
+    try:
+        pick(60, 1.15)
+        check(False, "pick_speed 1.15 phải báo lỗi")
+    except ValueError:
+        check(True, "pick_speed 1.15 báo lỗi")
+
+
 def test_pipeline(tmp: Path) -> None:
     src = tmp / "src"
     manifest = fixture(src)
@@ -110,6 +138,12 @@ def test_pipeline(tmp: Path) -> None:
           and sc[1]["voice"] == "02_voice-b-roll-1.mp3" and sc[0]["voice"] is None, "plan: 3 cảnh đủ seq_prefix / video / voice / src_dur / segs / words")
     check(0.15 <= sc[0]["segs"][0][0] <= 0.25 and sc[0]["segs"][-1][1] <= sc[0]["src_dur"] + 1e-6,
           "plan: lặng đầu 0,28 s bị cắt, đoạn cuối ≤ độ dài nguồn", str(sc[0]["segs"]))
+    p105 = tmp / "plan105.json"
+    r = tool("speed_media.py", "plan", src, "--manifest", manifest, "--transcripts", src / "transcripts", "--out", p105, "--profile", "minimal-edu")
+    pl = json.loads(p105.read_text()) if p105.is_file() else {}
+    check(r.returncode == 0 and pl.get("speed") == 1.05 and pl.get("speed_dir") == "x105", "plan --profile minimal-edu → 1.05x / x105", (r.stderr or r.stdout)[-300:])
+    r = tool("speed_media.py", "plan", src, "--manifest", manifest, "--transcripts", src / "transcripts", "--out", tmp / "p1.json", "--speed", "1.0")
+    check(r.returncode == 0 and json.loads((tmp / "p1.json").read_text()).get("speed") == 1.0, "plan --speed 1.0 → 1.0x")
     miss = tool("speed_media.py", "plan", src, "--manifest", manifest, "--transcripts", tmp / "khong_co", "--out", tmp / "p2.json")
     check(miss.returncode != 0 and "transcribe.py" in (miss.stdout + miss.stderr), "thiếu transcript → lỗi kèm lệnh transcribe.py", (miss.stdout + miss.stderr)[-200:])
 
@@ -150,6 +184,7 @@ def test_matte(tmp: Path) -> None:
 if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as t:
         test_choose_speed()
+        test_speed_args()
         test_pipeline(Path(t))
         test_matte(Path(t))
     if fails:

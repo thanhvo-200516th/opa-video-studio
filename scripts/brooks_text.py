@@ -21,6 +21,7 @@ from PIL import ImageFont
 
 import style_profile as sp
 import text_fx as tf
+from motion_fx import GLOW, PALETTES
 from text_motion import profile_in_frames
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -106,6 +107,50 @@ def _clip(M: Meter, role: str, text: str, size: int, x: float, y: float, align: 
     return c
 
 
+class HeroColors:
+    """Vòng xoay màu từ lớn của hồ sơ (text.colors.hero_rotation_dark / _light), mỗi nền một con đếm. `.next(on_dark)` → (màu, màu glow | None).
+    Glow chỉ cho chữ màu trên nền tối (bảng motion_fx.PALETTES theo `name`); trắng / chữ trên nền giấy không phát sáng."""
+
+    def __init__(self, prof: dict):
+        col = prof["text"]["colors"]
+        self._rot = {True: col["hero_rotation_dark"], False: col["hero_rotation_light"]}
+        self._i = {True: 0, False: 0}
+
+    def next(self, on_dark: bool) -> tuple[str, str | None]:
+        rot = self._rot[on_dark]
+        e = rot[self._i[on_dark] % len(rot)]
+        self._i[on_dark] += 1
+        return e["color"], _glow_of(e, on_dark)
+
+
+def _glow_of(entry: dict, on_dark: bool) -> str | None:
+    name = entry.get("name")
+    return PALETTES[name]["glow"] if on_dark and name in PALETTES and name != "white" else None
+
+
+def glow_for(prof: dict, color: str, on_dark: bool = True) -> str | None:
+    """Màu glow của một màu chữ chính chỉ định tay: trắng / đen / nền giấy → None; màu có trong vòng xoay → theo vòng; màu lạ trên nền tối → chính nó."""
+    col = prof["text"]["colors"]
+    if not on_dark or color.upper() in (col["on_dark"].upper(), col["on_paper"].upper()):
+        return None
+    hit = next((e for e in col["hero_rotation_dark"] if e["color"].upper() == color.upper()), None)
+    return _glow_of(hit, True) if hit else color
+
+
+def _with_glow(items: list[tuple[str, dict]], glow: str | None, fps: float) -> list[tuple[str, dict]]:
+    """B3 (hồ sơ): từ lớn có màu phát sáng NHẸ (motion_fx.GLOW['soft'], khoá như MotionFX.key_glow); bản sao, không sửa đầu vào."""
+    if glow is None:
+        return items
+    g = GLOW["soft"]
+    out = []
+    for lane, c in items:
+        ramp = min(0.35, max(1 / fps, c["dur"] - 1 / fps))
+        fx = {"effect": "wonder_glow", "params": {"threshold": 30, "radius": g["radius"], "use_color": True, "color": glow,
+                                                  "intensity": [[0, g["peak"]], [ramp, g["hold"]]]}}
+        out.append((lane, {**c, "effects": [*c.get("effects", []), fx]}))
+    return out
+
+
 def _palette(p: dict, on_dark: bool, accent: bool) -> tuple[str, str, bool]:
     """(màu chữ, màu từ lớn, có bóng). Màu nhấn chỉ trên nền sáng; chữ đen trên giấy không bóng (B2 suy đoán)."""
     col = p["colors"]
@@ -168,13 +213,46 @@ def _hero_clips(M: Meter, role: str, heroes: list[str], hs: int, y: float, color
             for w, x, at in ((heroes[0], left, times[0]), (heroes[1], left + M.advance(role, hs, heroes[0] + " "), at2))]
 
 
+def _fit(M: Meter, p: dict, role: str, zone: str, heroes: list[str], before: list[str], after: list[str],
+         span: float) -> tuple[int, int, float, float, list[tuple[float, str]]]:
+    """(cỡ hero, cỡ nhỏ, baseline hero, baseline nhỏ, vị trí chữ nhỏ). Tự co cho vừa trước khi báo lỗi: không vừa vùng → hero thu 8 px
+    (tối thiểu text.auto_fit_min_hero); chữ nhỏ rộng hơn từ lớn → span_ratio +0,1 (tối đa bề ngang B8 800 px)."""
+    floor, size, text = p.get("auto_fit_min_hero", 120), p["size_hero"], " ".join(heroes)
+    while True:
+        hs, ss = _sizes(M, {**p, "size_hero": size}, role, text)
+        try:
+            hb, sb = _baselines(M, zone, role, hs, heroes, ss, before + after)
+            half = M.width(role, hs, text) / 2 * span
+            return hs, ss, hb, sb, _small_xs(M, ss, before, after, CX - half, CX + half)
+        except ValueError as e:
+            wide = MAX_W / M.width(role, hs, text)
+            if "không vừa vùng" in str(e) and size > floor:
+                size = max(floor, size - 8)
+            elif "rộng hơn từ lớn" in str(e) and min(span + 0.1, wide) > span + 1e-9:
+                span = min(span + 0.1, wide)
+            else:
+                raise
+
+
+def _hero_color(prof: dict, p: dict, on_dark: bool, accent: bool, color: str | None, colors: HeroColors | None) -> tuple[str, str | None]:
+    """(màu từ lớn, màu glow | None): màu chỉ định > vòng xoay `colors` > màu nhấn / màu gốc của hồ sơ (không glow)."""
+    if color:
+        return color, glow_for(prof, color, on_dark)
+    if colors is not None and not (accent and not on_dark):
+        return colors.next(on_dark)
+    return _palette(p, on_dark, accent)[1], None
+
+
 def caption_group(hero, before, after, times, end: float, fps: float = 30, style: str = "sans", on_dark: bool = True,
-                  accent: bool = False, zone: str = "key", span_ratio: float | None = None, prof: dict | None = None) -> list[tuple[str, dict]]:
+                  accent: bool = False, zone: str = "key", span_ratio: float | None = None, prof: dict | None = None,
+                  color: str | None = None, colors: HeroColors | None = None) -> list[tuple[str, dict]]:
     """Một cụm chữ ≤ max_words_per_group từ, đúng 1 từ lớn (hoặc cặp 2 từ) do người gọi chỉ định.
     hero: str | [str, str]; before / after: chữ nhỏ trước / sau từ lớn; times: giây bắt đầu của TỪNG từ theo thứ tự đọc
     (before + hero + after); end: giây kết thúc cả cụm; style 'sans' (Inter ExtraBold) | 'serif' (Playfair Bold Italic);
     on_dark: nền tối (chữ trắng) hay sáng (chữ đen, nhấn #123CE8 nếu accent); zone 'key' | 'cap' (vùng chữ B8);
-    span_ratio: bề ngang chữ nhỏ so với từ lớn (mặc định theo hồ sơ, đo = 1,0; Figma ghi 0,75)."""
+    span_ratio: bề ngang chữ nhỏ so với từ lớn (mặc định theo hồ sơ, đo = 1,0; Figma ghi 0,75);
+    color: màu từ lớn chỉ định tay (chữ nhỏ vẫn trắng / đen); colors: HeroColors(prof) — khi color=None lấy màu kế tiếp. Từ lớn có màu
+    (không trắng / đen, nền tối) kèm wonder_glow nhẹ (B3). Vùng chật / chữ nhỏ quá rộng: tự co (xem _fit) rồi mới báo lỗi."""
     prof = prof or sp.load(name="minimal-edu")
     p = prof["text"]
     heroes = [_nfc(hero)] if isinstance(hero, str) else [_nfc(w) for w in hero]
@@ -187,15 +265,13 @@ def caption_group(hero, before, after, times, end: float, fps: float = 30, style
     M, role = Meter(prof), "hero_sans" if style == "sans" else "hero_serif"
     f_small, f_hero = profile_in_frames(prof)
     f_hero += p["serif_extra_frames"] if style == "serif" else 0
-    base_c, hero_c, shadow = _palette(p, on_dark, accent)
-    hs, ss = _sizes(M, p, role, " ".join(heroes))
-    hb, sb = _baselines(M, zone, role, hs, heroes, ss, before + after)
-    half = M.width(role, hs, " ".join(heroes)) / 2 * (p["span_ratio"] if span_ratio is None else span_ratio)
-    xs = _small_xs(M, ss, before, after, CX - half, CX + half)
+    base_c, _, shadow = _palette(p, on_dark, accent)
+    hero_c, glow = _hero_color(prof, p, on_dark, accent, color, colors)
+    hs, ss, hb, sb, xs = _fit(M, p, role, zone, heroes, before, after, p["span_ratio"] if span_ratio is None else span_ratio)
     smalls = [("text_low", _clip(M, "small", w, ss, x, sb, al, base_c, shadow, t, end, fps, f_small, False))
               for w, t, (x, al) in zip(before + after, times[:nb] + times[nb + nh:], xs)]
-    return (smalls[:nb] + _hero_clips(M, role, heroes, hs, hb, hero_c, shadow, times[nb:nb + nh], end, fps, f_hero, p)
-            + smalls[nb:])
+    hero_items = _hero_clips(M, role, heroes, hs, hb, hero_c, shadow, times[nb:nb + nh], end, fps, f_hero, p)
+    return smalls[:nb] + _with_glow(hero_items, glow, fps) + smalls[nb:]
 
 
 def _quote_layout(M: Meter, p: dict, lines: list[str], extra: str | None) -> tuple[int, float, float]:
@@ -251,8 +327,10 @@ def _quote_hero_layout(M: Meter, p: dict, ents: list[tuple[str, str, bool]]) -> 
 
 
 def _quote_hero(M: Meter, p: dict, lines: list[str], last_word_serif: bool, hero_index: int, at: float, end: float, fps: float,
-                t_last: float, frames: tuple[int, int]) -> list[tuple[str, dict]]:
-    """quote_text khi người gọi chỉ định dòng chính: dòng đó cỡ hero căn giữa, các dòng khác cỡ nhỏ căn trái, dấu “ ” cỡ hero × 0.6."""
+                t_last: float, frames: tuple[int, int], hero_color: str | None = None,
+                glow: str | None = None) -> list[tuple[str, dict]]:
+    """quote_text khi người gọi chỉ định dòng chính: dòng đó cỡ hero căn giữa, các dòng khác cỡ nhỏ căn trái, dấu “ ” cỡ hero × 0.6.
+    hero_color / glow: màu (và glow nhẹ) của dòng chính — kể cả từ serif cuối nếu nằm trên dòng đó; các dòng khác và dấu ngoặc vẫn trắng."""
     f_small, f_hero = frames
     ents = _quote_entries(lines, last_word_serif, hero_index)
     hs, ss, ys = _quote_hero_layout(M, p, ents)
@@ -269,7 +347,8 @@ def _quote_hero(M: Meter, p: dict, lines: list[str], last_word_serif: bool, hero
         else:
             x, al, t0, fr = (CX, "center", at, f_hero) if hero else (left, "left", at, f_small if not hero else f_hero)
         lane = "text" if hero or role == "hero_serif" else "text_low"
-        items.append((lane, _clip(M, role, text, z, x, y, al, white, True, t0, end, fps, fr, hero or role == "hero_serif")))
+        c = _clip(M, role, text, z, x, y, al, hero_color if hero and hero_color else white, True, t0, end, fps, fr, hero or role == "hero_serif")
+        items += _with_glow([(lane, c)], glow if hero else None, fps)
     if ents[last][0] == "hero_serif":
         qx = right - q_w
     else:
@@ -280,22 +359,26 @@ def _quote_hero(M: Meter, p: dict, lines: list[str], last_word_serif: bool, hero
 
 
 def quote_text(lines: list[str], last_word_serif: bool, at: float, dur: float, fps: float = 30, last_at: float | None = None,
-               prof: dict | None = None, hero_index: int | None = None) -> list[tuple[str, dict]]:
+               prof: dict | None = None, hero_index: int | None = None, hero_color: str | None = None) -> list[tuple[str, dict]]:
     """Chữ của quote card (nền do fx_gfx dựng): dấu “ căn trái x ≈ 6 % ở đầu dòng 1, các dòng sans trắng căn trái vào vùng chữ B8
     (x 140–940), từ cuối của dòng cuối tách ra serif italic trắng căn phải (last_word_serif) kèm dấu ” cạnh nó.
     at / dur: thời gian cả khối (giây); last_at: lúc từ cuối vào (mặc định at + second_hero_delay_frames[0] khung).
     hero_index (người gọi chỉ định, không đoán): dòng đó cỡ text.size_hero (Inter ExtraBold) căn giữa, các dòng khác cỡ text.size_small,
-    dấu “ ” cỡ hero × 0.6 (Playfair). None = mọi dòng cùng một cỡ (dấu ngoặc cỡ size_small)."""
+    dấu “ ” cỡ hero × 0.6 (Playfair). None = mọi dòng cùng một cỡ (dấu ngoặc cỡ size_small).
+    hero_color (cần hero_index): màu dòng chính; có màu (không trắng) → glow nhẹ như caption_group."""
     prof = prof or sp.load(name="minimal-edu")
     p = prof["text"]
     lines = [_nfc(ln) for ln in lines]
     if hero_index is not None and not 0 <= hero_index < len(lines):
         raise ValueError(f"hero_index {hero_index} ngoài phạm vi {len(lines)} dòng")
+    if hero_color and hero_index is None:
+        raise ValueError("hero_color cần hero_index (dòng chính do người gọi chỉ định)")
     M, frames = Meter(prof), profile_in_frames(prof)
     f_small, f_hero = frames
     t_last = at + p["second_hero_delay_frames"][0] / fps if last_at is None else last_at
     if hero_index is not None:
-        return _quote_hero(M, p, lines, last_word_serif, hero_index, at, at + dur, fps, t_last, frames)
+        glow = glow_for(prof, hero_color) if hero_color else None
+        return _quote_hero(M, p, lines, last_word_serif, hero_index, at, at + dur, fps, t_last, frames, hero_color, glow)
     tail = None
     if last_word_serif:
         head, _, tail = lines[-1].rpartition(" ")

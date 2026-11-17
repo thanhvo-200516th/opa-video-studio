@@ -142,7 +142,7 @@ def test_silence_cut() -> None:
 
 
 def test_p8_p11_font_glow() -> None:
-    """P8: hồ sơ nhận 2–3 font; P11: hồ sơ không phát sáng nên bỏ luật 'chữ chính có phát sáng'. Không hồ sơ: giữ 4–6 và CẢNH BÁO."""
+    """P8: hồ sơ nhận 2–3 font; P11: hồ sơ bắt chữ màu sáng phải glow (trắng / đen không). Không hồ sơ: giữ 4–6 và CẢNH BÁO."""
     def txt(fam, i):
         return {"type": "text", "name": f"text 1", "clips": [{"text": f"t{i}", "font": fam, "at": float(i), "dur": 1.0, "color": "#FFFFFF"}]}
     sp = {"fps": 30, "duration": 6.0, "tracks": [{"type": "video", "name": "V1", "clips": [{"src": "a.mp4", "at": 0, "dur": 6}]},

@@ -294,6 +294,43 @@ def script_words(toks: list[str], words: list[dict], segs: list[tuple], t0s: lis
     return out
 
 
+# ---------- cắt cứng: dời điểm cắt V1 về sát chữ đầu câu (C7, hồ sơ minimal-edu) ----------
+@lru_cache(None)
+def file_len(src: str) -> float:
+    """Độ dài file media (giây) bằng ffprobe."""
+    return float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", src],
+                                capture_output=True, text=True, check=True).stdout)
+
+
+def _start(w) -> float:
+    return float(w["start"] if isinstance(w, dict) else w[1])
+
+
+def retime_cuts(v1_clips: list[dict], words: list, fps: float, lead_frames: int = 1, flen=None) -> tuple[list[dict], list[tuple[float, int]]]:
+    """Cắt cứng không có overlay che: dời MỖI điểm cắt của V1 về đúng `lead_frames` khung trước chữ đầu tiên bắt đầu ≥ cắt − 0,04 s (C7: 0–67 ms).
+    words = [(chữ, bắt đầu, …)] hoặc [{"start": …}] theo giờ timeline; flen(src) → độ dài file (mặc định ffprobe).
+    Bỏ qua điểm cắt nếu chữ cách > 0,4 s, nếu `in` của clip sau xuống < 0, hoặc đoạn trước (in + dur) vượt hết file.
+    Trả (clip mới, [(điểm cắt cũ, ms dời)]) — danh sách clip là bản sao, đầu vào không bị sửa."""
+    flen = flen or (lambda src: file_len(str(src)))
+    out, moved = [dict(c) for c in v1_clips], []
+    for i in range(1, len(out)):
+        prev, nxt = out[i - 1], out[i]
+        cut = nxt["at"]
+        w = next((_start(w) for w in words if _start(w) >= cut - 0.04), None)
+        if w is None or w - cut > 0.4:
+            continue
+        new = round(round((w - lead_frames / fps) * fps) / fps, 4)
+        if new > w:
+            new -= 1 / fps
+        d = round(new - cut, 4)
+        if abs(d) < 1e-3 or nxt["in"] + d < 0 or prev["in"] + prev["dur"] + d > flen(prev["src"]) - 1e-3:
+            continue
+        out[i - 1] = {**prev, "dur": round(prev["dur"] + d, 4)}
+        out[i] = {**nxt, "at": round(new, 4), "in": round(nxt["in"] + d, 4), "dur": round(nxt["dur"] - d, 4)}
+        moved.append((round(cut, 2), round(d * 1000)))
+    return out, moved
+
+
 # Luật D4 (người dùng chốt 2026-11-13): chỉ được tăng tốc 1.10x hoặc 1.05x — BỎ HẲN 1.25x / 1.15x;
 # video < 45 s không tăng tốc, và tăng tốc không được đẩy video xuống dưới 45 s.
 SPEED_STEPS, SPEED_MIN_RESULT_S = (1.1, 1.05), 45.0

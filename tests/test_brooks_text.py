@@ -134,8 +134,8 @@ def test_sandwich_and_ratio() -> None:
     w = ink_w("hero_sans", h["size"], "studs", h["tracking"])
     assert abs(l["position"][0] - (540 - 0.75 * w / 2)) <= 2
     try:
-        group(hero="AI", before=["extraordinarily"], after=["unbelievable"], times=[1, 1.1, 1.2])
-        raise AssertionError("chữ nhỏ rộng hơn hero phải báo lỗi")
+        group(hero="AI", before=["extraordinarily", "international"], after=["unbelievable"], times=[1, 1.1, 1.2, 1.3])
+        raise AssertionError("chữ nhỏ rộng hơn cả khi nới span tới 800 px phải báo lỗi")   # nới vừa → test_minimal_colors
     except ValueError:
         pass
 

@@ -1,6 +1,6 @@
 {
  "skill": "opa-video-studio",
- "version": "3.6.0",
+ "version": "3.6.1",
  "updated": "2026-11-16",
  "_doc": "Bộ luật DUY NHẤT của skill. Mỗi luật: id, group, title, text, params, check, source, confidence (high|medium|low), status (active|superseded|optional), superseded_by, origin (đoạn nguồn trong references/kb-*.md). Thứ tự ưu tiên: lời người dùng trong chat > rules.json > SKILL.md > references/kb-*.md. Toàn văn + lý do: references/rules-full.md.",
  "params": {
@@ -1374,7 +1374,7 @@
    "id": "P11",
    "group": "P",
    "title": "minimal-edu: màu",
-   "text": "Ghi đè B3/B4 về màu chữ chính: chữ trắng trên nền tối, đen trên nền giấy; một màu nhấn duy nhất #123CE8 cho từ chốt, chỉ dùng trên nền sáng (tương phản ≈ 7,4 : 1 trên trắng, chỉ ≈ 2,8 : 1 trên đen); không glow. Đồ hoạ: đường #0666DE, xoắn ốc #303CA8, thẻ trích dẫn radial #2848B8 → #101858.",
+   "text": "Ghi đè B3/B4 về màu chữ chính: chữ nhỏ trắng trên nền tối, đen trên nền giấy; từ lớn xoay nhiều màu như bản mặc định (`text.colors.hero_rotation_dark`: vàng #FFD84D, xanh lam #19C6F5, trắng, tím nhạt, xanh dương nhạt, xanh ngọc; `hero_rotation_light` trên giấy #E8E8F0: #111111, #123CE8, #0558C4, #303CA8, đỏ đậm, tím đậm — tương phản ≥ 4,5 : 1; không hồng / cam / xanh lá, B3) bằng `brooks_text.HeroColors`; chữ trắng / đen không phát sáng; chữ chính màu phát sáng nhẹ (`GLOW[\"soft\"]`, màu glow theo `motion_fx.PALETTES`; màu đậm trên nền giấy không cần). Đồ hoạ: đường #0666DE, xoắn ốc #303CA8, thẻ trích dẫn radial #2848B8 → #101858.",
    "check": "mắt",
    "source": "phân tích video Joseph | Video Editing (Arthur Brooks) 2026-11-17",
    "confidence": "medium",

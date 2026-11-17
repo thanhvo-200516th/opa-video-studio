@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """speed_media — tăng tốc media theo D4 SAU KHI đã cắt hết khoảng lặng: 3 lệnh độc lập, không lệnh nào tự gọi lệnh kia.
 
-  plan  DIR --manifest M --transcripts T [--out media/speed_plan.json]
+  plan  DIR --manifest M --transcripts T [--out media/speed_plan.json] [--speed 1.0|1.05|1.10 | --profile minimal-edu]
         Mỗi cảnh: tiếng = voice_file (B-roll) hoặc tiếng của video_file (A-roll), TRÊN MEDIA GỐC (tốc độ gốc).
         `speech_segments(fps=None)` + `fit_words` + `refine_words` → đoạn giữ + mốc chữ theo giây gốc; tổng giữ lại → `choose_speed`.
         Ghi {kept_src_seconds, speed, speed_dir, scenes:[{seq_prefix, video, voice, src_dur, segs, words}]}.
         Thiếu transcript → báo lệnh `transcribe.py` cần chạy (plan không tự bóc băng).
+        --speed ép mức tối đa; --profile minimal-edu lấy mức `speed` của hồ sơ (1.05x), --speed thắng --profile. Cả hai vẫn theo D4:
+        video sau tăng tốc < 45 s → 1.0x. Không cờ nào → như cũ (1.10x → 1.05x → 1.0x).
   apply DIR --manifest M [--plan P | --speed 1.10|1.05] [--out media] [--fps 30] [--jobs 2] [--force]
         Tăng tốc cùng một mức cho hình và giọng mọi cảnh → OUT/x110 (hoặc x105), tên file giữ nguyên.
         Mức 1.0 → không ghi gì ("dùng thư mục gốc", D6). Ghi OUT/xNNN/_speed.json.
@@ -27,6 +29,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_kit import AAC_HQ, ALLOWED_SPEEDS, FFMPEG, MP3_HQ, X264_HQ, choose_speed, refine_words, speed_dir  # noqa: E402
 from silence_cut import duration, fit_words, load_words, speech_segments  # noqa: E402
+import style_profile  # noqa: E402
 
 PY_CMD = "~/.venvs/video-skills/bin/python"
 
@@ -52,6 +55,17 @@ def streams(path: Path) -> dict:
 
 
 # ---------- plan ----------
+def pick_speed(kept: float, force: float | None = None, profile: dict | None = None) -> float:
+    """Tốc độ của kế hoạch: không ép / không hồ sơ → choose_speed mặc định; có `force` (hoặc profile['speed']) → chỉ thử đúng mức đó,
+    không đạt 45 s (D4) thì 1.0."""
+    cap = force if force is not None else (profile or {}).get("speed")
+    if cap is None:
+        return choose_speed(kept)
+    if cap not in ALLOWED_SPEEDS:
+        raise ValueError(f"tốc độ {cap}x không được phép (D4: chỉ 1.10 / 1.05 / 1.0)")
+    return choose_speed(kept, steps=(cap,)) if cap > 1.0 else 1.0
+
+
 def cmd_plan(a: argparse.Namespace) -> int:
     src, tdir = Path(a.dir), Path(a.transcripts)
     segments = load_segments(Path(a.manifest))
@@ -76,7 +90,7 @@ def cmd_plan(a: argparse.Namespace) -> int:
         scenes.append({"seq_prefix": s["seq_prefix"], "video": s["files"]["video_file"], "voice": s["files"].get("voice_file"),
                        "src_dur": round(duration(path), 3), "segs": [[a_, b] for a_, b in segs],
                        "words": [{**w, "start": round(w["start"], 3), "end": round(w["end"], 3)} for w in words]})
-    speed = choose_speed(kept)
+    speed = pick_speed(kept, a.speed, style_profile.load(name=a.profile) if a.profile else None)
     plan = {"kept_src_seconds": round(kept, 3), "speed": speed, "speed_dir": speed_dir(speed), "scenes": scenes}
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -196,7 +210,7 @@ def cmd_check(a: argparse.Namespace) -> int:
     return 1 if fails else 0
 
 
-def main() -> None:
+def make_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     for name in ("plan", "apply", "check"):
@@ -205,6 +219,8 @@ def main() -> None:
         p.add_argument("--manifest", required=True, help="00_storyboard_manifest.json")
     sub.choices["plan"].add_argument("--transcripts", required=True, help="thư mục transcript của media gốc (<tên file>.json)")
     sub.choices["plan"].add_argument("--out", default="media/speed_plan.json")
+    sub.choices["plan"].add_argument("--speed", type=float, choices=[1.0, 1.05, 1.10], help="ép tốc độ tối đa (D4: <45 s vẫn 1.0)")
+    sub.choices["plan"].add_argument("--profile", choices=sorted(style_profile.KNOWN), help="lấy `speed` của hồ sơ (minimal-edu = 1.05)")
     ap_apply = sub.choices["apply"]
     ap_apply.add_argument("--plan", help="speed_plan.json (mặc định OUT/speed_plan.json)")
     ap_apply.add_argument("--speed", type=float, help="ép tốc độ 1.10 / 1.05 / 1.0 (bỏ qua plan)")
@@ -213,7 +229,11 @@ def main() -> None:
     ap_apply.add_argument("--force", action="store_true", help="làm lại file đã có")
     for name in ("apply", "check"):
         sub.choices[name].add_argument("--out", default="media", help="thư mục gốc chứa xNNN (mặc định media)")
-    a = ap.parse_args()
+    return ap
+
+
+def main() -> None:
+    a = make_parser().parse_args()
     sys.exit({"plan": cmd_plan, "apply": cmd_apply, "check": cmd_check}[a.cmd](a))
 
 

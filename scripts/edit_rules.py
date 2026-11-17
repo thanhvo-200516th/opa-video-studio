@@ -171,6 +171,15 @@ def _lane(track_name: str) -> str:
     return parts[0] if parts else ""
 
 
+PROFILE_GLOW_MIN_LUM = 0.3          # P11: chữ chính có màu SÁNG (nền tối) phải phát sáng; màu đậm trên nền giấy (độ chói < 0,3) thì không
+
+
+def _luminance(hex_color: str) -> float:
+    """Độ chói tương đối WCAG của `#RRGGBB`."""
+    r, g, b = ((v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4) for v in (int(hex_color[i:i + 2], 16) / 255 for i in (1, 3, 5)))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
 def _has_glow(c: dict) -> bool:
     return any(e.get("effect") in GLOW_IDS for e in c.get("effects", []))
 
@@ -397,16 +406,18 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
                     bad_cap.append(f"{c['text'][:18]} ({fam})")
         elif lane in ("text_top", "text"):
             key_n += 1
-            if fam != "white" and not _has_glow(c):
+            if prof_on:                              # P11: trắng / đen không glow; chữ màu sáng phải glow
+                needs = fam not in ("white", "grey", None) and _luminance(c["color"]) >= PROFILE_GLOW_MIN_LUM
+            else:
+                needs = fam != "white"
+            if needs and not _has_glow(c):
                 key_no_glow.append(c["text"][:18])
     add("Chữ phụ: không cam / hồng / tím / đỏ trừ khi phát sáng", "LỖI" if bad_cap else "OK",
         ("; ".join(bad_cap[:6]) if bad_cap else "không có dòng phụ vi phạm")
         + (f" ({glow_ok_cap} dòng dùng màu đó và đã phát sáng)" if glow_ok_cap else ""))
-    if prof_on:                                     # P11: hồ sơ không phát sáng, một màu nhấn
-        add("Chữ chính có phát sáng", "OK", f"{key_n} khối chính; hồ sơ minimal-edu (P11): không phát sáng, bỏ luật này")
-    else:
-        add("Chữ chính có phát sáng", "CẢNH BÁO" if key_no_glow else "OK",
-            f"{key_n} khối chính" + (f"; thiếu phát sáng: {', '.join(key_no_glow[:6])}" if key_no_glow else "; đều có"))
+    add("Chữ chính có phát sáng", "CẢNH BÁO" if key_no_glow else "OK",
+        f"{key_n} khối chính" + (" (hồ sơ P11: chữ màu sáng phải glow, trắng / đen không)" if prof_on else "")
+        + (f"; thiếu phát sáng: {', '.join(key_no_glow[:6])}" if key_no_glow else "; đều có"))
 
     # Điểm cắt có chuyển cảnh, họ ưu tiên, zoom động
     v1 = next((t for t in tracks if t.get("type") == "video" and t.get("name", "").startswith("V1")), None)

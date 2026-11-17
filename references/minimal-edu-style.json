@@ -1,5 +1,5 @@
 {
-  "_about": "Hồ sơ tuỳ chọn 'minimal-edu' (P6–P12): phong cách giáo dục tối giản kiểu Joseph | Video Editing / Arthur Brooks. Chỉ bật khi người dùng gọi tên (minimal / Brooks / Joseph); bật bằng file <thư mục work>/profile.json = {\"profile\": \"minimal-edu\"}. Số đo lấy từ phân tích khung hình 2026-11-17 (.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md). Quyết định người dùng 2026-11-17: chữ mờ ra 2 khung (giữ tinh thần B14), cho cắt cứng trong hồ sơ (thay C1/C2 chỉ khi hồ sơ bật), giữ vùng chữ B8.",
+  "_about": "Hồ sơ tuỳ chọn 'minimal-edu' (P6–P12): phong cách giáo dục tối giản kiểu Joseph | Video Editing / Arthur Brooks. Chỉ bật khi người dùng gọi tên (minimal / Brooks / Joseph); bật bằng file <thư mục work>/profile.json = {\"profile\": \"minimal-edu\"}. Số đo lấy từ phân tích khung hình 2026-11-17 (.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md). Quyết định người dùng 2026-11-17 (chữ chính đa màu + tốc độ 1.05x thêm cùng ngày): chữ mờ ra 2 khung (giữ tinh thần B14), cho cắt cứng trong hồ sơ (thay C1/C2 chỉ khi hồ sơ bật), giữ vùng chữ B8.",
   "name": "minimal-edu",
   "fonts": {
     "hero_sans": {"family": "Inter", "weight": 800, "file": "assets/fonts/Inter-ExtraBold.ttf", "tracking": -40},
@@ -22,8 +22,19 @@
     "end_before_cut_frames": [0, 2],
     "zones": "B8",
     "serif_for": "từ cảm xúc / địa danh / từ kết câu",
-    "colors": {"on_dark": "#FFFFFF", "on_paper": "#111111", "accent": "#123CE8", "accent_only_on_light": true}
+    "auto_fit_min_hero": 120,
+    "colors": {
+      "on_dark": "#FFFFFF", "on_paper": "#111111", "accent": "#123CE8", "accent_only_on_light": true,
+      "hero_rotation_dark": [
+        {"name": "gold", "color": "#FFD84D"}, {"name": "cyan", "color": "#19C6F5"}, {"name": "white", "color": "#FFFFFF"},
+        {"name": "violet", "color": "#D6CCFF"}, {"name": "blue", "color": "#9FD4FF"}, {"name": "mint", "color": "#18E0A8"}
+      ],
+      "hero_rotation_light": [
+        {"color": "#111111"}, {"color": "#123CE8"}, {"color": "#0558C4"}, {"color": "#303CA8"}, {"color": "#B0102A"}, {"color": "#5B21B6"}
+      ]
+    }
   },
+  "speed": 1.05,
   "cuts": {
     "hard_cuts_allowed": true,
     "min_hard_cut_share": 0.8,
