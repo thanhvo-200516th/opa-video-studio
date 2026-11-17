@@ -57,12 +57,45 @@ def test_report(d: Path) -> None:
     print("ok  batch_report: PASS / HOLD (LUFS −12) / WARN (lint) / HOLD (cổng chặn)")
 
 
+def test_report_reuse(d: Path) -> None:
+    import subprocess
+    import media_reuse as mr
+
+    b = d / "lo_reuse"
+    clip = d / "shared_broll.mp4"
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "mandelbrot=s=108x192:r=30", "-t", "1",
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", str(clip)], check=True)
+    for name in ("KB01_a", "KB02_b", "KB03_c"):
+        (b / name / "work").mkdir(parents=True)
+        t = {"build_ok": True, "qa_audio": "I = -15.0 LUFS · LRA = 1 LU · True Peak = -2.0 dBTP", "qa_sfx": "→ ĐẠT ✅",
+             "lint_soft": [], "audit_loi": [], "duration_video": 40, "toc_do": 1.1, "tong_giay": 40}
+        (b / name / "work/timing_v2.15.4.json").write_text(json.dumps(t, ensure_ascii=False))
+        # KB01_a: 2 lần (đạt); KB02_b: 1 lần (đạt); KB03_c: 3 lần (vượt MAX_PER_VIDEO=2) + cả 3 video dùng cùng clip (>2 video)
+        ats = [0, 3] if name == "KB01_a" else ([0] if name == "KB02_b" else [0, 3, 6])
+        spec = {"tracks": [{"type": "video", "name": "V1", "clips": [{"src": str(clip), "at": x, "dur": 1, "name": "B-roll 1"} for x in ats]}]}
+        (b / name / f"work/{name.lower()}.craft.json").write_text(json.dumps(spec))
+    old_lib, old_raw = list(mr.LIB_DIRS), mr.SOURCE_RAW
+    mr.LIB_DIRS[:] = []
+    mr.SOURCE_RAW = d / "_no_raw"
+    mr.fingerprint.cache_clear()
+    try:
+        md, res = batch_report.report(b, [b])
+    finally:
+        mr.LIB_DIRS[:] = old_lib
+        mr.SOURCE_RAW = old_raw
+    got = {r["video"]: r["status"] for r in res}
+    assert all(st == "WARN" for st in got.values()), (got, md)
+    assert any("D8:" in w and "3 lần" in w for r in res if r["video"] == "KB03_c" for w in r["why"]), res
+    print("ok  batch_report + media_reuse D8: > 2/video hoặc > 2 video → WARN (không HOLD)")
+
+
 def main() -> None:
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
         test_rotation(d)
         test_contact()
         test_report(d)
+        test_report_reuse(d)
     print("TẤT CẢ ĐẠT")
 
 

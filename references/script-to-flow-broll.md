@@ -1,12 +1,17 @@
-# Quy trình chuẩn hoá: Video / Kịch bản → Xác định B-Roll → Prompt chuẩn H5 → Google Flow MCP
+# Quy trình chuẩn hoá: Video / Kịch bản → 3 Agent hiểu kịch bản → Prompt 5 tầng H5 → Google Flow MCP
 
-Tài liệu này chuẩn hoá toàn bộ quy trình từ đầu vào thô (**Video Talking Head chưa có kịch bản** hoặc **Kịch bản văn bản `SPEC.md` / JSON**) đến khi xuất bản xong bộ B-Roll đạt chuẩn **1080×1920, 30 fps, không tiếng, sạch chữ/logo** bằng MCP `google-flow`.
+Tài liệu này chuẩn hoá toàn bộ quy trình từ đầu vào thô (**Video Talking Head chưa có kịch bản** hoặc **Kịch bản văn bản `SPEC.md` / JSON**) đi qua **Quy trình 3 Agent** đến khi xuất bản xong bộ B-Roll đời thực chân thực, không nhựa/AI, đạt chuẩn **1080×1920, 30 fps, không tiếng, sạch chữ/logo** bằng MCP `google-flow`.
+
+> **Kiến trúc Prompt nền tảng:** Xem thêm [`references/master-video-prompt-architecture.md`](master-video-prompt-architecture.md) (đặc biệt **Mục 5b: Công thức 5 Tầng T2V Anti-Plastic cho Flow B-roll**) để nắm nguyên lý *Positional Bias*, *Anti-Slop*, *Frozen Descriptor*, *4-Axis I2V Motion* và bảng thuật ngữ *DOP Cinematography Lexicon*.
 
 > **Luật cứng áp dụng xuyên suốt:**
+> - **D15 (Nguồn B-roll mặc định 100 % Google Flow MCP):** Mục tiêu **100 %** thời lượng B-roll tạo bằng **Google Flow MCP** (tối thiểu **≥ 95 %**); footage thật / stock (`auto-footage`, kho D5) chỉ là ngoại lệ tối đa **2–5 %** (trần cứng `≤ 5 %`). Muse local chỉ là dự phòng khẩn khi Google Flow không khả dụng và người dùng đồng ý (D3).
+> - **D9 (Nghĩa đen đời thực, cấm ẩn dụ CGI trừu tượng):** B-roll phải minh hoạ **đúng nghĩa đen đời thực** của từng câu thoại `tts_text` qua **Quy trình 3 Agent**. CẤM các ẩn dụ CGI trừu tượng xa rời lời nói (như khối lập phương hổ phách phát sáng trên giàn kim loại, hai thanh ray thép trượt hộp đèn, lăng kính, bánh răng, lõi năng lượng, các nút phát sáng trôi nổi).
+> - **D8 (Giới hạn lặp B-roll):** Mỗi cảnh / clip B-roll tối đa **2 lần trong 1 video** và qua tối đa **2 video khác nhau** (`scripts/media_reuse.py audit` + `scripts/edit_rules.py`).
 > - **D1 (Nhịp hình):** Không để đoạn A-Roll nói trơ kéo dài quá **8 giây** (`MAX_AROLL_ONLY_S = 8.0`), cảnh chèn B-Roll phải đạt **≥ 25 %** tổng thời lượng video (`MIN_BROLL_SHARE = 0.25`), đoạn nói liền `> 4 s` ưu tiên chèn hoặc zoom.
-> - **E2 (Nỗi đau):** Câu nói chứa từ khoá nỗi đau (`edit_rules.PAIN_LEXICON`) ưu tiên chèn B-Roll minh hoạ đúng nỗi đau đó.
-> - **D3 (Tín dụng & công cụ):** Luôn tính trước giây và tín dụng Flow (`flow_seconds` / `flow_credits`) và kiểm tra số dư qua `flow_inspect_account`. Thiếu tín dụng → báo người dùng và dừng; không tự nâng cấp/mua thêm.
-> - **MCP-first:** Mọi thao tác Google Flow đi qua MCP `google-flow` (`flow_*`), tuyệt đối không mở `labs.google/fx/tools/flow` bằng trình duyệt ngoài.
+> - **E2 (Nỗi đau):** Câu nói chứa từ khoá nỗi đau (`edit_rules.PAIN_LEXICON`) ưu tiên chèn B-Roll minh hoạ đúng hoàn cảnh đời thực của nỗi đau đó.
+> - **D3 (Tín dụng & công cụ):** Google Flow MCP là mặc định (trình duyệt Cindy phụ nếu MCP lỗi; Muse chỉ dự phòng khẩn khi Flow hỏng và có đồng ý). Luôn tính trước giây và tín dụng Flow (`flow_seconds` / `flow_credits`) và kiểm tra số dư qua `flow_inspect_account`. Thiếu tín dụng → báo người dùng và dừng; không tự nâng cấp/mua thêm.
+> - **MCP-first:** Mọi thao tác Google Flow đi qua MCP `google-flow` (`flow_*`), tuyệt đối không mở `labs.google/fx/tools/flow` bằng trình duyệt ngoài (trừ khi MCP lỗi chuyển sang trình duyệt Cindy theo D3).
 
 ---
 
@@ -47,46 +52,90 @@ Với từng slot `B-ROLL`:
 - Lấy `voice_len = end - start` (giây).
 - Công thức chuẩn hoá thời lượng & tín dụng trên Google Flow (đồng bộ với `scripts/broll_fix.py`):
   - `flow_seconds = clamp(ceil(voice_len + 0.3), 3, 15)` (thanh trượt Omni 1.2 Flash chạy từ 3–15 s; cộng thêm `0.3 s` đệm tránh hụt đuôi).
-  - Nếu `voice_len + 0.3 > 15.0 s`: tách thành 2 slot B-Roll nối tiếp.
+  - Nếu `voice_len > 7.5 s` (hoặc chứa 2 vế đối lập) hoặc `voice_len + 0.3 > 15.0 s`: tách thành 2 sub-beats / 2 slot B-Roll nối tiếp (Agent 1 xử lý ở Bước 4).
   - `flow_credits` (gói Pro/Ultra, 720p):
     - `3 tín dụng / giây` cho phần `≤ 10 s`, và `6 tín dụng / giây` cho phần `11–15 s`.
     - Nâng 1080p bản được chọn: miễn phí `≤ 10 s`, `1 tín dụng / giây` cho phần vượt `10 s`.
     - Mặc định tạo `outputs = 2` bản ở 720p để chọn bằng mắt, rồi chỉ nâng 1080p **1 bản tốt nhất**:
       `credits_x2 = 2 * (min(secs, 10) * 3 + max(0, secs - 10) * 6) + max(0, secs - 10)`.
 
-### Bước 4: Viết câu Prompt tiếng Anh chuẩn H5 bám sát 100% `anchor_quote`
-Mỗi slot `B-ROLL` viết một câu prompt tiếng Anh theo **khung 5 phần H5**:
+### Bước 4: Quy trình 3 Agent hiểu kịch bản & viết Prompt 5 tầng Anti-Plastic (chuẩn H5)
 
-```text
-[1. Chủ thể người Việt / đôi tay giấu mặt]
-+ [2. Hành động cụ thể minh hoạ đúng anchor_quote]
-+ [3. Bối cảnh thật & đồ vật trên mặt bàn/tường nói rõ]
-+ [4. Ánh sáng / không khí / ống kính]
-+ [5. 1 chuyển động máy mượt duy nhất]
-```
+Tuyệt đối **không** dịch thô `visual_direction` hoặc bịa ẩn dụ trừu tượng rồi gửi thẳng vào Google Flow. Mọi B-Roll đều phải đi qua **3 Agent chuyên trách** dưới đây (áp dụng cho cả Nhánh 1 từ video và Nhánh 2 từ kịch bản):
+
+#### Agent 1 — Script Semantic Analyst (Phân tích ngữ nghĩa & tách nhịp đời thực)
+- **Đầu vào:** Đọc **toàn bộ `tts_text` của cả video** (`00_storyboard_manifest.json` hoặc `broll_plan.json`) để hiểu trọn mạch câu chuyện, nhân vật chính và bối cảnh ngành nghề.
+- **Tách nhịp (`Sub-beat Split`):** Bất kỳ đoạn B-Roll nào **dài `> 7,5 s`** hoặc **chứa 2 vế đối lập / 2 hành động tách biệt** (vd: *"trước đây loay hoay thủ công, giờ đội ngũ bấm chạy đồng đều"*) **phải tách thành 2 sub-beats** rõ ràng (mỗi sub-beat là 1 clip liền mạch, không nhồi 2 cảnh vào 1 clip).
+- **Chuyển nghĩa thành `script_beat_vi`:** Với từng beat, viết 1 câu tiếng Việt mô tả **cảnh đời thực cụ thể (người + đồ vật + hành động nhìn thấy được bằng mắt)** chứng minh đúng `anchor_quote`:
+  - **ĐÚNG (Nghĩa đen đời thực):** *"Nữ nhân viên văn phòng người Việt đang ngồi trước bàn gỗ mở một tệp ảnh mẫu in trên bàn và đặt cạnh hộp sản phẩm mẫu"* hoặc *"Góc qua vai người trẻ Việt Nam kéo dây sạc hoặc gõ bàn phím laptop mờ hoàn toàn, đồng nghiệp bên cạnh cùng bấm chuột đồng loạt."*
+  - **CẤM TUYỆT ĐỐI (Ẩn dụ CGI trừu tượng):** khối lập phương hổ phách phát sáng (`glowing amber cube`), giàn kim loại, hai thanh ray thép trượt hộp đèn (`metal pipeline rails`), lăng kính (`glowing prism`), bánh răng (`gears`), lõi năng lượng (`energy core`), các nút trôi nổi (`floating nodes`), `hologram`, `sci-fi`, `neon circuit`.
+
+#### Agent 2 — 5-Layer Anti-Plastic Prompt Architect (Kiến trúc sư Prompt 5 tầng cho Google Flow `omni-flash`)
+Từ `script_beat_vi` và `anchor_quote`, viết cấu trúc **`layers` 5 tầng** tối ưu cho bộ mã hoá **T5-XXL / Gemma**, rồi ghép thành chuỗi `prompt` tiếng Anh **`18–95` từ** đạt chuẩn **H5**:
+
+1. **Tầng 1 — `l1_shot_subject` (Primacy Zone — Trọng số đầu câu cao nhất):**
+   - Cấu trúc: `[Shot Size] + [Camera Angle] + Vietnamese + [Faceless Lock nếu là founder/chủ/speaker/narrator/host] + [Ngoại hình & trang phục đời thực có chất liệu vải tự nhiên]`.
+   - Ví dụ: `Over-the-shoulder medium shot of a young Vietnamese designer in a slightly wrinkled olive-green cotton shirt,`
+   - *Frozen Descriptor:* Nếu cùng 1 nhân vật xuất hiện ở ≥ 2 slot B-Roll trong cùng video, **copy-paste nguyên văn** cùng một cụm mô tả ngoại hình & trang phục ở mọi slot.
+2. **Tầng 2 — `l2_action_script` (Literal Action — Hành động nghĩa đen `State A → Verb → State B`):**
+   - Diễn tả ĐÚNG ý nghĩa `anchor_quote` bằng hành động con người & đồ vật đời thường thật, kết hợp vật lý phụ tự nhiên (nếp áo co duỗi, hơi nước bốc nhẹ, tay đặt tự nhiên cỡ trung).
+   - Ví dụ: `steadily arranging plain unbranded product sample cards from left to right on a wooden desk while a Vietnamese colleague beside her clicks a plain mouse at the same moment,`
+3. **Tầng 3 — `l3_environment` (Lived-in Grounding — Bối cảnh Việt Nam có chiều sâu đời thực):**
+   - Bối cảnh công sở / xưởng / quán / căn hộ Việt Nam sống động vừa đủ (cây xanh, ly gốm trơn, ánh nắng cửa sổ, đồ dùng đời thường vừa phải).
+   - **Ràng buộc màn hình / giấy / bảng:** Nếu có `screen`, `monitor`, `laptop`, `phone`, `tablet`, `whiteboard`, `paper`, `notebook`, `document`, **BẮT BUỘC** ghi rõ `completely out of focus`, `blurred`, `defocused`, `blank`, hoặc `out of frame`. Đồ vật luôn `unbranded` / `plain`.
+   - Ví dụ: `in a lived-in Saigon studio office with laptop screens completely out of focus in the background and a plain ceramic mug beside a blank unbranded notebook,`
+4. **Tầng 4 — `l4_optics_realism` (Anti-Plastic Optics & Physics — Chống nhựa, chống lộ AI):**
+   - Thay thế mọi tính từ sáo rỗng bằng thông số ống kính tài liệu, ánh sáng tự nhiên hỗn hợp, hạt phim và chi tiết da/vải thật:
+     - Gợi ý chuẩn: `shot on 35mm documentary lens f/2.8, subtle natural handheld camera feel, soft overcast window light mixing with warm desk lamp, subtle 35mm film grain, unretouched skin texture, natural fabric creases,` (hoặc `50mm documentary lens f/2.0`).
+   - **CẤM Anti-Slop:** `stunning`, `breathtaking`, `hyper-detailed`, `hyperdetailed`, `8k`, `4k masterpiece`, `masterpiece`, `magical`, `very realistic`, `ultra realistic`, `photorealistic masterpiece`, `award-winning`, `best quality`.
+   - **CẤM từ nhựa/CGI & ánh sáng giả:** `glossy skin`, `porcelain skin`, `airbrushed`, `plastic sheen`, `cyberpunk neon`, `unreal engine`, `octane render`, `cgi`, `3d render`, chuyển động gimbal trơn tuột siêu thực (`hyper-smooth gimbal`).
+   - **CẤM cú pháp trọng số CLIP:** `(keyword:1.3)` hay `keyword::2`.
+5. **Tầng 5 — `l5_camera_motion` (Kinetic & Clean Tail — 1 chuyển động máy + khẳng định sạch khung):**
+   - Chọn **ĐÚNG 1** chuyển động máy nhẹ nhàng tự nhiên (`slow gentle push-in`, `subtle handheld drift`, `slow lateral tracking shot`, `gentle static tripod framing`) + đuôi khẳng định sạch khung: `unbranded blank surfaces, clean frame.`
+   - **KHÔNG** nối đuôi phủ định `no text, no logos, no subtitles` (Flow không có negative prompt box; nối đuôi phủ định dễ khiến AI vẽ ngược ra chữ/logo).
+
+#### Agent 3 — Prompt & Visual Critic (Kiểm định mã nguồn + Kiểm định mắt 720p)
+- **Cổng 1 (Code Lint):** Chạy `broll_fix.py lint` (hoặc `broll_from_video.py check-prompts`) kiểm tra chặt **cấu trúc `layers` 5 tầng**, độ dài **`18–95` từ tiếng Anh**, từ cấm `BANNED_RE`, nhãn `Vietnamese`, faceless lock, màn hình mờ/trống, chính sách **anti-plastic & anti-abstract-CGI**.
+- **Cổng 2 (Visual Critic trên 2 bản 720p & `qa/broll_check_sheet.jpg`):**
+  - Bắt buộc mở xem bằng mắt **cả 2 bản 720p** do Flow trả về và lưới ảnh `qa/broll_check_sheet.jpg`.
+  - **Loại ngay lập tức** nếu dính bất kỳ lỗi nào:
+    1. Da sáp láng mịn, bóng nhựa, ánh sáng neon giả tạo / nhìn lộ rõ AI/CGI;
+    2. Ngón tay méo, bàn tay thừa ngón, đồ vật phi vật lý (ly xuyên bàn, chuột biến dạng);
+    3. Chữ, số, logo hãng (trên lưng laptop, cốc, áo, biển hiệu) hoặc màn hình/giấy hiện giao diện đọc được;
+    4. Người nói/founder lộ mặt lạ;
+    5. Cắt cảnh ngầm / chuyển cảnh giữa clip / người xuất hiện hoặc biến mất đột ngột;
+    6. **Lệch nghĩa `anchor_quote`** (hình không chứng minh đúng câu thoại tiếng Việt).
+  - Nếu cả 2 bản đều hỏng → Agent 2 sửa `layers` theo đúng lỗi nhìn thấy (không giữ ẩn dụ cũ), `lint` lại và tạo lại tối đa 1 lần.
 
 **Các luật cứng từ `scripts/broll_fix.py` (vi phạm sẽ bị `lint` chặn):**
-1. **Độ dài & ngôn ngữ:** **8–60 từ tiếng Anh**, tuyệt đối không có dấu tiếng Việt, không phải mã clip thư viện.
-2. **Không dùng từ cấm (`BANNED_RE`):** Cấm mọi từ dễ khiến AI vẽ chữ/UI/số liệu giả như:
-   `text, caption, subtitle, sign, logo, number, chart, dashboard, ui, chat, app, label, poster, brand, note, notes, checklist, checkbox, written, bullet, handwritten, handwriting, chatting, message, messaging, texting, side-by-side, comparison, graph, graphs, metrics, analytics, statistics, engagement, writing on paper` và tên hãng/nền tảng (`youtube, tiktok, facebook, instagram, iphone, macbook, apple, samsung, google`).
+1. **Độ dài, cấu trúc 5 tầng & ngôn ngữ:** Lõi `prompt` **18–95 từ tiếng Anh** (kèm object `layers` đủ `l1_shot_subject`..`l5_camera_motion`), tuyệt đối không có dấu tiếng Việt, không phải mã clip thư viện.
+2. **Không dùng từ cấm (`BANNED_RE`) & Anti-Plastic / Anti-CGI:** Cấm từ vẽ chữ/UI/số liệu giả (`text, caption, subtitle, sign, logo, number, chart, dashboard, ui, chat, app, label, poster, brand, note, notes, checklist, checkbox, written, bullet, handwritten, handwriting, chatting, message, messaging, texting, side-by-side, comparison, graph, metrics, analytics, statistics, engagement, writing on paper`), tên hãng/nền tảng (`youtube, tiktok, facebook, instagram, iphone, macbook, apple, samsung, google`), cùng danh sách từ nhựa/slop và ẩn dụ CGI trừu tượng trong `rules.json › params.broll.anti_plastic_policy`.
 3. **Bắt buộc quốc tịch Việt Nam:** Nếu khung hình có người (`PERSON_RE`), **phải có từ `Vietnamese`** (không ghi AI dễ sinh người phương Tây).
 4. **Người nói / Founder / CEO phải giấu mặt:** Nếu nhắc tới `founder, ceo, narrator, speaker, presenter, host`, bắt buộc dùng góc giấu mặt (`from behind, back view, over the shoulder, silhouette, hands only, face out of frame`).
 5. **Màn hình / giấy tờ / bảng trắng:** Chỉ được xuất hiện khi ghi rõ **`out of frame`**, **`out of focus`**, **`blurred`**, **`defocused`** hoặc **`blank`**. (Các cụm mơ hồ như `"angled away"` hoặc `"soft glow"` KHÔNG đủ — Flow vẫn vẽ logo/giao diện).
 6. **Một clip — một cảnh liền mạch (`MULTI_SHOT_RE`):** Cấm `transition from/to, cut to, montage, split-screen, before-and-after, picture-in-picture, pip, overlay`. Một hành động, một bối cảnh, một chuyển động máy.
 7. **KHÔNG nối đuôi `NO text...` khi gửi Google Flow:** Chỉ gửi lõi `prompt` sạch. Flow không có negative prompt box; thêm `"no text, no logo"` dễ bị mô hình hiểu ngược và vẽ ra chữ/logo.
 
-### Bước 5: Kiểm `check-prompts` → Tạo qua MCP `google-flow` → Chuẩn hoá
-1. Lưu danh sách prompt ra `prompts.json` dạng:
+### Bước 5: Kiểm `check-prompts` → Tạo qua MCP `google-flow` → Agent 3 duyệt → Chuẩn hoá
+1. Lưu danh sách prompt theo schema 3 Agent ra `prompts.json`:
    ```json
    [
      {
        "slot_id": 2,
        "anchor_quote": "đoạn nguyên văn nằm trong lời thoại slot 2",
-       "prompt": "Over-the-shoulder shot of a young Vietnamese office worker..."
+       "script_beat_vi": "Cảnh đời thực cụ thể chứng minh câu thoại (không ẩn dụ CGI)",
+       "layers": {
+         "l1_shot_subject": "Over-the-shoulder medium shot of a young Vietnamese designer in a wrinkled dark cotton polo,",
+         "l2_action_script": "steadily sliding plain sample swatches across a wooden desk to match a printed cardboard moodboard out of focus,",
+         "l3_environment": "in a lived-in Hanoi studio office with blurred monitors in the background and a blank unbranded notebook beside a ceramic cup,",
+         "l4_optics_realism": "shot on 35mm documentary lens f/2.8, subtle natural handheld camera feel, soft overcast window light mixing with desk lamp, subtle 35mm film grain, unretouched skin texture, natural fabric creases,",
+         "l5_camera_motion": "slow gentle push-in, unbranded blank surfaces, clean frame."
+       },
+       "prompt": "Over-the-shoulder medium shot of a young Vietnamese designer in a wrinkled dark cotton polo, steadily sliding plain sample swatches across a wooden desk to match a printed cardboard moodboard out of focus, in a lived-in Hanoi studio office with blurred monitors in the background and a blank unbranded notebook beside a ceramic cup, shot on 35mm documentary lens f/2.8, subtle natural handheld camera feel, soft overcast window light mixing with desk lamp, subtle 35mm film grain, unretouched skin texture, natural fabric creases, slow gentle push-in, unbranded blank surfaces, clean frame."
      }
    ]
    ```
-2. Kiểm tra H5 và xuất kế hoạch tín dụng cuối cùng bằng `broll_from_video.py check-prompts`:
+2. Kiểm tra H5 (strict layers & anti-plastic) và xuất kế hoạch tín dụng cuối cùng bằng `broll_from_video.py check-prompts`:
    ```bash
    $PY scripts/broll_from_video.py check-prompts \
      --plan /path/to/work_dir/broll_plan.json \
@@ -106,7 +155,7 @@ Mỗi slot `B-ROLL` viết một câu prompt tiếng Anh theo **khung 5 phần H
      - `durationSeconds`: giá trị `duration_seconds` từ `flow_ready.json`
      - `outputs`: `2`, `upscale`: `"none"`, `download`: `true`, `referenceFiles`: `[]`, `confirmCreditSpend`: `true`
    - Nếu trả `status="processing"`: poll `flow_job_status(jobId, waitSeconds=10)` với đúng `jobId` đó (tuyệt đối không gọi `flow_generate_video` lại).
-   - **Xem chọn 1 trong 2 bản 720p bằng mắt:** Loại ngay bản dính chữ/logo, màn hình lộ nội dung, mặt người lạ khi đang quay founder, tay/mặt méo, nhảy cảnh, hoặc lệch `anchor_quote`.
+   - **Agent 3 xem chọn 1 trong 2 bản 720p bằng mắt:** Loại ngay bản da nhựa, ngón tay méo, đồ vật phi vật lý, dính chữ/logo, màn hình lộ nội dung, mặt người lạ khi đang quay founder, cắt cảnh ngầm, hoặc lệch `anchor_quote`.
    - Nâng 1080p bản đã chọn & tải về: `flow_upscale_video(jobId, factor="1080p", confirmCreditSpend=true)` → poll `flow_job_status` nếu cần → `flow_download_job(jobId)`.
 4. Chuẩn hoá clip về chuẩn dựng `1080×1920, 30 fps, không tiếng, BT.709` bằng `broll_fix.py normalize`:
    ```bash
@@ -133,34 +182,34 @@ Dùng `scripts/analyze_and_scaffold.py` để phân tích kịch bản và chia 
 $PY scripts/analyze_and_scaffold.py --spec /path/to/SPEC.md --out /path/to/output_root
 ```
 
-### Bước 2: Chuyển hoá cảnh B-Roll → Prompt chuẩn H5 → Tạo qua Google Flow MCP
-1. Với mọi phân đoạn `"type": "b-roll"` trong `00_storyboard_manifest.json`, chuyển `visual_direction` + `tts_text` thành file `broll_new_prompts.json` (mỗi phần tử gồm `seq`, `prompt` chuẩn H5, `anchor_quote` trích nguyên văn từ `tts_text`).
-2. Kiểm tra luật H5 & lập kế hoạch tín dụng:
+### Bước 2: Chạy Quy trình 3 Agent → Prompt 5 tầng H5 → Tạo qua Google Flow MCP
+1. **Agent 1 (Script Semantic Analyst)** đọc trọn `tts_text` trong `00_storyboard_manifest.json`, tách đoạn `> 7,5 s` hoặc có 2 vế đối lập thành sub-beats và viết `script_beat_vi` (nghĩa đen đời thực, **CẤM ẩn dụ CGI trừu tượng**).
+2. **Agent 2 (5-Layer Anti-Plastic Prompt Architect)** viết `broll_new_prompts.json` cho mọi phân đoạn `"type": "b-roll"` (mỗi phần tử gồm `seq`, `anchor_quote` trích nguyên văn từ `tts_text`, `script_beat_vi`, `layers` 5 tầng `l1_shot_subject`..`l5_camera_motion`, và `prompt` ghép `18–95` từ tiếng Anh đạt H5).
+3. **Agent 3 (Cổng 1 — Lint)** kiểm tra luật H5 (strict layers & anti-plastic) & lập kế hoạch tín dụng:
    ```bash
    $PY scripts/broll_fix.py lint /path/to/script_dir --prompts broll_new_prompts.json
    $PY scripts/broll_fix.py prepare /path/to/script_dir --prompts broll_new_prompts.json --source flow
    $PY scripts/broll_fix.py plan /path/to/script_dir --engine flow --outputs 2
    ```
    Báo tổng giây và tổng tín dụng Flow cho người dùng xác nhận trước khi tiêu tín dụng (D3).
-3. Gọi MCP `google-flow` theo đúng thứ tự:
-   `flow_list_accounts` → `flow_inspect_account` → `flow_generate_video` → `flow_job_status` → xem chọn bản → `flow_upscale_video(factor="1080p")` → `flow_download_job`.
-4. Chuẩn hoá & xác minh hàng loạt:
+4. Gọi MCP `google-flow` theo đúng thứ tự:
+   `flow_list_accounts` → `flow_inspect_account` → `flow_generate_video` → `flow_job_status` → **Agent 3 (Cổng 2 — Visual Critic)** xem chọn 1 trong 2 bản 720p (loại ngay bản da nhựa, ngón tay méo, đồ vật phi vật lý, cắt cảnh ngầm hoặc lệch `anchor_quote`) → `flow_upscale_video(factor="1080p")` → `flow_download_job`.
+5. Chuẩn hoá & xác minh hàng loạt:
    ```bash
    $PY scripts/broll_fix.py normalize <raw_1080p.mp4> <script_dir>/<STT>_b-roll-<M>.mp4 [--mark flow]
    $PY scripts/broll_fix.py verify <script_dir> --scenes <danh_sách_seq>
    ```
-   Mở `qa/broll_check_sheet.jpg` kiểm tra bằng mắt từng cảnh (không chữ/logo, đúng `anchor_quote`), sau đó chạy `scripts/scene_check.py` (0 FAIL).
+   Mở `qa/broll_check_sheet.jpg` kiểm tra bằng mắt từng cảnh (không da nhựa/CGI, không chữ/logo, đúng nghĩa đen `anchor_quote`), sau đó chạy `scripts/scene_check.py` (0 FAIL).
 
 ---
 
-## Bảng chuyển đổi nhanh: Ý tưởng tiếng Việt → Prompt H5 an toàn cho Google Flow
+## Bảng chuyển đổi nhanh: Ý tưởng tiếng Việt → Prompt 5 tầng H5 Anti-Plastic cho Google Flow
 
-| Ý tưởng / Lời thoại tiếng Việt | Lỗi dễ mắc khiến AI vẽ chữ / hỏng cảnh | Prompt tiếng Anh chuẩn H5 an toàn (đã đạt `lint_prompt`) |
+| Ý tưởng / Lời thoại tiếng Việt | Lỗi cũ dễ mắc (Ẩn dụ CGI / Nhựa / Vẽ chữ) | Prompt tiếng Anh 5 tầng H5 Anti-Plastic (`18–95` từ, ghép từ `l1`–`l5`) |
 |---|---|---|
-| *"Báo cáo doanh thu / chỉ số tăng trưởng vọt"* | Dùng `chart, graph, metrics, analytics, dashboard` → vẽ số liệu giả, chữ sai chính tả | `Over-the-shoulder shot of a young Vietnamese entrepreneur typing calmly at a clean wooden desk with an unbranded laptop screen blurred out of focus, warm morning window light, slow dolly-in.` |
-| *"Quá tải công việc, lạc lối giữa đống việc không tên"* | Dùng `checklist, notes, handwritten, cluttered text` → vẽ giấy chi chít chữ méo | `Back view of a tired Vietnamese office worker sitting alone at a dimly lit wooden desk stacked with plain blank folders, rubbing temples slowly, warm desk lamp glow, slow push-in.` |
-| *"Khách nhắn tin mà ngâm tin nhắn 5 phút là mất đơn"* | Dùng `chatting, message, iphone, app, notification` → hiện logo Apple/tin nhắn chữ lỗi | `Close-up from behind of a Vietnamese shop owner holding a blank phone out of focus in a cozy boutique at dusk, looking toward an empty doorway, warm ambient light, subtle handheld motion.` |
-| *"Quy trình rối rắm, phần mềm rời rạc tốn cả ngày"* | Dùng `UI, transition from chaos to clean, split-screen` → tách đôi khung hình hoặc vẽ giao diện | `Medium shot of two Vietnamese teammates standing apart in a busy office looking puzzled over scattered blank boxes on a long table, cool fluorescent overhead light, slow lateral tracking shot.` |
-| *"Đội ngũ kỹ thuật tập trung rèn giũa sản phẩm"* | Quên ghi `Vietnamese`, lộ màn hình code/logo hãng | `Slow push-in on a young Vietnamese engineering team in a bright modern office, three colleagues shoulder to shoulder with monitors blurred out of focus in foreground, warm daylight, shallow depth of field.` |
-| *"Đóng gói sản phẩm chuẩn chỉ trước khi giao khách"* | Dùng từ `brand, label, poster` → AI tự bịa tên thương hiệu lên hộp | `Medium close-up of a Vietnamese warehouse staff member carefully taping a plain unbranded cardboard box on a clean wooden packing table, soft natural daylight, smooth orbit camera movement.` |
-| *"Ngồi nói chay 8 giây không có cảnh chèn khiến người xem lướt qua"* | Dùng `speaker face, tiktok, swipe` → AI vẽ mặt người lạ hoặc giao diện TikTok | `Side profile silhouette of a Vietnamese creator speaking into a clean studio microphone against a dark warm backdrop, soft rim light, slow push-in.` |
+| *"Bảng luồng kéo thả nối từ ý tưởng tiếng Việt sang ảnh 4K xuất video"* | Vẽ khối lập phương hổ phách phát sáng trên giàn kim loại, hoặc dùng `UI, workflow chart` gây chữ giả | `Over-the-shoulder medium shot of a young Vietnamese creator in a wrinkled dark cotton t-shirt sitting at a wooden desk, steadily moving plain matte photo cards along a row of blank unbranded paper cards from left to right, in a lived-in Saigon studio with monitors completely out of focus in the background, shot on 35mm documentary lens f/2.8, subtle natural handheld camera feel, soft overcast window light mixing with warm desk lamp, subtle 35mm film grain, unretouched skin texture, natural fabric creases, slow gentle push-in, unbranded blank surfaces, clean frame.` |
+| *"Đội ngũ bấm chạy đồng đều"* | Vẽ 2 thanh ray thép trượt hộp đèn CGI, thiếu `Vietnamese` | `Medium wide shot of three Vietnamese office teammates in casual wrinkled linen and cotton shirts seated side by side along a wooden table, pressing their plain wireless mice and tapping their spacebars in unison as they lean slightly forward, in an authentic lived-in office with blurred out-of-focus monitors in the foreground, shot on 35mm documentary lens f/2.8, subtle natural handheld camera feel, soft overcast daylight from a glass window, subtle 35mm film grain, unretouched skin texture, natural fabric creases, slow lateral tracking shot, unbranded blank surfaces, clean frame.` |
+| *"Báo cáo doanh thu / chỉ số tăng trưởng vọt"* | Dùng `chart, graph, metrics, analytics, dashboard` → vẽ số liệu giả, chữ sai chính tả | `Over-the-shoulder medium shot of a young Vietnamese entrepreneur in a plain navy cotton polo typing calmly at a wooden desk, reaching over to pick up a plain ceramic mug with a relaxed smile, in a lived-in office with an unbranded laptop screen blurred out of focus, shot on 35mm documentary lens f/2.8, subtle natural handheld camera feel, soft overcast morning window light, subtle 35mm film grain, unretouched skin texture, natural fabric creases, slow gentle dolly-in, unbranded blank surfaces, clean frame.` |
+| *"Quá tải công việc, lạc lối giữa đống việc không tên"* | Dùng `checklist, notes, handwritten` hoặc da bóng nhựa CGI | `Back view medium shot of a tired Vietnamese office worker in a creased white cotton shirt sitting alone at a wooden desk stacked with plain blank folders, slowly lowering both hands to rub his temples, in a dimly lit Saigon apartment office at dusk, shot on 35mm documentary lens f/2.8, subtle natural handheld camera feel, warm desk lamp light mixing with cool twilight window light, subtle 35mm film grain, natural hair strands and fabric creases, slow gentle push-in, unbranded blank surfaces, clean frame.` |
+| *"Khách nhắn tin mà ngâm tin nhắn 5 phút là mất đơn"* | Dùng `chatting, message, iphone, app` → hiện logo Apple/tin nhắn chữ lỗi | `Over-the-shoulder close-up from behind of a Vietnamese shop owner in a natural beige linen apron holding a blank unbranded phone completely out of focus, glancing up toward an empty glass boutique doorway as evening street traffic blurs outside, shot on 50mm documentary lens f/2.0, subtle natural handheld camera feel, soft warm indoor tungsten lamp mixing with overcast dusk light, subtle 35mm film grain, natural fabric creases, gentle handheld drift, unbranded blank surfaces, clean frame.` |
+| *"Ngồi nói chay 8 giây không có cảnh chèn khiến người xem lướt qua"* | Dùng `speaker face, tiktok, swipe` → AI vẽ mặt người lạ hoặc giao diện TikTok | `Side profile silhouette of a Vietnamese creator in a matte dark cotton hoodie speaking calmly toward an unbranded studio microphone on a desk, gesturing naturally with one hand at chest height, in a quiet lived-in home studio with out-of-focus shelving behind, shot on 35mm documentary lens f/2.8, subtle natural handheld camera feel, soft warm window rim light mixing with dim room fill, subtle 35mm film grain, natural fabric creases, slow gentle push-in, unbranded blank surfaces, clean frame.` |

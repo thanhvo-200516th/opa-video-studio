@@ -266,6 +266,27 @@ def check_broll_h5(scenes: list[dict]) -> dict:
                  "viết lại prompt từ lời của cảnh rồi chạy broll_fix.py lint / prepare", scenes=sorted(seqs))
 
 
+def check_broll_source(scenes: list[dict]) -> dict:
+    """D15: cảnh b-roll ghi broll_source là 'muse' hoặc 'stock' thay vì 'flow' → WARN."""
+    bad, seqs = [], []
+    for sc in scenes:
+        s = sc["seg"]
+        if s.get("type") != "b-roll":
+            continue
+        src = str(s.get("broll_source") or "").strip().lower()
+        if src in ("muse", "stock"):
+            bad.append(f"cảnh {sc['seq']}: broll_source={src}")
+            seqs.append(sc["seq"])
+    return _item(
+        "broll_source",
+        "WARN" if bad else "OK",
+        "; ".join(bad) or "nguồn B-roll đạt (flow / mặc định)",
+        "B-roll tạo bằng Google Flow (flow); tránh muse / stock",
+        "tạo lại bằng Google Flow (broll_fix.py plan → prepare → normalize --mark flow)",
+        scenes=seqs,
+    )
+
+
 def _fmt_range(r) -> str:
     return f"{r[0]:.2f}–{r[1]:.2f}s" if r else "—"
 
@@ -289,7 +310,7 @@ def run_checks(manifest: dict, spec: dict, tdir: Path | None = None, tol: float 
     scenes = build_scenes(manifest, pics, voices, words)
     av, cut, shown = check_av_sync(scenes, pics, tol, tol_tr)
     return [av, check_order(scenes), *check_script(scenes, tdir), check_source(manifest, scenes, pics),
-            check_broll_h5(scenes), cut], review_md(scenes, shown)
+            check_broll_h5(scenes), check_broll_source(scenes), cut], review_md(scenes, shown)
 
 
 def main() -> int:

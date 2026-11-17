@@ -70,7 +70,7 @@ def apply_reuse(rows: list[dict], roots: list[Path]) -> list[str]:
     viol = audit(roots)["violations"]
     for r in rows:
         vc = code_of(r["video"]) or r["video"]
-        mine = [v for v in viol if re.search(rf"\b{vc}\b", v["detail"])]
+        mine = [v for v in viol if re.search(rf"\b{re.escape(vc)}\b", v["detail"])]
         if not mine:
             continue
         hold = [f"{v['rule']}: {v['detail']}" for v in mine if v["rule"] == "D9"]

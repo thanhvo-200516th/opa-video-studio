@@ -203,6 +203,18 @@ def main() -> None:
         assert r.returncode == 1 and next(x for x in out if x["id"] == "script_source")["scenes"] == [2], r.stdout
     print("ok  broll_h5 + scenes[] trong JSON → FAIL/WARN/OK")
 
+    m, sp = good()
+    m["segments"][1]["broll_source"] = "muse"
+    m["segments"][2]["broll_source"] = "stock"
+    items, _ = run_checks(m, sp)
+    bs = next(r for r in items if r["id"] == "broll_source")
+    assert bs["status"] == "WARN" and bs["scenes"] == [2, 3], bs
+    m["segments"][1]["broll_source"] = "flow"
+    del m["segments"][2]["broll_source"]
+    items, _ = run_checks(m, sp)
+    assert status(items, "broll_source") == "OK", items
+    print("ok  broll_source: muse / stock → WARN, flow → OK")
+
     print("TẤT CẢ ĐẠT")
 
 

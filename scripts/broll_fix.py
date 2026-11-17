@@ -29,6 +29,7 @@ verify: 1080x1920 30 fps, không có tiếng, đủ dài so với tiếng, khác
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import json
 import math
 import re
@@ -39,13 +40,15 @@ import time
 import unicodedata
 from pathlib import Path
 
-MIN_WORDS, MAX_WORDS = 8, 60
+MIN_WORDS, MAX_WORDS = 8, 95
 MAX_MUSE_SEC, MIN_MUSE_SEC = 10, 2
 VOICE_PAD = 0.3                    # xin dài hơn tiếng 0,3 s
 HOLD_MAX = 0.3                     # được giữ khung cuối tối đa 0,3 s
 SUFFIX_MARK = " (Pure visual"      # phần đuôi cố định BROLL_STRICT_SUFFIX_EN nối sau lõi prompt
 SHEET_PCTS = (0.10, 0.30, 0.50, 0.70, 0.90)
 BACKUP_ROOT = Path.home() / ".cache" / "opa-video-studio" / "backup"
+
+LAYER_KEYS = ("l1_shot_subject", "l2_action_script", "l3_environment", "l4_optics_realism", "l5_camera_motion")
 
 BANNED_RE = re.compile(
     r"\b(?:texts?|captions?|subtitles?|signs?|logos?|numbers?|charts?|dashboards?|ui|chat|apps?|labels?|posters?"
@@ -54,6 +57,43 @@ BANNED_RE = re.compile(
     r"|chatting|messages?|messaging|texting"
     r"|side-by-side|comparison|graphs?|metrics|analytics|statistics|engagement"
     r"|youtube|tiktok|facebook|instagram|iphone|macbook|apple|samsung|google)\b|writing on paper",
+    re.I,
+)
+ANTI_SLOP_WORDS = (
+    "stunning", "breathtaking", "hyper-detailed", "hyperdetailed",
+    "8k masterpiece", "4k masterpiece", "photorealistic masterpiece",
+    "8k", "4k", "masterpiece", "magical", "very realistic",
+    "ultra-realistic", "ultra realistic", "photorealistic",
+    "award-winning", "best quality",
+)
+ANTI_SLOP_RE = re.compile(
+    r"(?<!\w)(?:" + "|".join(re.escape(w) for w in sorted(ANTI_SLOP_WORDS, key=len, reverse=True)) + r")(?!\w)",
+    re.I,
+)
+PLASTIC_AI_WORDS = (
+    "3d render", "cgi", "unreal engine", "octanerender", "octane", "blender render",
+    "glowing prism", "amber prism", "frosted-glass gears", "hologram", "holographic",
+    "cyberpunk", "neon cyber", "futuristic glowing", "glowing nodes", "floating icons",
+    "pipeline rail", "parallel steel tracks", "sci-fi", "plastic sheen", "porcelain skin",
+    "rubbery", "energy core",
+)
+PLASTIC_AI_RE = re.compile(
+    r"(?<!\w)(?:" + "|".join(re.escape(w) for w in sorted(PLASTIC_AI_WORDS, key=len, reverse=True)) + r")(?!\w)",
+    re.I,
+)
+WEIGHT_SYNTAX_RE = re.compile(r"\([^()]+:\s*\d+(?:\.\d+)?\)|(?<!\w)\w+::\s*-?\d+(?:\.\d+)?")
+NEGATIVE_TAIL_RE = re.compile(r"\b(?:no texts?|no subtitles?|no watermarks?|no logos?)\b", re.I)
+CAMERA_MOTION_RE = re.compile(
+    r"\b(?:dolly|push[- ]in|pull[- ]back|tracking|orbit|pan|whip[- ]pan|whip[- ]tilt|"
+    r"tilt|handheld|static|tripod|drift|arc|crane|zoom|gimbal|steadicam)\b",
+    re.I,
+)
+REALISM_CUE_RE = re.compile(
+    r"(?<!\w)(?:35mm|50mm|24mm|85mm|documentary|handheld|film grain|grain|"
+    r"shallow depth of field|shallow focus|window light|daylight|overcast|"
+    r"tungsten|warm lamp|natural light|skin texture|micro-pores|pores|"
+    r"flyaway|matte|cotton|linen|wooden|ceramic|desaturated|candid|"
+    r"f/(?:\d+(?:\.\d+)?)?)(?!\w)",
     re.I,
 )
 SCREEN_RE = re.compile(r"\b(?:screens?|monitors?|laptops?|computers?|tablets?|phones?|tvs?|televisions?|displays?|whiteboards?|"
@@ -88,11 +128,69 @@ def core_of(prompt_full: str) -> str:
     return (s[:i] if i >= 0 else s).strip()
 
 
-def lint_prompt(core: str, tts_text: str | None = None, anchor: str | None = None) -> list[str]:
+def assemble_layered_prompt(layers: dict) -> str:
+    """Ghép 5 tầng H5 (L1..L5) thành chuỗi prompt tiếng Anh liền mạch."""
+    if not isinstance(layers, dict):
+        raise ValueError("layers phải là object JSON gồm 5 khoá L1..L5")
+    parts: list[str] = []
+    for k in LAYER_KEYS:
+        val = layers.get(k)
+        if isinstance(val, str) and val.strip():
+            parts.append(val.strip())
+    if not parts:
+        return ""
+    out = parts[0]
+    for p in parts[1:]:
+        if out.endswith((".", "!", "?")):
+            out = f"{out} {p}"
+        else:
+            out = f"{out.rstrip(',;')}, {p}"
+    if not out.endswith((".", "!", "?")):
+        out += "."
+    return out
+
+
+def resolve_entry_prompt(entry: dict) -> str:
+    """Lấy prompt từ trường `prompt`, hoặc tự ghép từ `layers` nếu chưa ghi `prompt`."""
+    raw = str(entry.get("prompt") or "").strip()
+    if raw:
+        return raw
+    layers = entry.get("layers")
+    if isinstance(layers, dict):
+        return assemble_layered_prompt(layers)
+    return ""
+
+
+def _lint_layers(layers: dict) -> list[str]:
+    if not isinstance(layers, dict):
+        return ["layers phải là object JSON gồm 5 khoá L1..L5"]
+    problems: list[str] = []
+    missing = [k for k in LAYER_KEYS if not isinstance(layers.get(k), str) or not layers[k].strip()]
+    if missing:
+        problems.append("layers thiếu hoặc rỗng: " + ", ".join(missing))
+    diacritics = [k for k in LAYER_KEYS if isinstance(layers.get(k), str) and layers[k].strip() and has_diacritics(layers[k])]
+    if diacritics:
+        problems.append("layers có dấu tiếng Việt: " + ", ".join(diacritics))
+    return problems
+
+
+def lint_prompt(
+    core: str,
+    tts_text: str | None = None,
+    anchor: str | None = None,
+    *,
+    strict_layers: bool = False,
+    layers: dict | None = None,
+) -> list[str]:
     """Luật H5 cho lõi prompt B-roll → danh sách lỗi (rỗng = đạt)."""
     core = (core or "").strip()
+    if not core and isinstance(layers, dict):
+        core = assemble_layered_prompt(layers)
     if not core:
-        return ["prompt rỗng"]
+        problems = ["prompt rỗng"]
+        if layers is not None:
+            problems.extend(_lint_layers(layers))
+        return problems
     problems = []
     if core.lower().startswith("clip thư viện"):
         problems.append("là mã clip thư viện, không phải prompt mô tả cảnh")
@@ -104,6 +202,18 @@ def lint_prompt(core: str, tts_text: str | None = None, anchor: str | None = Non
     banned = sorted({m.group(0).lower() for m in BANNED_RE.finditer(core)})
     if banned:
         problems.append("chứa từ cấm: " + ", ".join(banned))
+    anti_slop = sorted({m.group(0).lower() for m in ANTI_SLOP_RE.finditer(core)})
+    if anti_slop:
+        problems.append("chứa từ sáo rỗng (Anti-Slop): " + ", ".join(anti_slop))
+    plastic = sorted({m.group(0).lower() for m in PLASTIC_AI_RE.finditer(core)})
+    if plastic:
+        problems.append("chứa từ khoá CGI/nhựa lộ AI: " + ", ".join(plastic))
+    weights = [m.group(0) for m in WEIGHT_SYNTAX_RE.finditer(core)]
+    if weights:
+        problems.append("chứa cú pháp trọng số CLIP (cấm): " + ", ".join(weights[:3]))
+    neg_tail = sorted({m.group(0).lower() for m in NEGATIVE_TAIL_RE.finditer(core)})
+    if neg_tail:
+        problems.append("chứa cụm phủ định (no text/logo/watermark — Flow dễ hiểu ngược): " + ", ".join(neg_tail))
     if SCREEN_RE.search(core) and not SCREEN_OK_RE.search(core):
         problems.append("có màn hình / laptop / bảng / giấy nhưng không ghi out of frame / out of focus / blurred / blank")
     if PERSON_RE.search(core) and "vietnamese" not in core.lower():
@@ -112,6 +222,13 @@ def lint_prompt(core: str, tts_text: str | None = None, anchor: str | None = Non
         problems.append("nhiều cảnh / ghi chú hậu kỳ trong một clip (transition, cut, montage, PiP, overlay) — một clip một cảnh liền")
     if SPEAKER_RE.search(core) and not FACELESS_RE.search(core):
         problems.append("có founder / người nói nhưng không giấu mặt (from behind / over the shoulder / hands / silhouette)")
+    if layers is not None:
+        problems.extend(_lint_layers(layers))
+    if strict_layers:
+        if not CAMERA_MOTION_RE.search(core):
+            problems.append("thiếu chuyển động camera rõ ràng (dolly, push-in, pull-back, tracking, orbit, pan, tilt, handheld, static, tripod, drift, arc, crane)")
+        if not REALISM_CUE_RE.search(core):
+            problems.append("thiếu chỉ dấu quang học / chất liệu đời thực chống nhựa (35mm, 50mm, shallow depth of field, window light, daylight, film grain, skin texture, wooden, matte, cotton)")
     if tts_text is not None:
         a = _norm(anchor or "")
         if not a:
@@ -233,20 +350,36 @@ def _read_new(path: Path) -> list[dict]:
     return data
 
 
-def lint_new(folder: Path, new: list[dict]) -> list[str]:
+def lint_new(folder: Path, new: list[dict], *, strict_layers: bool = True) -> list[str]:
     segs, out = segments(folder), []
     for e in new:
         seg = segs.get(e.get("seq"))
         if seg is None:
             out.append(f"cảnh {e.get('seq')}: không có b-roll này trong manifest")
             continue
-        out += [f"cảnh {e['seq']}: {p}" for p in lint_prompt(e.get("prompt", ""), seg.get("tts_text", ""), e.get("anchor_quote"))]
+        if "script_beat_vi" in e:
+            beat = e["script_beat_vi"]
+            if not isinstance(beat, str) or not beat.strip():
+                out.append(f"cảnh {e['seq']}: script_beat_vi phải là chuỗi không rỗng")
+        layers = e.get("layers")
+        core = resolve_entry_prompt(e)
+        out += [
+            f"cảnh {e['seq']}: {p}"
+            for p in lint_prompt(
+                core,
+                seg.get("tts_text", ""),
+                e.get("anchor_quote"),
+                strict_layers=strict_layers,
+                layers=layers,
+            )
+        ]
     return out
 
 
 def cmd_lint(args) -> int:
+    strict = not getattr(args, "no_strict_layers", False)
     try:
-        problems = lint_new(Path(args.folder), _read_new(Path(args.prompts)))
+        problems = lint_new(Path(args.folder), _read_new(Path(args.prompts)), strict_layers=strict)
     except (OSError, ValueError, KeyError) as e:
         print(f"[BROLL FAIL] đọc đầu vào: {e}", file=sys.stderr)
         return 2
@@ -270,9 +403,9 @@ def _stale_files(folder: Path, video_file: str) -> list[Path]:
     return found
 
 
-def build_item(old: dict, entry: dict, voice: float, backup: Path, source: str = "muse") -> dict:
+def build_item(old: dict, entry: dict, voice: float, backup: Path, source: str = "flow") -> dict:
     import render_muse_broll as rmb
-    core = entry["prompt"].strip()
+    core = resolve_entry_prompt(entry)
     fallback = float(old.get("duration_target_sec", 4.0))
     flow = source == "flow"
     item = {k: v for k, v in old.items() if k != "prompt_vi"}
@@ -280,14 +413,23 @@ def build_item(old: dict, entry: dict, voice: float, backup: Path, source: str =
                  "anchor_quote": entry["anchor_quote"],
                  "duration_target_sec": flow_seconds(voice, fallback) if flow else request_seconds(voice, fallback),
                  "source": source, "regen_of": old.get("prompt_full") or old.get("prompt_vi"), "backup": str(backup)})
+    if isinstance(entry.get("layers"), dict):
+        item["layers"] = entry["layers"]
+    else:
+        item.pop("layers", None)
+    if isinstance(entry.get("script_beat_vi"), str) and entry["script_beat_vi"].strip():
+        item["script_beat_vi"] = entry["script_beat_vi"].strip()
+    else:
+        item.pop("script_beat_vi", None)
     return item
 
 
 def cmd_prepare(args) -> int:
     folder = Path(args.folder)
+    strict = not getattr(args, "no_strict_layers", False)
     try:
         new = _read_new(Path(args.prompts))
-        problems = lint_new(folder, new)
+        problems = lint_new(folder, new, strict_layers=strict)
     except (OSError, ValueError, KeyError) as e:
         print(f"[BROLL FAIL] đọc đầu vào: {e}", file=sys.stderr)
         return 2
@@ -333,15 +475,25 @@ def cmd_prepare(args) -> int:
             continue
         hist = list(s.get("regen_history") or []) + [{"date": today, "reason": "D9 cảnh thư viện kịch bản khác → tạo mới từ lời cảnh (H5)",
                                                        "old_prompt": s.get("broll_prompt"), "backup": str(backup)}]
-        new_segments.append({**s, "broll_prompt": full_by_seq[s["seq_index"]], "visual_direction": e["prompt"].strip(),
-                             "broll_source": args.source, "regen_history": hist})
+        resolved = resolve_entry_prompt(e)
+        new_seg = {**s, "broll_prompt": full_by_seq[s["seq_index"]], "visual_direction": resolved,
+                   "broll_source": args.source, "regen_history": hist}
+        if isinstance(e.get("layers"), dict):
+            new_seg["broll_layers"] = e["layers"]
+        else:
+            new_seg.pop("broll_layers", None)
+        if isinstance(e.get("script_beat_vi"), str) and e["script_beat_vi"].strip():
+            new_seg["script_beat_vi"] = e["script_beat_vi"].strip()
+        else:
+            new_seg.pop("script_beat_vi", None)
+        new_segments.append(new_seg)
     _save(prompts_p, new_items)
     _save(manifest_p, {**manifest, "segments": new_segments})
     if md_p.exists():
         text = md_p.read_text(encoding="utf-8")
         for seq, old in old_vd.items():
             if old and old in text:
-                text = text.replace(old, by_seq[seq]["prompt"].strip())
+                text = text.replace(old, resolve_entry_prompt(by_seq[seq]))
         md_p.write_text(text, encoding="utf-8")
     nxt = ("tạo trong Google Flow theo references/flow-broll.md, rồi normalize (--mark flow khi bản tải về có dấu)" if args.source == "flow"
            else "render_muse_broll.py <thư mục> --shot <NN_b-roll-M.mp4> cho từng cảnh")
@@ -351,6 +503,53 @@ def cmd_prepare(args) -> int:
 
 # ---------------------------------------------------------------- verify
 MARKS = {"flow": "delogo=x=845:y=1685:w=110:h=110"}   # dấu ngôi sao Google Flow, toạ độ trên khung 1080x1920
+BROLL_SOURCES = ("flow", "real_footage", "stock", "muse")
+
+
+def infer_broll_source(raw: Path, mark: str | None = None, source: str | None = None) -> str:
+    """Suy nguồn B-roll khi `normalize` không truyền `--source`."""
+    if source:
+        return source
+    raw_l = unicodedata.normalize("NFC", str(raw)).lower().replace("\\", "/")
+    fname_l = Path(raw_l).name
+    if mark == "flow" or "_google_raw" in raw_l or "/flow/" in raw_l:
+        return "flow"
+    if any(k in raw_l for k in ("06_b-roll", "stock_theo_chu_de", "mixkit", "pexels", "pixabay", "/ftg_")) or fname_l.startswith("ftg_"):
+        return "stock"
+    if any(k in raw_l for k in ("soucre thô", "source_tho", "04_footage", "footage_studio", "_studio.mp4")):
+        return "real_footage"
+    return "unknown"
+
+
+def _record_broll_source(raw: Path, out: Path, kind: str, mark: str | None) -> None:
+    src_file = out.parent / "_broll_sources.json"
+    try:
+        data = _load(src_file) if src_file.is_file() else {}
+        if not isinstance(data, dict):
+            data = {}
+    except (OSError, ValueError):
+        data = {}
+    data[out.name] = {
+        "source": kind,
+        "raw": str(raw),
+        "mark": mark,
+        "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
+    _save(src_file, data)
+    man_file = out.parent / "00_storyboard_manifest.json"
+    if man_file.is_file() and kind != "unknown":
+        try:
+            man = _load(man_file)
+            changed = False
+            for seg in man.get("segments", []):
+                vf = (seg.get("files") or {}).get("video_file") or ""
+                if vf and Path(vf).name == out.name and seg.get("broll_source") != kind:
+                    seg["broll_source"] = kind
+                    changed = True
+            if changed:
+                _save(man_file, man)
+        except (OSError, ValueError):
+            pass
 
 
 def border_crop_box(img, min_px: int = 8, std_max: float = 3.0, jump: float = 30.0,
@@ -405,8 +604,8 @@ def _first_frame(path: Path):
         return None
 
 
-def cmd_normalize(args) -> int:
-    raw, out = Path(args.raw), Path(args.out)
+def normalize(raw: str | Path, out: str | Path, mark: str | None = None, source: str | None = None) -> int:
+    raw, out = Path(raw), Path(out)
     if not raw.is_file():
         print(f"LỖI: không thấy {raw}")
         return 1
@@ -423,8 +622,8 @@ def cmd_normalize(args) -> int:
             filters.append(f"crop={cw}:{ch}:{x0}:{y0}")
             trimmed = f"đã cắt viền ({first.width}x{first.height} → {cw}x{ch})"
     filters.append("scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos,crop=1080:1920,fps=30")
-    if args.mark:
-        filters.append(MARKS[args.mark])
+    if mark:
+        filters.append(MARKS[mark])
     filters.append("setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709")
     vf = ",".join(filters)
     cmd = ["ffmpeg", "-v", "error", "-y", "-i", str(raw), "-an", "-vf", vf, "-c:v", "libx264", "-crf", "12", "-preset", "slow",
@@ -433,10 +632,16 @@ def cmd_normalize(args) -> int:
     if r.returncode != 0 or not out.is_file():
         print(f"LỖI ffmpeg: {r.stderr.strip()[-400:]}")
         return 1
-    notes = [x for x in (trimmed, f"đã xoá dấu {args.mark}" if args.mark else None) if x]
+    kind = infer_broll_source(raw, mark=mark, source=source)
+    _record_broll_source(raw, out, kind, mark)
+    notes = [x for x in (trimmed, f"đã xoá dấu {mark}" if mark else None, f"nguồn {kind}") if x]
     suffix = f", {', '.join(notes)}" if notes else ""
     print(f"OK {out.name}: 1080x1920 30 fps, không tiếng{suffix} ({duration_of(out):.2f} s)")
     return 0
+
+
+def cmd_normalize(args) -> int:
+    return normalize(args.raw, args.out, mark=getattr(args, "mark", None), source=getattr(args, "source", None))
 
 
 def _frame(path: Path, t: float):
@@ -537,20 +742,24 @@ def main() -> int:
     p = sub.add_parser("plan")
     p.add_argument("folder")
     p.add_argument("--speed", type=float, default=1.10)
-    p.add_argument("--engine", choices=("muse", "flow"), default="muse")
+    p.add_argument("--engine", choices=("muse", "flow"), default="flow")
     p.add_argument("--outputs", type=int, default=2, help="số bản Flow mỗi cảnh (x1–x4), mặc định x2")
     p.set_defaults(fn=cmd_plan)
     p = sub.add_parser("lint")
     p.add_argument("folder")
     p.add_argument("--prompts", required=True)
+    p.add_argument("--no-strict-layers", action="store_true",
+                   help="tắt kiểm tra bắt buộc camera motion và chỉ dấu quang học/chất liệu đời thực")
     p.set_defaults(fn=cmd_lint)
     p = sub.add_parser("prepare")
     p.add_argument("folder")
     p.add_argument("--prompts", required=True)
     p.add_argument("--dry-run", action="store_true")
-    p.add_argument("--source", choices=("muse", "flow"), default="muse")
+    p.add_argument("--source", choices=("muse", "flow"), default="flow")
     p.add_argument("--keep-clips", action="store_true",
                    help="chỉ ghi prompt cuối vào manifest / prompts (sau khi đã tạo lại cảnh), không chuyển clip đang dùng")
+    p.add_argument("--no-strict-layers", action="store_true",
+                   help="tắt kiểm tra bắt buộc camera motion và chỉ dấu quang học/chất liệu đời thực")
     p.add_argument("--backup-root", default=str(BACKUP_ROOT))
     p.set_defaults(fn=cmd_prepare)
     p = sub.add_parser("verify")
@@ -563,6 +772,7 @@ def main() -> int:
     p.add_argument("raw")
     p.add_argument("out")
     p.add_argument("--mark", choices=sorted(MARKS), default=None)
+    p.add_argument("--source", choices=BROLL_SOURCES, default=None)
     p.set_defaults(fn=cmd_normalize)
     args = ap.parse_args()
     return args.fn(args)

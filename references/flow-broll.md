@@ -1,14 +1,18 @@
-# Tạo B-roll bằng Google Flow (D3) — quy trình từng bước
+# Tạo B-roll bằng Google Flow (D3, D15) — quy trình mặc định từng bước
 
-Dùng khi `broll_fix.py ready` báo Muse hỏng (§2 bước 5b.5). Số đo ngày 2026-11-14 trên 2 tài khoản (PRO và ULTRA; chạy thử 3 cảnh OPA05 song song); giao diện tiếng Việt. Tên tài khoản có thể hiện đảo thứ tự họ / tên ở hai chỗ. Flow đổi giao diện thường xuyên: nhãn khác thì `snapshot` lại và tìm nút cùng nghĩa, không đoán toạ độ.
+**Công cụ tạo B-roll mặc định chính (D3, D15):** mục tiêu **100 %** thời lượng B-roll (tối thiểu **≥ 95 %**; footage thật / stock ngoại lệ tối đa **2–5 %**, trần cứng ≤ 5 %); tuân giới hạn lặp **D8 (`≤ 2 lần / video, ≤ 2 video`)**. Trình duyệt Cindy là kênh phụ khi MCP `google-flow` lỗi; Muse local chỉ là dự phòng khẩn nếu Google Flow không khả dụng và người dùng đồng ý. Số đo ngày 2026-11-14 trên 2 tài khoản (PRO và ULTRA; chạy thử 3 cảnh OPA05 song song); giao diện tiếng Việt. Tên tài khoản có thể hiện đảo thứ tự họ / tên ở hai chỗ. Flow đổi giao diện thường xuyên: nhãn khác thì `snapshot` lại và tìm nút cùng nghĩa, không đoán toạ độ.
 
 Có **2 nhánh thực thi Google Flow**:
-- **Nhánh 1 (Ưu tiên khi có MCP `google-flow` — gọi qua `call_mcp_tool` với `ServerName="google-flow"`):** Khi dùng MCP `google-flow`, mọi tương tác đi qua các tool `flow_*`, không mở `labs.google/fx/tools/flow` bằng trình duyệt khác.
-  - **Bước 0 (Kiểm tra tài khoản & tín dụng):** Sau khi chạy `broll_fix.py plan --engine flow`, `lint` và `prepare --source flow`, gọi `flow_list_accounts` (`readyForGeneration=true` → lấy `defaultAccountId`; chưa kết nối → `flow_begin_account_connection` → dừng chờ người dùng bấm *Connect Flow* trên Chromium hiện *"Session sent"* → `flow_complete_account_connection`) → `flow_inspect_account` (kiểm tra `models`, `aspectRatios`, `visibleDurations`, `outputs`, `upscales`, số dư tín dụng; số dư < tổng tín dụng ở `plan` → báo, dừng, D3).
+- **Nhánh 1 (Mặc định ưu tiên khi có MCP `google-flow` — gọi qua `call_mcp_tool` với `ServerName="google-flow"`):** Khi dùng MCP `google-flow`, mọi tương tác đi qua các tool `flow_*`, không mở `labs.google/fx/tools/flow` bằng trình duyệt khác.
+  - **Bước 0 (3-Agent chuẩn bị Prompt & Kiểm tra tài khoản):**
+    1. Chạy **Agent 1 (Script Semantic Analyst)** đọc toàn bộ `tts_text`, tách đoạn `> 7,5 s` hoặc 2 vế đối lập thành sub-beats, viết `script_beat_vi` đời thực (CẤM ẩn dụ CGI trừu tượng).
+    2. Chạy **Agent 2 (5-Layer Anti-Plastic Prompt Architect)** viết `layers` (`l1_shot_subject`..`l5_camera_motion`) ghép thành `prompt` `18–95` từ đạt H5.
+    3. Chạy **Agent 3 (Cổng 1 — Lint)** + `$PY scripts/broll_fix.py plan --engine flow`, `lint` (strict layers & anti-plastic) và `prepare --source flow`.
+    4. Gọi `flow_list_accounts` (`readyForGeneration=true` → lấy `defaultAccountId`; chưa kết nối → `flow_begin_account_connection` → dừng chờ người dùng bấm *Connect Flow* trên Chromium hiện *"Session sent"* → `flow_complete_account_connection`) → `flow_inspect_account` (kiểm tra `models`, `aspectRatios`, `visibleDurations`, `outputs`, `upscales`, số dư tín dụng; số dư < tổng tín dụng ở `plan` → báo, dừng, D3).
   - **Bước 1–2 (Tạo video 720p x2):** Gọi `flow_generate_video` với `prompt` lõi đã qua `broll_fix.py lint` (không nối đuôi câu cấm), `outputDirectory: "<thư_mục_video>/_google_raw"`, `fileName: "<STT>_b-roll-<M>_raw"`, `model: "omni-flash"`, `aspectRatio: "9:16"`, `durationSeconds` (theo `plan`), `outputs: 2`, `upscale: "none"`, `download: true`, `referenceFiles: []`, `confirmCreditSpend: true`. Giữ `jobId`; nếu `status="processing"` thì poll `flow_job_status(jobId, waitSeconds=10)` cho tới khi xong (cấm gọi lại `flow_generate_video` khi đang `processing`).
-  - **Bước 3 (Chọn bản bằng mắt):** Kiểm tra 2 bản 720p tải về theo bảng 5 tiêu chí loại trừ ở Mục 3 bên dưới.
+  - **Bước 3 (Agent 3 — Visual Critic trên 2 bản 720p):** Kiểm tra **cả 2 bản 720p** tải về theo bảng tiêu chí loại trừ Anti-Plastic & Khớp kịch bản ở Mục 3 bên dưới.
   - **Bước 4 (Nâng 1080p, tải & chuẩn hoá):** Gọi `flow_upscale_video(jobId, factor="1080p", confirmCreditSpend=true)` → poll `flow_job_status` nếu cần → `flow_download_job(jobId)` lưu về `<thư_mục_video>/_google_raw/` → chạy `$PY scripts/broll_fix.py normalize <thư mục video>/_google_raw/<file> <thư mục video>/<STT>_b-roll-<M>.mp4 [--mark flow]`, rồi sang Mục 5 (`verify`).
-- **Nhánh 2 (Qua trình duyệt Cindy `mcp__cindy_browser` khi không có MCP `google-flow`):** Thực hiện theo hướng dẫn bấm UI chi tiết ở các mục 0–5 dưới đây.
+- **Nhánh 2 (Kênh phụ qua trình duyệt Cindy `mcp__cindy_browser` khi MCP `google-flow` lỗi hoặc không khả dụng):** Thực hiện theo hướng dẫn bấm UI chi tiết ở các mục 0–5 dưới đây.
 
 ## 0. Trước khi bấm gì
 1. `$PY scripts/broll_fix.py plan <thư mục video> --engine flow [--speed 1.10]` → mỗi cảnh: giây cần đặt, tín dụng (mặc định x2), tổng tín dụng.
@@ -40,14 +44,15 @@ Cài đặt: "Trả về video không có âm thanh" (nút bánh răng của d�
 4. Nhiều cảnh cùng lúc: mỗi tab một "Dự án mới" riêng; KHÔNG quá 2–3 tab tự động cùng tạo trên một tài khoản — 2026-11-14 chạy 5 tab song song thì Flow báo "hoạt động bất thường", mọi thẻ "Không thành công". Bị chặn → mở "Dự án mới" (đã gỡ được); vẫn chặn → nghỉ 5 phút, gửi tối đa 2 cảnh một lúc.
 5. Tiết kiệm: xem 2 bản ở 720p trên trang chỉnh sửa, chỉ tải 1080p bản được chọn (bản loại không cần nâng).
 
-## 3. Chọn bản (bắt buộc, bằng mắt, cho TỪNG bản)
-Chụp màn hình trang chỉnh sửa hoặc tải về rồi xem `qa/broll_check_sheet.jpg`. Loại bản nếu có BẤT KỲ:
-- chữ, số, logo hãng (cả trên viền / lưng màn hình, laptop, cốc, áo), biển hiệu;
-- màn hình / tivi / máy tính bảng / bảng trắng hiện rõ nội dung (dashboard, giao diện, bản vẽ, bảng tính); giấy in biểu đồ đọc được;
-- người được gọi là "mình", "anh", founder, CEO lộ rõ mặt (AI vẽ người lạ, không phải người nói);
-- tay / mặt méo, người xuất hiện hoặc biến mất giữa clip, cắt cảnh giữa clip;
-- hình không minh hoạ đúng `anchor_quote` của cảnh.
-Ghi vào báo cáo: cảnh, bản chọn, lý do loại bản còn lại. Cả 2 bản đều hỏng → sửa prompt theo lỗi thấy được (vd đưa màn hình ra khỏi khung, đổi sang góc sau lưng), `lint` lại, tạo lại 1 lần; vẫn hỏng → báo người dùng, giữ CẢNH BÁO D1.
+## 3. Chọn bản (Agent 3 — Visual Critic bắt buộc, bằng mắt, cho TỪNG bản 720p)
+Chụp màn hình trang chỉnh sửa hoặc tải 2 bản 720p về rồi xem `qa/broll_check_sheet.jpg`. **Loại ngay bản** nếu có BẤT KỲ lỗi nào sau đây:
+- **Nhựa / Lộ AI / CGI:** da sáp láng mịn mất lỗ chân lông, ánh sáng neon/cyberpunk gắt, vật thể phát sáng trừu tượng (khối lập phương/lăng kính/thanh ray thép CGI), chuyển động gimbal trơn tuột siêu thực;
+- **Giải phẫu & Vật lý lỗi:** ngón tay méo/thừa ngón, mặt biến dạng, đồ vật phi vật lý (ly xuyên bàn, chuột méo), người xuất hiện hoặc biến mất đột ngột;
+- **Chữ / Logo / Giao diện:** chữ, số, logo hãng (cả trên viền / lưng màn hình, laptop, cốc, áo), biển hiệu; màn hình / tivi / máy tính bảng / bảng trắng hiện rõ nội dung (dashboard, giao diện, bản vẽ, bảng tính); giấy in biểu đồ đọc được;
+- **Sai nhân vật:** người được gọi là "mình", "anh", founder, CEO lộ rõ mặt (AI vẽ người lạ, không phải người nói);
+- **Chuyển cảnh ngầm:** cắt cảnh hoặc chuyển cảnh giữa clip;
+- **Lệch nghĩa `anchor_quote`:** hình không minh hoạ đúng nghĩa đen đời thực câu nói của cảnh đó.
+Ghi vào báo cáo: cảnh, bản chọn, lý do loại bản còn lại. Cả 2 bản đều hỏng → Agent 2 sửa `layers` theo lỗi thấy được (vd đưa màn hình ra khỏi khung, bỏ từ nhựa, đổi sang hành động đời thực khác), `lint` lại, tạo lại tối đa 1 lần; vẫn hỏng → báo người dùng, giữ CẢNH BÁO D1.
 
 ## 4. Tải về và chuẩn hoá
 1. Trang chỉnh sửa → nút tải xuống → **"1080p Đã tăng độ phân giải"** (không chọn "720p Kích thước gốc", GIF, 4K). Nâng 1080p ≤ 10 s miễn phí (11 s: 1 tín dụng); Flow nâng mất 1–2,5 phút rồi file mới xuất hiện. Bản 1080p là 1080×1920, 24 fps, vẫn có rãnh tiếng (normalize bỏ).
@@ -60,18 +65,20 @@ Ghi vào báo cáo: cảnh, bản chọn, lý do loại bản còn lại. Cả 2
 
 `$PY scripts/broll_fix.py verify <thư mục video> --scenes … [--speed 1.10]` (0 FAIL) → mở `qa/broll_check_sheet.jpg`, áp lại bảng ở mục 3 → `scene_check` (0 FAIL). Báo cáo ghi: tài khoản, mô hình, giây, số bản, tín dụng đã dùng, số dư còn lại, bản chọn.
 
-## Viết prompt cho Flow (thêm vào H5)
-- Tả cái CÓ trong khung, không tả cái không có. Màn hình / laptop / tivi / bảng / giấy: chỉ khi "out of frame", "out of focus", "blurred" hoặc "blank" — "angled away", "soft glow" không đủ (2026-11-13: Flow vẫn vẽ logo DELL và dashboard trên tường).
-- Người nói ("mình", "anh", founder, CEO): không lộ mặt — "seen from behind", "over the shoulder", "close-up of hands", "silhouette". Khách hàng, đồng nghiệp lộ mặt được.
-- Người xuất hiện trong khung luôn ghi "Vietnamese" (kênh Việt, khán giả Việt): không ghi thì Flow ra người phương Tây (KB06 2026-11-14: 4 / 8 cảnh). `broll_fix.py lint` chặn.
-- Đồ có chữ / số / logo sẵn: đồng hồ bấm giờ, đồng hồ số, máy quay, chân máy, đèn studio, bàn phím cận → thay (đồng hồ cát) hoặc để ngoài khung. Không bấm "Tải xuống hàng loạt".
-- Đồ vật trơn: "plain mug", "unbranded laptop lid out of focus", "plain white box".
-- Nói rõ trên bàn / tường có gì ("a clean empty wooden desk", "a product prototype on the desk"): bỏ trống thì mô hình tự thêm giấy tờ, máy tính bảng, biểu đồ (chạy thử 2026-11-14: cảnh "leaning over a desk" ra giấy bản vẽ + tablet; bản loại có giấy in biểu đồ cột, bảng trắng có chữ).
-- Người nói / founder xuất hiện ở nhiều cảnh: dùng CÙNG một câu tả trang phục ở mọi cảnh, lấy từ A-roll (vd "a founder in a plain white t-shirt, seen from behind"); không tả thì mỗi cảnh một bộ đồ khác.
-- Một hành động, một góc máy, một nhịp chuyển động cho mỗi clip ≤ 10 s; nêu ống kính và chuyển động ("35mm, slow dolly-in", "handheld, shallow depth of field").
-- `broll_fix.py lint` chặn các lỗi trên; vẫn phải xem bằng mắt (mục 3).
-- Một clip một cảnh liền: một chủ thể, một bối cảnh, một chuyển động máy. Không "transition from … to …", "cut to", montage, "before and after", PiP, overlay, chú thích kiểu "Bối cảnh minh họa: …" — mô hình tách đôi clip hoặc vẽ đúng nghĩa đen (dấu X đỏ, avatar nhỏ). Lời dài có hai ý → hai cảnh chèn.
-- Luôn có một động từ hành động và một chuyển động máy (slow push-in, orbit, tracking); prompt toàn danh từ ra clip đứng yên.
-- Hiệu ứng hậu kỳ (bản đồ tự bật, khoanh vùng phát sáng, bảng thông số) không tạo được: quay cảnh trơn, hiệu ứng làm trên timeline.
-- Tay cận cảnh hay méo: giữ tay ở cỡ trung, ít động; cận vật thay vì cận tay.
-- Ẩn dụ trừu tượng (tia sáng, lõi năng lượng, bánh răng) chỉ khi chính câu nói là khái niệm; còn lại quay cảnh cụ thể chứng minh lời (đất trống có cọc mốc, món nguội không bốc khói).
+## Viết prompt cho Flow (Quy trình 3 Agent + 5 Tầng Anti-Plastic H5)
+Xem đặc tả đầy đủ tại [`references/master-video-prompt-architecture.md`](master-video-prompt-architecture.md) (Mục 5b) và hướng dẫn chuyển đổi kịch bản qua 3 Agent tại [`references/script-to-flow-broll.md`](script-to-flow-broll.md). Các quy tắc thực chiến bắt buộc cho Google Flow (`omni-flash`, T5-XXL/Gemma):
+- **Quy trình 3 Agent trước khi gọi Flow:**
+  1. **Agent 1 (Script Semantic Analyst):** Đọc toàn bộ `tts_text`, tách đoạn `> 7,5 s` hoặc có 2 vế đối lập thành sub-beats, viết `script_beat_vi` mô tả **cảnh đời thực cụ thể chứng minh câu nói** — CẤM ẩn dụ CGI trừu tượng (khối phát sáng, lăng kính, bánh răng, lõi năng lượng, thanh ray thép trượt hộp đèn).
+  2. **Agent 2 (5-Layer Anti-Plastic Prompt Architect):** Viết đủ 5 tầng `layers` (`l1_shot_subject`, `l2_action_script`, `l3_environment`, `l4_optics_realism`, `l5_camera_motion`) → ghép thành `prompt` `18–95` từ tiếng Anh đạt H5.
+  3. **Agent 3 (Prompt & Visual Critic):** Chạy `broll_fix.py lint` (strict layers & anti-plastic) + kiểm định mắt cả 2 bản 720p & `qa/broll_check_sheet.jpg`.
+- **Cấu trúc 5 Tầng (`l1`–`l5`) chống nhựa & tối ưu T5-XXL/Gemma:**
+  - `l1_shot_subject` (Primacy Zone): `[Shot Size + Camera Angle + Vietnamese + Faceless Lock nếu founder/speaker + trang phục/vải tự nhiên]` (Frozen Descriptor copy-paste nguyên văn nếu nhân vật lặp ở ≥ 2 cảnh).
+  - `l2_action_script` (Literal Action): `State A → Verb → State B` diễn tả đúng nghĩa đen `anchor_quote` bằng người & đồ vật đời thường thật.
+  - `l3_environment` (Lived-in Grounding): Bối cảnh công sở/đời thực Việt Nam sống động vừa đủ + màn hình/giấy/bảng **luôn** `out of frame`, `out of focus`, `blurred`, `defocused` hoặc `blank`; đồ vật `unbranded`/`plain` (`"angled away"`, `"soft glow"` KHÔNG đủ — Flow vẫn vẽ logo DELL và dashboard).
+  - `l4_optics_realism` (Anti-Plastic Optics & Physics): Thông số tài liệu (`shot on 35mm documentary lens f/2.8`, `subtle natural handheld camera feel`, `soft overcast window light mixing with desk lamp`, `subtle 35mm film grain`, `unretouched skin texture`, `natural fabric creases`). **CẤM** Anti-Slop (`stunning`, `breathtaking`, `hyper-detailed`, `8k masterpiece`, `magical`, `very realistic`), **CẤM** từ nhựa/CGI (`glossy skin`, `porcelain skin`, `airbrushed`, `cyberpunk neon`, `unreal engine`, `octane render`), **CẤM** cú pháp trọng số CLIP `(keyword:1.3)` / `keyword::2`.
+  - `l5_camera_motion` (Kinetic & Clean Tail): Đúng **1 chuyển động máy nhẹ tự nhiên** (`slow gentle push-in`, `slow lateral tracking shot`, `gentle handheld drift`, `static tripod`) + khẳng định sạch khung (`unbranded blank surfaces, clean frame`) — **KHÔNG** nối đuôi `"no text, no logos"`.
+- **T2V (Flow text-only mặc định) vs I2V (khi có Keyframe đầu/cuối):** T2V phải tự đủ cả 5 tầng trên; I2V thì bỏ lặp mô tả tĩnh đã có trong ảnh và viết theo **4 Trục Động lực học**.
+- Người nói ("mình", "anh", founder, CEO): không lộ mặt — `from behind`, `back view`, `over the shoulder`, `close-up of hands`, `silhouette`. Khách hàng, đồng nghiệp lộ mặt được.
+- Người xuất hiện trong khung luôn ghi `Vietnamese` (kênh Việt, khán giả Việt): không ghi thì Flow ra người phương Tây (KB06 2026-11-14: 4 / 8 cảnh). `broll_fix.py lint` chặn.
+- Đồ có chữ / số / logo sẵn (đồng hồ bấm giờ, đồng hồ số, máy quay, chân máy, đèn studio, bàn phím cận) → thay hoặc để ngoài khung. Nói rõ trên bàn/tường có gì (`a clean wooden desk with a plain ceramic mug`) để mô hình không tự bịa giấy tờ/biểu đồ.
+- Một clip một cảnh liền: không `transition from … to …`, `cut to`, `montage`, `before and after`, `PiP`, `overlay`; không hiệu ứng hậu kỳ (bản đồ tự bật, khoanh vùng phát sáng, bảng thông số). Tay giữ cỡ trung, ít động; cận vật thay vì cận tay để tránh méo ngón.

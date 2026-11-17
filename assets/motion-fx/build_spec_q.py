@@ -61,6 +61,8 @@ FPS, KEY_Y, CAP_Y = 30, 500, 1440
 BASE, PUSH, PUNCH, FACE = 100.0, 110.0, 118.0, [540, 960]
 
 MANIFEST = json.loads((SRC / "00_storyboard_manifest.json").read_text(encoding="utf-8"))
+_BROLL_SOURCES_PATH = SRC / "_broll_sources.json"
+BROLL_SOURCES = json.loads(_BROLL_SOURCES_PATH.read_text(encoding="utf-8")) if _BROLL_SOURCES_PATH.is_file() else {}
 PLAN = json.loads((OUT / "media/speed_plan.json").read_text(encoding="utf-8"))
 SPEED = PLAN["speed"]
 MEDIA = OUT / "media" / PLAN["speed_dir"] if SPEED != 1.0 else SRC
@@ -117,6 +119,31 @@ def print_matte_cmd(why: str, src: Path, start: float, length: float) -> None:
           f"của file gốc nên `in` = in V1 − {start:.2f} (build_spec đọc số này từ tên file _s{start:.2f}).")
 
 
+def broll_source_of(seg: dict, video_name: str) -> str:
+    """Xác định nguồn B-roll (flow | real_footage | stock | muse | unknown) từ _broll_sources.json / manifest / _google_raw."""
+    valid = {"flow", "real_footage", "stock", "muse"}
+    vname = Path(video_name).name
+    entry = BROLL_SOURCES.get(vname) or BROLL_SOURCES.get(video_name) or {}
+    if isinstance(entry, dict) and str(entry.get("source") or "").lower() in valid:
+        return str(entry["source"]).lower()
+    seg_src = str(seg.get("broll_source") or "").strip().lower()
+    if seg_src in valid:
+        return seg_src
+    google_raw = SRC / "_google_raw"
+    if google_raw.is_dir():
+        stem = Path(vname).stem
+        if any(p.is_file() and (p.stem == stem or p.stem.startswith(stem + "_")) for p in google_raw.iterdir()):
+            return "flow"
+    vg = str((seg.get("api_routing") or {}).get("video_generator") or "").strip().lower()
+    vg_map = {
+        "flow": "flow", "google_flow": "flow", "google-flow": "flow", "omni-flash": "flow",
+        "real_footage": "real_footage", "live_shoot": "real_footage",
+        "stock": "stock",
+        "muse": "muse", "muse_api": "muse",
+    }
+    return vg_map.get(vg, "unknown")
+
+
 def main() -> int:
     if not KEY_SPECS:
         sys.exit("KEY_SPECS trống: điền các khối chữ chính (dòng `# EDIT:`) rồi chạy lại")
@@ -139,7 +166,8 @@ def main() -> int:
             d = round(snap(b - a), 3)
             t0s.append(round(t_acc, 3))
             RAW.append({"scene": si, "video": MEDIA / sc["video"], "voice": MEDIA / (sc["voice"] or sc["video"]), "a": a, "d": d, "t0": t0s[-1],
-                        "id": f"s{len(RAW):02d}", "role": sc["seg"]["role_id"], "broll": sc["seg"]["type"] == "b-roll"})
+                        "id": f"s{len(RAW):02d}", "role": sc["seg"]["role_id"], "broll": sc["seg"]["type"] == "b-roll",
+                        "broll_source": broll_source_of(sc["seg"], sc["video"]) if sc["seg"]["type"] == "b-roll" else None})
             t_acc = round(t_acc + d, 3)
         words_tl += script_words(sc["toks"], sc["words"], sc["segs"], t0s, FPS)
     END = round(t_acc, 3)
@@ -168,9 +196,12 @@ def main() -> int:
     for r in RAW:
         local = [round(pt - r["t0"], 3) for pt in pain_times if r["t0"] <= pt <= r["t0"] + r["d"]]
         zk = zoom_keys(r["d"], pains=local, base=BASE, push=PUSH, punch=PUNCH, period=3.0, fps=FPS)
-        v1.append({"src": str(r["video"]), "at": r["t0"], "in": round(r["a"], 3), "dur": r["d"], "audio": False,
-                   "name": f"{'B-roll' if r['broll'] else 'A-roll'} {r['role'].split('-')[-1]} · {r['id']}",
-                   "motion": {"scale": zk, "anchor": FACE, "position": FACE}})
+        clip = {"src": str(r["video"]), "at": r["t0"], "in": round(r["a"], 3), "dur": r["d"], "audio": False,
+                "name": f"{'B-roll' if r['broll'] else 'A-roll'} {r['role'].split('-')[-1]} · {r['id']}",
+                "motion": {"scale": zk, "anchor": FACE, "position": FACE}}
+        if r["broll"]:
+            clip["broll_source"] = r["broll_source"]
+        v1.append(clip)
         jobs.append((str(r["voice"]), r["a"], r["d"], r["id"]))
     voice_dir = OUT / "media/voice"
     voice_dir.mkdir(parents=True, exist_ok=True)

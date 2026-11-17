@@ -48,6 +48,73 @@ CTA_CUES = (
 SENTENCE_END_RE = re.compile(r"[.?!…]+[\"'”’)\]]*$")
 CLAUSE_END_RE = re.compile(r"[,;:]+[\"'”’)\]]*$")
 
+ANTI_SLOP_WORDS = bf.ANTI_SLOP_WORDS
+ANTI_SLOP_RE = bf.ANTI_SLOP_RE
+PLASTIC_AI_WORDS = bf.PLASTIC_AI_WORDS
+PLASTIC_AI_RE = bf.PLASTIC_AI_RE
+WEIGHT_SYNTAX_RE = bf.WEIGHT_SYNTAX_RE
+CAMERA_MOTION_RE = bf.CAMERA_MOTION_RE
+NEGATIVE_TAIL_RE = bf.NEGATIVE_TAIL_RE
+REALISM_CUE_RE = bf.REALISM_CUE_RE
+
+
+def audit_prompt_architecture(prompt: str, mode: str = "t2v") -> dict[str, Any]:
+    """Kiểm nhẹ kiến trúc prompt (Anti-Slop, Anti-Plastic-CGI, cấm syntax trọng số CLIP, Realism Cue & Camera Move).
+
+    Trả về dict cảnh báo không chặn (`warnings`) tương thích mọi luồng H5 hiện có.
+    """
+    text = (prompt or "").strip()
+    words = text.split()
+    primacy_preview = " ".join(words[:35])
+    anti_slop_hits = sorted({m.group(0).lower() for m in ANTI_SLOP_RE.finditer(text)})
+    plastic_ai_hits = sorted({m.group(0).lower() for m in PLASTIC_AI_RE.finditer(text)})
+    weight_syntax_hits = [m.group(0) for m in WEIGHT_SYNTAX_RE.finditer(text)]
+    has_realism_cue = bool(text and REALISM_CUE_RE.search(text))
+    warnings: list[str] = []
+
+    if anti_slop_hits:
+        warnings.append(
+            "Anti-Slop: tránh từ sáo rỗng ("
+            + ", ".join(anti_slop_hits)
+            + "); thay bằng thông số vật lý/quang học/sinh học đo lường được"
+        )
+    if plastic_ai_hits:
+        warnings.append(
+            "Plastic/CGI AI-Tell: tránh từ khoá CGI/nhựa lộ AI ("
+            + ", ".join(plastic_ai_hits)
+            + "); thay bằng vật liệu và ánh sáng đời thực"
+        )
+    if weight_syntax_hits:
+        warnings.append(
+            "T5-XXL/Gemma: cấm cú pháp trọng số CLIP ("
+            + ", ".join(weight_syntax_hits[:3])
+            + "); dùng khuếch đại ngữ nghĩa hoặc khối tiêu đề in hoa"
+        )
+    if mode in ("t2v", "i2v", "flow") and text and not CAMERA_MOTION_RE.search(text):
+        warnings.append(
+            "4-Axis Motion: nên nêu rõ 1 chuyển động camera duy nhất (vd: slow push-in, lateral tracking, orbit, static tripod)"
+        )
+    if mode in ("t2v", "i2v", "t2i", "flow") and text and not has_realism_cue:
+        warnings.append(
+            "Realism Cue: thiếu chỉ dấu quang học / chất liệu đời thực chống nhựa (vd: 35mm, 50mm, window light, daylight, shallow depth of field, film grain, skin texture, wooden, matte)"
+        )
+    if mode in ("t2v", "flow") and NEGATIVE_TAIL_RE.search(text):
+        warnings.append(
+            "Flow T2V: tránh cụm phủ định 'no text/logos/subtitles'; dùng ràng buộc khẳng định (blank, unbranded, out of focus)"
+        )
+
+    return {
+        "ok": len(warnings) == 0,
+        "mode": mode,
+        "word_count": len(words),
+        "primacy_preview": primacy_preview,
+        "anti_slop_hits": anti_slop_hits,
+        "plastic_ai_hits": plastic_ai_hits,
+        "has_realism_cue": has_realism_cue,
+        "weight_syntax_hits": weight_syntax_hits,
+        "warnings": warnings,
+    }
+
 
 def _norm_lower(text: str) -> str:
     return unicodedata.normalize("NFC", text or "").lower()
@@ -297,10 +364,10 @@ def _prompt_draft_hint(text: str, meta: dict[str, Any]) -> str:
     else:
         focus = "hành động/bối cảnh cụ thể minh hoạ đúng anchor_quote"
     return (
-        f"Khung H5 (8–60 từ tiếng Anh, không dấu, không đuôi NO text): "
-        f"[Vietnamese subject / over-the-shoulder / hands only] + [{focus}] + "
-        f"[bối cảnh thật, màn hình/giấy nếu có phải out of focus hoặc blank] + "
-        f"[ánh sáng tự nhiên/ấm] + [1 chuyển động máy mượt: slow push-in / tracking]."
+        f"Khung H5 + Positional Bias ({bf.MIN_WORDS}–{bf.MAX_WORDS} từ tiếng Anh, không dấu, không từ Anti-Slop/cú pháp (x:1.3), không đuôi NO text): "
+        f"[Primacy 20–35 từ đầu: Shot Size + Angle + Vietnamese subject / over-the-shoulder / hands only] + "
+        f"[{focus}] + [bối cảnh thật, màn hình/giấy nếu có phải out of focus hoặc blank] + "
+        f"[ánh sáng/ống kính đo được] + [1 chuyển động máy mượt: slow push-in / tracking]."
     )
 
 
@@ -545,6 +612,7 @@ def check_prompts_against_plan(
     plan: dict[str, Any],
     prompts: list[dict[str, Any]],
     outputs: int | None = None,
+    strict_layers: bool = True,
 ) -> tuple[list[str], dict[str, Any]]:
     """Kiểm từng prompt ứng với anchor_quote của slot B-ROLL trong plan qua broll_fix.lint_prompt."""
     slots = plan.get("slots")
@@ -589,19 +657,36 @@ def check_prompts_against_plan(
         seen_ids.add(sid)
 
         slot = broll_by_id[sid]
-        core = bf.core_of(str(entry.get("prompt") or ""))
-        if str(entry.get("prompt") or "") != core:
-            problems.append(f"slot {sid}: không nối đuôi '(Pure visual…)' khi gửi Google Flow")
-        errs = bf.lint_prompt(core, tts_text=slot.get("anchor_quote", ""), anchor=entry.get("anchor_quote"))
-        if errs:
-            problems.extend(f"slot {sid}: {err}" for err in errs)
+        slot_problems: list[str] = []
+        if "script_beat_vi" in entry:
+            beat = entry["script_beat_vi"]
+            if not isinstance(beat, str) or not beat.strip():
+                slot_problems.append("script_beat_vi phải là chuỗi không rỗng")
+        raw_prompt = str(entry.get("prompt") or "")
+        if raw_prompt.strip():
+            core = bf.core_of(raw_prompt)
+            if raw_prompt != core:
+                slot_problems.append("không nối đuôi '(Pure visual…)' khi gửi Google Flow")
+        else:
+            core = bf.resolve_entry_prompt(entry)
+        errs = bf.lint_prompt(
+            core,
+            tts_text=slot.get("anchor_quote", ""),
+            anchor=entry.get("anchor_quote"),
+            strict_layers=strict_layers,
+            layers=entry.get("layers"),
+        )
+        slot_problems.extend(errs)
+        if slot_problems:
+            problems.extend(f"slot {sid}: {err}" for err in slot_problems)
             continue
 
         fsec = bf.flow_seconds(float(slot.get("voice_len") or 4.0))
         fcred = bf.flow_credits(fsec, outputs=out_count)
         total_secs += fsec
         total_credits += fcred
-        jobs.append({
+        arch = audit_prompt_architecture(core, mode="t2v")
+        job_entry: dict[str, Any] = {
             "slot_id": sid,
             "seq_prefix": slot["seq_prefix"],
             "role_id": slot["role_id"],
@@ -617,18 +702,31 @@ def check_prompts_against_plan(
             "upscale": "1080p",
             "anchor_quote": entry.get("anchor_quote"),
             "prompt": core,
-        })
+        }
+        if isinstance(entry.get("layers"), dict):
+            job_entry["layers"] = entry["layers"]
+        if isinstance(entry.get("script_beat_vi"), str) and entry["script_beat_vi"].strip():
+            job_entry["script_beat_vi"] = entry["script_beat_vi"].strip()
+        if arch["warnings"]:
+            job_entry["arch_warnings"] = arch["warnings"]
+        jobs.append(job_entry)
 
     for sid in sorted(broll_by_id):
         if sid not in seen_ids:
             problems.append(f"slot {sid}: thiếu prompt cho cảnh B-ROLL ({broll_by_id[sid]['role_id']})")
 
     jobs.sort(key=lambda j: j["slot_id"])
+    arch_warnings = [
+        {"slot_id": j["slot_id"], "warnings": j["arch_warnings"]}
+        for j in jobs
+        if j.get("arch_warnings")
+    ]
     ready = {
         "outputs": out_count,
         "total_jobs": len(jobs),
         "total_flow_seconds": total_secs,
         "total_credits": total_credits,
+        "architecture_warnings": arch_warnings,
         "jobs": jobs,
     }
     return problems, ready
@@ -637,10 +735,11 @@ def check_prompts_against_plan(
 def cmd_check_prompts(args: argparse.Namespace) -> int:
     plan_path = Path(args.plan)
     prompts_path = Path(args.prompts)
+    strict = not getattr(args, "no_strict_layers", False)
     try:
         plan = _load_json(plan_path)
         prompts = _load_json(prompts_path)
-        problems, ready = check_prompts_against_plan(plan, prompts, outputs=args.outputs)
+        problems, ready = check_prompts_against_plan(plan, prompts, outputs=args.outputs, strict_layers=strict)
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as e:
         print(f"[H5 ERROR] đọc đầu vào: {e}", file=sys.stderr)
         return 2
@@ -653,12 +752,27 @@ def cmd_check_prompts(args: argparse.Namespace) -> int:
 
     out_path = Path(args.out) if args.out else prompts_path.with_name(f"{prompts_path.stem}.flow_ready.json")
     _save_json(out_path, ready)
+    for item in ready.get("architecture_warnings") or []:
+        for w in item["warnings"]:
+            print(f"[ARCH WARN] slot {item['slot_id']}: {w}")
     print(
         f"[H5 OK] {ready['total_jobs']} prompt đạt chuẩn · "
         f"tổng thời lượng Flow: {ready['total_flow_seconds']}s · "
         f"tổng tín dụng (x{ready['outputs']}): {ready['total_credits']} tín dụng"
     )
     print(f"  Flow-ready JSON: {out_path}")
+    return 0
+
+
+def cmd_audit_prompt(args: argparse.Namespace) -> int:
+    res = audit_prompt_architecture(args.prompt, mode=args.mode)
+    if args.json:
+        print(json.dumps(res, ensure_ascii=False, indent=2))
+    else:
+        status = "OK" if res["ok"] else "WARN"
+        print(f"[ARCH {status}] mode={res['mode']} words={res['word_count']}")
+        for w in res["warnings"]:
+            print(f"  - {w}")
     return 0
 
 
@@ -683,7 +797,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_cp.add_argument("--prompts", required=True, help="Đường dẫn prompts.json")
     p_cp.add_argument("--out", help="Đường dẫn file Flow-ready JSON đầu ra")
     p_cp.add_argument("--outputs", type=int, default=None, help="Ghi đè số bản Flow mỗi cảnh (mặc định theo plan)")
+    p_cp.add_argument("--no-strict-layers", action="store_true", help="Tắt kiểm tra bắt buộc camera motion + realism cue")
     p_cp.set_defaults(fn=cmd_check_prompts)
+
+    p_ap = sub.add_parser("audit-prompt", help="Kiểm kiến trúc prompt (Anti-Slop, T5-XXL/CLIP syntax, camera motion)")
+    p_ap.add_argument("--prompt", required=True, help="Chuỗi prompt tiếng Anh cần kiểm")
+    p_ap.add_argument("--mode", choices=("t2v", "i2v", "t2i", "flow"), default="t2v", help="Chế độ prompt (mặc định t2v)")
+    p_ap.add_argument("--json", action="store_true", help="Xuất kết quả dạng JSON")
+    p_ap.set_defaults(fn=cmd_audit_prompt)
     return ap
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Kiểm dùng lại cảnh chèn (B-roll) và cảnh quay thật trên nhiều video (luật D8–D10, người dùng chốt 2026-11-11).
 
-  D8  mỗi cảnh B-roll xuất hiện TỐI ĐA 1 lần trong một video, và dùng cho TỐI ĐA 2 video khác nhau
+  D8  mỗi cảnh B-roll xuất hiện TỐI ĐA 2 lần trong một video, và dùng cho TỐI ĐA 2 video khác nhau
   D9  B-roll phải đúng nội dung kịch bản: không dùng cảnh làm cho kịch bản khác (tên thư viện KBxx_Byy / OPAxx_…)
   D10 mỗi clip trong `Source/soucre thô` xuất hiện TỐI ĐA 2 lần trên toàn bộ các video
 
@@ -24,11 +24,12 @@ import numpy as np
 LIB_DIRS = [Path("/home/vmiz/Thanh/Media/A huy/B-roll")]
 SOURCE_RAW = Path("/home/vmiz/Thanh/Media/A huy/Source/soucre thô")
 MAX_VIDEOS_PER_BROLL = 2
-MAX_PER_VIDEO = 1
+MAX_PER_VIDEO = 2
 MAX_RAW_USES = 2
 SAME = 0.05                      # đo 2026-11-11: cùng clip (kể cả mã hoá lại / 1.15x) ≤ 0,003; clip khác nhau ≥ 0,149
 SAME_RAW = 0.005                 # cảnh quay thật cùng người cùng phòng giống nhau (0,011–0,025) → ngưỡng chặt, lấy cái gần nhất
 CODE_RX = re.compile(r"(?:^|_)((?:KB|OPA|XM|THCN)\d+)(?:_|$)")
+VERSION_RE = re.compile(r"^v\d+(?:[._-].*)?$", re.I)
 SKIP_TRACK = ("trans", "text", "Ảnh bìa", "band", "V2", "V3", "V4")
 
 
@@ -81,9 +82,21 @@ def raw_index() -> list[tuple[str, float]]:
     return [(str(p), _dur(p)) for p in sorted(SOURCE_RAW.rglob("*")) if p.suffix.lower() in (".mp4", ".mov")]
 
 
+def canonical_video_dir(spec_path: Path) -> Path:
+    """Gộp <video_dir>/<version>/work/*.craft.json (v1, v2, v3*…) về <video_dir> gốc."""
+    proj_dir = spec_path.parent.parent
+    if VERSION_RE.match(proj_dir.name) or (proj_dir.parent / "00_storyboard_manifest.json").is_file():
+        return proj_dir.parent
+    return proj_dir
+
+
 def latest_spec(video_dir: Path) -> Path | None:
-    specs = sorted((video_dir / "work").glob("*.craft.json"), key=lambda p: p.stat().st_mtime)
-    return specs[-1] if specs else None
+    specs = list((video_dir / "work").glob("*.craft.json"))
+    if video_dir.is_dir():
+        for sub in video_dir.iterdir():
+            if sub.is_dir() and VERSION_RE.match(sub.name) and (sub / "work").is_dir():
+                specs.extend((sub / "work").glob("*.craft.json"))
+    return max(specs, key=lambda p: (p.stat().st_mtime, str(p))) if specs else None
 
 
 def resolve(src: str) -> str:
@@ -103,7 +116,15 @@ def uses_of(spec: dict) -> list[dict]:
             continue
         for c in t.get("clips", []):
             src, nm = resolve(c.get("src", "")), c.get("name", "")
-            is_b = tn.startswith("gfx_under") or "b-roll" in Path(src).name.lower() or nm.lower().startswith("b-roll")
+            src_l, fname_l, nm_l = src.lower().replace("\\", "/"), Path(src).name.lower(), nm.lower()
+            is_b = (
+                tn.startswith("gfx_under")
+                or "b-roll" in fname_l
+                or nm_l.startswith(("b-roll", "footage"))
+                or bool(c.get("broll_source"))
+                or fname_l.startswith(("stock_", "ftg_"))
+                or "06_b-roll" in src_l
+            )
             if src and is_b and Path(src).suffix.lower() in (".mp4", ".mov"):
                 raw.append({"src": src, "at": c["at"], "end": c["at"] + c["dur"]})
     raw.sort(key=lambda u: (u["src"], u["at"]))
@@ -132,13 +153,15 @@ def live_files(video_dir: Path) -> list[Path]:
 def audit(roots: list[Path]) -> dict:
     lib = library_index()
     raws = raw_index()
-    videos = sorted({p.parent.parent for r in roots for p in r.rglob("work/*.craft.json")})
+    by_video: dict[Path, list[Path]] = {}
+    for r in roots:
+        for p in r.rglob("work/*.craft.json"):
+            by_video.setdefault(canonical_video_dir(p).resolve(), []).append(p)
+    videos = sorted(by_video)
     groups: list[dict] = []           # mỗi clip duy nhất (theo vân tay): {fp, name, origin, uses: [(video, at)]}
     raw_uses: dict[str, list[str]] = {}
     for v in videos:
-        spec_p = latest_spec(v)
-        if not spec_p:
-            continue
+        spec_p = max(by_video[v], key=lambda p: (p.stat().st_mtime, str(p)))
         vcode = code_of(v.name) or v.name
         spec = json.loads(spec_p.read_text(encoding="utf-8"))
         for u in uses_of(spec):

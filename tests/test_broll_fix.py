@@ -99,6 +99,83 @@ def main() -> None:
     assert bf.lint_prompt(GOOD3, TTS3, "một câu không có trong lời cảnh") and bf.lint_prompt(GOOD3, TTS3, None)
     assert bf.lint_prompt(GOOD3, TTS3, "minh và KHỐI kỹ thuật, tập trung tối đa") == []      # chuẩn hoá hoa/thường/dấu câu
     assert bf.core_of(f"{GOOD3} ({rmb.BROLL_STRICT_SUFFIX_EN})") == GOOD3
+
+    # v3.2: MAX_WORDS=95, Anti-Slop, Anti-Plastic-CGI, CLIP weights, Negative tail, strict_layers & 5 layers
+    assert bf.MAX_WORDS == 95
+    words_75 = (
+        "Medium close-up of a young Vietnamese founder seen from behind at a clean wooden desk "
+        "in a sunlit modern office, carefully sorting plain blank cardboard folders while unbranded "
+        "monitors remain blurred and out of focus in the background, warm window light across linen "
+        "sleeves and natural skin texture, shot on 35mm documentary lens with subtle film grain "
+        "and shallow depth of field, slow push-in toward the hands "
+        + " ".join(["calmly"] * 12)
+        + "."
+    )
+    assert 61 <= len(words_75.split()) <= 95
+    assert bf.lint_prompt(words_75, strict_layers=True) == [], bf.lint_prompt(words_75, strict_layers=True)
+    words_96 = words_75 + " " + " ".join(["extra"] * (96 - len(words_75.split())))
+    assert any("96 chữ" in e for e in bf.lint_prompt(words_96, strict_layers=True))
+
+    anti_slop_samples = [
+        "stunning", "breathtaking", "hyper-detailed", "hyperdetailed", "8k", "4k", "masterpiece",
+        "magical", "very realistic", "ultra-realistic", "ultra realistic", "photorealistic",
+        "award-winning", "best quality",
+    ]
+    for w in anti_slop_samples:
+        p = f"Medium shot of a Vietnamese designer in a {w} wooden studio, window light, slow push-in."
+        errs = bf.lint_prompt(p, strict_layers=True)
+        assert any("Anti-Slop" in e for e in errs), (w, errs)
+
+    plastic_ai_samples = [
+        "3d render", "cgi", "unreal engine", "octanerender", "octane", "blender render",
+        "glowing prism", "amber prism", "frosted-glass gears", "hologram", "holographic",
+        "cyberpunk", "neon cyber", "futuristic glowing", "glowing nodes", "floating icons",
+        "pipeline rail", "parallel steel tracks", "sci-fi", "plastic sheen", "porcelain skin",
+        "rubbery", "energy core",
+    ]
+    for w in plastic_ai_samples:
+        p = f"Medium shot of a Vietnamese engineer beside a {w} on a wooden desk, daylight, slow push-in."
+        errs = bf.lint_prompt(p, strict_layers=True)
+        assert any("CGI/nhựa" in e for e in errs), (w, errs)
+
+    for bad_syn in (
+        "Medium shot of a (Vietnamese:1.3) designer at a wooden desk, daylight, slow push-in.",
+        "Medium shot of a Vietnamese designer at a wooden::2 desk, daylight, slow push-in.",
+    ):
+        errs = bf.lint_prompt(bad_syn, strict_layers=True)
+        assert any("trọng số CLIP" in e for e in errs), (bad_syn, errs)
+
+    for bad_neg in (
+        "Medium shot of a Vietnamese designer at a wooden desk, daylight, slow push-in, no text.",
+        "Medium shot of a Vietnamese designer at a wooden desk, daylight, slow push-in, no logos.",
+        "Medium shot of a Vietnamese designer at a wooden desk, daylight, slow push-in, no watermarks.",
+        "Medium shot of a Vietnamese designer at a wooden desk, daylight, slow push-in, no subtitles.",
+    ):
+        errs = bf.lint_prompt(bad_neg, strict_layers=True)
+        assert any("phủ định" in e for e in errs), (bad_neg, errs)
+
+    no_cam = "Medium shot of a Vietnamese designer at a wooden desk, warm window light, 35mm film grain."
+    assert bf.lint_prompt(no_cam, strict_layers=False) == []
+    assert any("chuyển động camera" in e for e in bf.lint_prompt(no_cam, strict_layers=True))
+
+    no_realism = "Medium shot of a young Vietnamese designer standing in a quiet modern office, slow push-in."
+    assert bf.lint_prompt(no_realism, strict_layers=False) == []
+    assert any("quang học / chất liệu" in e for e in bf.lint_prompt(no_realism, strict_layers=True))
+
+    good_layers = {
+        "l1_shot_subject": "Over-the-shoulder medium shot of a young Vietnamese engineering team",
+        "l2_action_script": "three colleagues working closely together to sharpen their product",
+        "l3_environment": "in a bright modern office with monitors blurred and out of focus",
+        "l4_optics_realism": "35mm documentary look, warm daylight, natural skin texture, shallow depth of field",
+        "l5_camera_motion": "slow push-in",
+    }
+    assembled = bf.assemble_layered_prompt(good_layers)
+    assert bf.lint_prompt(assembled, TTS3, ANCHOR3, strict_layers=True, layers=good_layers) == []
+    bad_layers_missing = {**good_layers, "l4_optics_realism": "  "}
+    assert any("layers thiếu hoặc rỗng" in e for e in bf.lint_prompt(assembled, strict_layers=True, layers=bad_layers_missing))
+    bad_layers_vi = {**good_layers, "l2_action_script": "ba kỹ sư Việt đang tập trung"}
+    assert any("layers có dấu tiếng Việt" in e for e in bf.lint_prompt(assembled, strict_layers=True, layers=bad_layers_vi))
+    print("ok  v3.2 lint: MAX_WORDS=95, Anti-Slop, Plastic-CGI, CLIP weights, negative tail, strict_layers, 5 layers")
     assert [bf.request_seconds(v) for v in (7.31, 9.74, 5.67, 1.0)] == [8, 10, 6, 2]
     assert [bf.flow_seconds(v) for v in (7.31, 9.74, 5.67, 18.02, 1.0)] == [8, 11, 6, 15, 3]
     assert bf.flow_credits(8, 2) == 48 and bf.flow_credits(10, 1) == 30          # 720p 3 tín dụng/s, nâng 1080p miễn phí ≤ 10 s
@@ -143,7 +220,7 @@ def main() -> None:
         badp.write_text(json.dumps([{"seq": 3, "prompt": "Clip thư viện: KB07", "anchor_quote": ANCHOR3}], ensure_ascii=False), encoding="utf-8")
         r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(badp), "--backup-root", str(backup_root)], capture_output=True, text=True)
         assert r.returncode == 1 and (f / "03_b-roll-2.mp4").exists() and not backup_root.exists()
-        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newp), "--backup-root", str(backup_root)], capture_output=True, text=True)
+        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newp), "--source", "muse", "--backup-root", str(backup_root)], capture_output=True, text=True)
         assert r.returncode == 0, r.stdout + r.stderr
         assert not (f / "03_b-roll-2.mp4").exists() and not (f / "media/x110/03_b-roll-2_x110.mp4").exists()
         assert (f / "04_b-roll-10.mp4").exists()                                   # cảnh khác nguyên vẹn
@@ -163,17 +240,17 @@ def main() -> None:
         assert not rmb.h5_problems([(f, i3)]) and rmb.h5_problems([(f, i4)])
         print("ok  prepare: dry-run / lint chặn / sao lưu / viết lại prompts + manifest")
 
-        # --- prepare --source flow: ghi đúng nguồn, giây theo mức Flow
+        # --- prepare mặc định (--source flow) + plan mặc định (--engine flow)
         newp4 = root / "p4.json"
         newp4.write_text(json.dumps([{"seq": 4, "prompt": GOOD3, "anchor_quote": ANCHOR3}], ensure_ascii=False), encoding="utf-8")
-        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newp4), "--source", "flow", "--backup-root", str(backup_root)],
+        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(newp4), "--backup-root", str(backup_root)],
                            capture_output=True, text=True)
         assert r.returncode == 0, r.stdout + r.stderr
         i4 = json.loads((f / "prompts_muse_veo_broll.json").read_text(encoding="utf-8"))[1]
         m4 = json.loads((f / "00_storyboard_manifest.json").read_text(encoding="utf-8"))["segments"][1]
         assert i4["source"] == "flow" and m4["broll_source"] == "flow" and i4["duration_target_sec"] == 3, (i4, m4)
         assert i4["prompt_full"] == GOOD3                                           # Flow: gõ lõi prompt, không nối đuôi "NO text…"
-        r = subprocess.run([*cli, "plan", str(f), "--engine", "flow"], capture_output=True, text=True)
+        r = subprocess.run([*cli, "plan", str(f)], capture_output=True, text=True)
         assert r.returncode == 0 and "Flow" in r.stdout and "tín dụng" in r.stdout, r.stdout + r.stderr
         # --- prepare --keep-clips: chỉ ghi prompt cuối vào manifest / prompts, clip đang dùng giữ nguyên
         make_clip(f / "04_b-roll-10.mp4", "testsrc", 3)
@@ -186,7 +263,42 @@ def main() -> None:
         assert (f / "04_b-roll-10.mp4").exists(), "keep-clips đã chuyển clip đi"
         m4 = json.loads((f / "00_storyboard_manifest.json").read_text(encoding="utf-8"))["segments"][1]
         assert m4["visual_direction"] == GOOD4 and m4["broll_source"] == "flow", m4
-        print("ok  prepare --source flow + plan --engine flow")
+        # --- lint & prepare với 5 tầng `layers` (không cần ghi `prompt`) + `script_beat_vi` + `--no-strict-layers`
+        beat = "Minh và khối kỹ thuật tập trung rèn giũa sản phẩm trong văn phòng sáng"
+        layered_p = root / "layered.json"
+        layered_p.write_text(json.dumps([{
+            "seq": 4,
+            "anchor_quote": ANCHOR3,
+            "script_beat_vi": beat,
+            "layers": good_layers,
+        }], ensure_ascii=False), encoding="utf-8")
+        r = subprocess.run([*cli, "lint", str(f), "--prompts", str(layered_p)], capture_output=True, text=True)
+        assert r.returncode == 0, r.stdout + r.stderr
+        r = subprocess.run([*cli, "prepare", str(f), "--prompts", str(layered_p), "--source", "flow", "--keep-clips",
+                            "--backup-root", str(backup_root)], capture_output=True, text=True)
+        assert r.returncode == 0, r.stdout + r.stderr
+        i4 = json.loads((f / "prompts_muse_veo_broll.json").read_text(encoding="utf-8"))[1]
+        m4 = json.loads((f / "00_storyboard_manifest.json").read_text(encoding="utf-8"))["segments"][1]
+        assert i4["layers"] == good_layers and i4["script_beat_vi"] == beat, i4
+        assert m4["broll_layers"] == good_layers and m4["script_beat_vi"] == beat, m4
+        assert i4["prompt_core"] == assembled and m4["broll_prompt"] == assembled
+
+        no_strict_p = root / "nostrict.json"
+        no_strict_p.write_text(json.dumps([{
+            "seq": 4,
+            "anchor_quote": ANCHOR3,
+            "prompt": "A Vietnamese founder seen from behind, over the shoulder, listens to a client across a table in an office.",
+        }], ensure_ascii=False), encoding="utf-8")
+        assert subprocess.run([*cli, "lint", str(f), "--prompts", str(no_strict_p)], capture_output=True, text=True).returncode == 1
+        assert subprocess.run([*cli, "lint", str(f), "--prompts", str(no_strict_p), "--no-strict-layers"], capture_output=True, text=True).returncode == 0
+
+        bad_beat_p = root / "bad_beat.json"
+        bad_beat_p.write_text(json.dumps([{
+            "seq": 4, "anchor_quote": ANCHOR3, "script_beat_vi": "   ", "layers": good_layers,
+        }], ensure_ascii=False), encoding="utf-8")
+        r = subprocess.run([*cli, "lint", str(f), "--prompts", str(bad_beat_p)], capture_output=True, text=True)
+        assert r.returncode == 1 and "script_beat_vi" in r.stdout, r.stdout
+        print("ok  prepare --source flow + plan --engine flow + layers/script_beat_vi/--no-strict-layers")
 
         # --- verify (lib giả để khỏi quét thư viện thật)
         lib = root / "lib"
@@ -237,7 +349,38 @@ def main() -> None:
                              capture_output=True).stdout
         fr = np.frombuffer(raw, np.uint8).reshape(1920, 1080)
         assert float(fr[1700:1780, 860:940].mean()) < 40, f"dấu Flow chưa bị xoá ({fr[1700:1780, 860:940].mean():.0f})"
-        print("ok  normalize: 1080x1920 30 fps không tiếng, xoá dấu Flow")
+        prov = json.loads((Path(td) / "_broll_sources.json").read_text(encoding="utf-8"))
+        assert prov["03_b-roll-2.mp4"]["source"] == "flow" and prov["03_b-roll-2.mp4"]["mark"] == "flow", prov
+        print("ok  normalize: 1080x1920 30 fps không tiếng, xoá dấu Flow, ghi _broll_sources.json")
+
+    # normalize provenance inference & manifest sync
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        (d / "_google_raw").mkdir()
+        (d / "06_B-Roll").mkdir()
+        (d / "04_footage").mkdir()
+        man_p = d / "00_storyboard_manifest.json"
+        man_p.write_text(json.dumps({"segments": [
+            {"seq_index": 2, "type": "b-roll", "files": {"video_file": "02_b-roll-1.mp4"}},
+            {"seq_index": 3, "type": "b-roll", "files": {"video_file": "03_b-roll-2.mp4"}},
+            {"seq_index": 4, "type": "b-roll", "files": {"video_file": "04_b-roll-3.mp4"}},
+        ]}, ensure_ascii=False), encoding="utf-8")
+        r_flow = d / "_google_raw/shot1.mp4"
+        r_stock = d / "06_B-Roll/ftg_desk.mp4"
+        r_real = d / "04_footage/C0001_studio.mp4"
+        for rp in (r_flow, r_stock, r_real):
+            ff(["-f", "lavfi", "-i", "color=c=black:s=1080x1920:r=30:d=0.5", "-c:v", "libx264", str(rp)])
+        assert bf.normalize(r_flow, d / "02_b-roll-1.mp4") == 0
+        assert bf.normalize(r_stock, d / "03_b-roll-2.mp4") == 0
+        assert subprocess.run([sys.executable, str(SCRIPTS / "broll_fix.py"), "normalize", str(r_real), str(d / "04_b-roll-3.mp4")],
+                              capture_output=True, text=True).returncode == 0
+        prov = json.loads((d / "_broll_sources.json").read_text(encoding="utf-8"))
+        assert prov["02_b-roll-1.mp4"]["source"] == "flow"
+        assert prov["03_b-roll-2.mp4"]["source"] == "stock"
+        assert prov["04_b-roll-3.mp4"]["source"] == "real_footage"
+        segs = json.loads(man_p.read_text(encoding="utf-8"))["segments"]
+        assert [s["broll_source"] for s in segs] == ["flow", "stock", "real_footage"], segs
+        print("ok  normalize: suy nguồn flow/stock/real_footage + cập nhật _broll_sources.json & manifest")
 
     # 1.2.2 F3 trim_uniform_borders: cắt viền trắng/đen/đồng màu >= 2 %, giữ nguyên < 2 % và nền chuyển êm
     import numpy as np

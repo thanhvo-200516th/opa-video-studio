@@ -233,6 +233,61 @@ def test_analyze_45s() -> None:
             assert j["upscale"] == "1080p"
             assert bf.SUFFIX_MARK not in j["prompt"]
 
+        # --- Kiểm strict_layers=True mặc định trên check-prompts, --no-strict-layers, Plastic CGI, và layers + script_beat_vi
+        no_motion_prompts = [
+            {
+                "slot_id": s["slot_id"],
+                "anchor_quote": s["anchor_quote"],
+                "prompt": "Medium close-up of a Vietnamese founder seen from behind at a wooden desk in warm window light.",
+            }
+            for s in broll_slots
+        ]
+        nm_path = out_dir / "prompts_no_motion.json"
+        nm_path.write_text(json.dumps(no_motion_prompts, ensure_ascii=False, indent=2), encoding="utf-8")
+        res_nm_strict = run_cli(["check-prompts", "--plan", str(plan_json), "--prompts", str(nm_path)])
+        assert res_nm_strict.returncode == 1 and "chuyển động camera" in res_nm_strict.stdout, res_nm_strict.stdout
+        res_nm_relaxed = run_cli([
+            "check-prompts", "--plan", str(plan_json), "--prompts", str(nm_path),
+            "--no-strict-layers", "--out", str(out_dir / "flow_relaxed.json"),
+        ])
+        assert res_nm_relaxed.returncode == 0, res_nm_relaxed.stdout + res_nm_relaxed.stderr
+
+        plastic_prompts = [
+            {
+                "slot_id": s["slot_id"],
+                "anchor_quote": s["anchor_quote"],
+                "prompt": "Over-the-shoulder shot of a Vietnamese founder touching a glowing prism and holographic icons, wooden desk, window light, slow push-in.",
+            }
+            for s in broll_slots
+        ]
+        pl_path = out_dir / "prompts_plastic.json"
+        pl_path.write_text(json.dumps(plastic_prompts, ensure_ascii=False, indent=2), encoding="utf-8")
+        res_pl = run_cli(["check-prompts", "--plan", str(plan_json), "--prompts", str(pl_path)])
+        assert res_pl.returncode == 1 and "CGI/nhựa" in res_pl.stdout, res_pl.stdout
+
+        layered_prompts = [
+            {
+                "slot_id": s["slot_id"],
+                "anchor_quote": s["anchor_quote"],
+                "script_beat_vi": f"Cảnh minh hoạ slot {s['slot_id']}",
+                "layers": {
+                    "l1_shot_subject": "Over-the-shoulder medium shot of a young Vietnamese owner",
+                    "l2_action_script": "organizing plain cardboard items carefully",
+                    "l3_environment": "in a quiet sunlit room with monitors blurred out of focus",
+                    "l4_optics_realism": "35mm documentary look, warm daylight, natural skin texture",
+                    "l5_camera_motion": "slow push-in",
+                },
+            }
+            for s in broll_slots
+        ]
+        lay_path = out_dir / "prompts_layered.json"
+        lay_ready = out_dir / "flow_layered.json"
+        lay_path.write_text(json.dumps(layered_prompts, ensure_ascii=False, indent=2), encoding="utf-8")
+        res_lay = run_cli(["check-prompts", "--plan", str(plan_json), "--prompts", str(lay_path), "--out", str(lay_ready)])
+        assert res_lay.returncode == 0, res_lay.stdout + res_lay.stderr
+        lay_data = json.loads(lay_ready.read_text(encoding="utf-8"))
+        assert all(j.get("layers") and j.get("script_beat_vi") for j in lay_data["jobs"])
+
 
 def test_long_unpunctuated_run_split() -> None:
     """Đảm bảo văn bản dài không dấu chấm vẫn bị tách và không để đoạn A-ROLL nào > 8s."""
@@ -252,11 +307,62 @@ def test_long_unpunctuated_run_split() -> None:
     verify_max_aroll_run(plan["slots"], 8.0)
 
 
+def test_audit_prompt_architecture() -> None:
+    """Kiểm tra helper audit_prompt_architecture: Anti-Slop, cú pháp trọng số CLIP, camera move & non-blocking."""
+    clean = (
+        "Medium close-up of a young Vietnamese founder seen from behind at a clean wooden desk, "
+        "unbranded laptop blurred out of focus, warm morning window light, slow push-in."
+    )
+    res_clean = bfv.audit_prompt_architecture(clean, mode="t2v")
+    assert res_clean["ok"] is True and res_clean["warnings"] == [], res_clean
+    assert res_clean["anti_slop_hits"] == [] and res_clean["weight_syntax_hits"] == []
+
+    sloppy = (
+        "A (stunning:1.3) Vietnamese designer in a magical 8k masterpiece office, "
+        "hyper-detailed and very realistic lighting, keyword::2, no text."
+    )
+    res_bad = bfv.audit_prompt_architecture(sloppy, mode="t2v")
+    assert res_bad["ok"] is False
+    assert "stunning" in res_bad["anti_slop_hits"]
+    assert "8k masterpiece" in res_bad["anti_slop_hits"]
+    assert "hyper-detailed" in res_bad["anti_slop_hits"]
+    assert "very realistic" in res_bad["anti_slop_hits"]
+    assert "(stunning:1.3)" in res_bad["weight_syntax_hits"]
+    assert "keyword::2" in res_bad["weight_syntax_hits"]
+    assert len(res_bad["warnings"]) >= 4, res_bad["warnings"]
+
+    # T2I không cần cảnh báo thiếu chuyển động camera
+    res_t2i = bfv.audit_prompt_architecture(
+        "Medium close-up portrait of a Vietnamese woman under warm window light, 50mm f/1.4.",
+        mode="t2i",
+    )
+    assert res_t2i["ok"] is True and res_t2i["has_realism_cue"] is True, res_t2i
+
+    # Anti-Plastic-CGI + thiếu Realism Cue
+    res_plastic = bfv.audit_prompt_architecture(
+        "Medium shot of a Vietnamese engineer watching a holographic 3d render prism, slow push-in.",
+        mode="t2v",
+    )
+    assert res_plastic["ok"] is False and res_plastic["has_realism_cue"] is False
+    assert "holographic" in res_plastic["plastic_ai_hits"]
+    assert "3d render" in res_plastic["plastic_ai_hits"]
+    assert any("Plastic/CGI" in w for w in res_plastic["warnings"])
+    assert any("Realism Cue" in w for w in res_plastic["warnings"])
+
+    # CLI audit-prompt chạy sạch và trả JSON hợp lệ
+    cli_res = run_cli(["audit-prompt", "--prompt", sloppy, "--mode", "t2v", "--json"])
+    assert cli_res.returncode == 0, cli_res.stderr
+    parsed = json.loads(cli_res.stdout)
+    assert parsed["ok"] is False and parsed["anti_slop_hits"]
+
+
 def main() -> None:
     test_analyze_45s()
     print("[OK] analyze_45s + check-prompts (FAIL vi phạm H5 & PASS prompt sạch)")
     test_long_unpunctuated_run_split()
     print("[OK] tách câu dài không dấu câu + giữ A-ROLL <= 8s & B-ROLL >= 25%")
+    test_audit_prompt_architecture()
+    print("[OK] audit_prompt_architecture (Anti-Slop, CLIP weight syntax, camera motion, T2I/T2V)")
     print("\nTẤT CẢ ĐẠT")
 
 

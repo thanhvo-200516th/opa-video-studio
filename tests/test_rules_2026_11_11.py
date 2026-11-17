@@ -143,9 +143,16 @@ def test_reuse_and_voice() -> None:
     spec = {"tracks": [{"type": "video", "name": "V1 chuỗi", "clips": [
         {"src": "/x/02_b-roll-1.mp4", "at": 0, "dur": 2, "name": "B-roll 1 (1)"},
         {"src": "/x/02_b-roll-1.mp4", "at": 2, "dur": 2, "name": "B-roll 1 (2)"},       # tách đôi liền nhau = 1 lần
-        {"src": "/x/02_b-roll-1.mp4", "at": 9, "dur": 2, "name": "B-roll 1 lại"}]},     # lần 2 tách rời → D8
+        {"src": "/x/02_b-roll-1.mp4", "at": 9, "dur": 2, "name": "B-roll 1 lại"}]},     # lần 2 tách rời → đạt (MAX_PER_VIDEO=2)
         {"type": "video", "name": "trans 1", "clips": [{"src": "/x/flash.mp4", "at": 1, "dur": 1}]}]}
+    assert mr.MAX_PER_VIDEO == 2 and mr.MAX_VIDEOS_PER_BROLL == 2
     assert len(mr.uses_of(spec)) == 2
+    spec_extra = {"tracks": [{"type": "video", "name": "V1 chuỗi", "clips": [
+        {"src": "/x/cam1.mp4", "at": 0, "dur": 2, "name": "Footage studio"},
+        {"src": "/x/06_B-Roll/clip.mp4", "at": 3, "dur": 2, "name": "chèn"},
+        {"src": "/x/flow_a.mp4", "at": 6, "dur": 2, "broll_source": "flow", "name": "clip"},
+        {"src": "/x/ftg_desk.mp4", "at": 9, "dur": 2, "name": "desk"}]}]}
+    assert len(mr.uses_of(spec_extra)) == 4
     good = {"words": [{"text": w, "start": i * 0.3, "end": i * 0.3 + 0.2, "type": "word"} for i, w in enumerate("một hai ba bốn năm sáu bảy".split())]}
     bad = {"words": [{"text": w, "start": 5.63, "end": 5.63, "type": "word"} for w in "a b c d".split()]}
     assert rv.broken(good) is None and rv.broken(bad)
@@ -154,8 +161,116 @@ def test_reuse_and_voice() -> None:
     print("ok  D8–D10 / B16: mã kịch bản · gộp đoạn liền · bắt dồn mốc giọng · HARD chữ bật cùng lúc")
 
 
+def test_d15_and_d8_rules() -> None:
+    import subprocess
+    from edit_rules import audit_spec
+
+    # 1) D15: 100% flow -> OK; 4% real_footage -> OK; >5% real_footage -> LỖI; stock/muse -> LỖI; unknown -> CẢNH BÁO
+    base_spec = lambda clips: {"fps": 30, "duration": 100, "tracks": [{"type": "video", "name": "V1", "clips": clips}]}  # noqa: E731
+    r_flow = {x["rule"]: x["status"] for x in audit_spec(base_spec([
+        {"src": "/a/02_b-roll-1.mp4", "at": 0, "dur": 20, "name": "B-roll 1", "broll_source": "flow"},
+        {"src": "/a/03_b-roll-2.mp4", "at": 25, "dur": 20, "name": "B-roll 2", "broll_source": "flow"},
+    ]))}
+    assert r_flow["B-roll Google Flow mặc định (100%); footage thật ≤ 5 %"] == "OK", r_flow
+    assert r_flow["Mỗi clip B-roll tối đa 2 lần trong 1 video"] == "OK", r_flow
+
+    r_real_ok = {x["rule"]: x["status"] for x in audit_spec(base_spec([
+        {"src": "/a/02_b-roll-1.mp4", "at": 0, "dur": 48, "name": "B-roll 1", "broll_source": "flow"},
+        {"src": "/a/03_b-roll-2.mp4", "at": 48, "dur": 2, "name": "Footage studio", "broll_source": "real_footage"},  # 2/50 = 4%
+    ]))}
+    assert r_real_ok["B-roll Google Flow mặc định (100%); footage thật ≤ 5 %"] == "OK", r_real_ok
+
+    r_real_bad = {x["rule"]: x["status"] for x in audit_spec(base_spec([
+        {"src": "/a/02_b-roll-1.mp4", "at": 0, "dur": 45, "name": "B-roll 1", "broll_source": "flow"},
+        {"src": "/a/03_b-roll-2.mp4", "at": 45, "dur": 5, "name": "Footage studio", "broll_source": "real_footage"},   # 5/50 = 10%
+    ]))}
+    assert r_real_bad["B-roll Google Flow mặc định (100%); footage thật ≤ 5 %"] == "LỖI", r_real_bad
+
+    for bad_src in ("stock", "muse"):
+        r_bad = {x["rule"]: x["status"] for x in audit_spec(base_spec([
+            {"src": "/a/02_b-roll-1.mp4", "at": 0, "dur": 20, "name": "B-roll 1", "broll_source": "flow"},
+            {"src": "/a/03_b-roll-2.mp4", "at": 20, "dur": 5, "name": "B-roll 2", "broll_source": bad_src},
+        ]))}
+        assert r_bad["B-roll Google Flow mặc định (100%); footage thật ≤ 5 %"] == "LỖI", (bad_src, r_bad)
+
+    r_unk = {x["rule"]: x["status"] for x in audit_spec(base_spec([
+        {"src": "/a/02_b-roll-1.mp4", "at": 0, "dur": 10, "name": "B-roll 1"},
+    ]))}
+    assert r_unk["B-roll Google Flow mặc định (100%); footage thật ≤ 5 %"] == "CẢNH BÁO", r_unk
+
+    # 2) D8: > 2 lần trong 1 video (gồm cả đường dẫn x110 / x105) -> LỖI; đúng 2 lần (hoặc ghép liền <= 0.15s) -> OK
+    r_2 = {x["rule"]: x["status"] for x in audit_spec(base_spec([
+        {"src": "/a/media/x110/02_b-roll-1_x110.mp4", "at": 0, "dur": 2, "name": "B-roll 1", "broll_source": "flow"},
+        {"src": "/a/media/x110/02_b-roll-1_x110.mp4", "at": 2.05, "dur": 2, "name": "B-roll 1", "broll_source": "flow"},  # gộp liền = lần 1
+        {"src": "/a/media/x105/02_b-roll-1_x105.mp4", "at": 10, "dur": 2, "name": "B-roll 1", "broll_source": "flow"},    # lần 2
+    ]))}
+    assert r_2["Mỗi clip B-roll tối đa 2 lần trong 1 video"] == "OK", r_2
+
+    r_3 = {x["rule"]: x["status"] for x in audit_spec(base_spec([
+        {"src": "/a/media/x110/02_b-roll-1_x110.mp4", "at": 0, "dur": 2, "name": "B-roll 1", "broll_source": "flow"},
+        {"src": "/a/media/x110/02_b-roll-1_x110.mp4", "at": 5, "dur": 2, "name": "B-roll 1", "broll_source": "flow"},
+        {"src": "/a/media/x105/02_b-roll-1_x105.mp4", "at": 10, "dur": 2, "name": "B-roll 1", "broll_source": "flow"},
+    ]))}
+    assert r_3["Mỗi clip B-roll tối đa 2 lần trong 1 video"] == "LỖI", r_3
+
+    # 3) CLI auto-discover _broll_sources.json từ thư mục cha + media_reuse versioned dir collapse
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        proj = root / "ProjA"
+        (proj / "v1/work").mkdir(parents=True)
+        (proj / "v2/work").mkdir(parents=True)
+        (proj / "_broll_sources.json").write_text(json.dumps({"02_b-roll-1.mp4": {"source": "flow"}}), encoding="utf-8")
+        spec_p = proj / "v2/work/proja.craft.json"
+        spec_p.write_text(json.dumps(base_spec([
+            {"src": str(proj / "media/x110/02_b-roll-1_x110.mp4"), "at": 0, "dur": 10, "name": "B-roll 1"},
+        ])), encoding="utf-8")
+        res_cli = subprocess.run(
+            [sys.executable, str(Path(__file__).resolve().parents[1] / "scripts/edit_rules.py"), "audit", str(spec_p), "--json"],
+            capture_output=True, text=True,
+        )
+        items = {x["rule"]: x["status"] for x in json.loads(res_cli.stdout)}
+        assert items["B-roll Google Flow mặc định (100%); footage thật ≤ 5 %"] == "OK", items
+
+        # media_reuse versioned dir deduplication (v1/v2 gộp 1 video; ProjA/v2 vs ProjB/v2 không đụng tên)
+        (root / "ProjB/v2/work").mkdir(parents=True)
+        clip1 = root / "02_b-roll-1.mp4"
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "mandelbrot=s=108x192:r=30", "-t", "1",
+                        "-c:v", "libx264", "-pix_fmt", "yuv420p", str(clip1)], check=True)
+        old_lib, old_raw = list(mr.LIB_DIRS), mr.SOURCE_RAW
+        mr.LIB_DIRS[:] = []
+        mr.SOURCE_RAW = root / "_no_raw"
+        mr.fingerprint.cache_clear()
+        try:
+            (proj / "v1/work/proja.craft.json").write_text(json.dumps(base_spec([
+                {"src": str(clip1), "at": 0, "dur": 1, "name": "B-roll 1"},
+                {"src": str(clip1), "at": 3, "dur": 1, "name": "B-roll 1"},
+                {"src": str(clip1), "at": 6, "dur": 1, "name": "B-roll 1"},  # v1 lỗi nhưng v2 đã sửa → chỉ xét v2!
+            ])), encoding="utf-8")
+            (proj / "v2/work/proja.craft.json").write_text(json.dumps(base_spec([
+                {"src": str(clip1), "at": 0, "dur": 1, "name": "B-roll 1"},
+                {"src": str(clip1), "at": 3, "dur": 1, "name": "B-roll 1"},  # 2 lần trong video -> đạt
+            ])), encoding="utf-8")
+            (root / "ProjB/v2/work/projb.craft.json").write_text(json.dumps(base_spec([
+                {"src": str(clip1), "at": 0, "dur": 1, "name": "B-roll 1"},  # video thứ 2 dùng clip1 -> đạt (<=2)
+            ])), encoding="utf-8")
+            au = mr.audit([root])
+            assert au["videos"] == 2 and not au["violations"], au
+            # Thêm video thứ 3 cùng clip1 -> vi phạm D8 (> 2 video)
+            (root / "ProjC/v1/work").mkdir(parents=True)
+            (root / "ProjC/v1/work/projc.craft.json").write_text(json.dumps(base_spec([
+                {"src": str(clip1), "at": 0, "dur": 1, "name": "B-roll 1"},
+            ])), encoding="utf-8")
+            au3 = mr.audit([root])
+            assert au3["videos"] == 3 and any(v["rule"] == "D8" and "3 video" in v["detail"] for v in au3["violations"]), au3
+        finally:
+            mr.LIB_DIRS[:] = old_lib
+            mr.SOURCE_RAW = old_raw
+    print("ok  D15 / D8: nguồn Flow / footage thật ≤ 5 % / tối đa 2 lần/video / gộp thư mục phiên bản v1–v2")
+
+
 if __name__ == "__main__":
     test_reuse_and_voice()
+    test_d15_and_d8_rules()
     test_band_cover()
     test_framing()
     test_text_motion()

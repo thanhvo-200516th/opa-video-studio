@@ -234,9 +234,9 @@ Hiệu ứng 3D (xoay, lật, nghiêng phối cảnh) cho chữ hoặc B-roll l�
 
 ### D1 — Cảnh chèn dày
 
-B-roll + footage ≥ 25 % thời lượng `[đề xuất]`; người nói trơ một mình ≤ 8 s `[đề xuất]`. Thiếu cảnh chèn hợp lệ (D9 chặn cảnh mượn): 1) dùng B-roll đúng cảnh trong thư mục đánh số; 2) không có thì tạo cảnh chèn bằng Muse từ chính lời đang nói (quy trình `broll_fix.py`, D9), đặt câm và chỉ trong lúc lời đó chạy; 3) Muse không sẵn sàng (D3) thì chấp nhận CẢNH BÁO và ghi vào bàn giao.
+B-roll + footage ≥ 25 % thời lượng `[đề xuất]`; người nói trơ một mình ≤ 8 s `[đề xuất]`. Thiếu cảnh chèn hợp lệ (D9 chặn cảnh mượn): 1) dùng B-roll đúng cảnh trong thư mục đánh số; 2) không có thì tạo cảnh chèn mặc định bằng Google Flow MCP từ chính lời đang nói (D3, D15, quy trình `broll_fix.py`, D9; chỉ dùng footage thật / stock trong trần ngoại lệ 2–5 % của D15, hoặc Muse dự phòng khi Flow hỏng và người dùng đồng ý), đặt câm và chỉ trong lúc lời đó chạy; 3) Google Flow (và dự phòng hợp lệ nếu có) không sẵn sàng (D3) thì chấp nhận CẢNH BÁO và ghi vào bàn giao.
 
-- Kiểm: edit_rules · Nguồn: người dùng 2026-11-06 (số do skill đề xuất) · Độ tin: medium
+- Kiểm: edit_rules · Nguồn: người dùng 2026-11-06 (số do skill đề xuất); cập nhật engine mặc định 2026-11-16 · Độ tin: medium
 - Nguồn gốc: `kb-master-video-edit.md#style.md D1`
 
 ### D2 — B-roll không giọng, không chữ
@@ -246,11 +246,11 @@ B-roll không voice, không chữ (`no_voice`, `no_text`); tắt tiếng clip, s
 - Kiểm: analyze_and_scaffold.py validate · Nguồn: quy trình 10 bước 2026-11-06 · Độ tin: high
 - Nguồn gốc: `kb-master-video-edit.md#style.md D2`
 
-### D3 — Muse lỗi → Google Flow (MCP google-flow hoặc trình duyệt đã đăng nhập); không mua thêm
+### D3 — Google Flow MCP mặc định tạo B-roll (D15); trình duyệt Cindy phụ, Muse dự phòng khẩn; không mua thêm
 
-Muse không sẵn sàng (`scripts/broll_fix.py ready` lỗi): chuyển sang Google Flow (labs.google/fx/tools/flow) bằng MCP `google-flow` (`flow_list_accounts` → `flow_inspect_account` → `flow_generate_video` → `flow_job_status` → chọn bản bằng mắt → `flow_upscale_video` 1080p → `flow_download_job`) hoặc qua trình duyệt Cindy với tài khoản Google người dùng đã đăng nhập (báo tên tài khoản và số dư trước khi tạo) — dùng tín dụng có sẵn trong gói, KHÔNG mua thêm, không bật dùng thử, không tự nhập mật khẩu (gặp trang đăng nhập → nhờ người dùng đăng nhập). Làm đúng `references/flow-broll.md`: `scripts/broll_fix.py plan --engine flow` (giây + tín dụng) → `prepare --source flow` → Flow: Video, 9:16, **Omni 1.2 Flash** (`model: "omni-flash"`), 720p, độ dài ⌈giọng + 0,3 s⌉ (3–15 s), **x2** mỗi cảnh (người dùng 2026-11-14), gõ đúng lõi prompt không thêm câu cấm → chọn bản theo bảng kiểm bằng mắt (không chữ / logo, màn hình không lộ nội dung, người nói không lộ mặt, một cảnh liền, đúng lời) → tải **«1080p Đã tăng độ phân giải»** (`flow_upscale_video` 1080p + `flow_download_job` khi dùng MCP; người dùng 2026-11-14; miễn phí ≤ 10 s) → `scripts/broll_fix.py normalize <file> <NN_b-roll-M.mp4> --mark flow` (1080×1920, 30 fps, không tiếng; `--mark flow` chỉ khi bản tải về có dấu ngôi sao — tài khoản PRO ở Việt Nam bị khoá bật, ULTRA tắt được) → `verify`. Không đính ảnh khuôn mặt người nói vào Flow (Thành phần / Khung hình) khi người dùng chưa đồng ý cho video đó (A4). Không có cả Muse lẫn Google Flow: báo người dùng, dừng bước tạo B-roll; không chuyển sang dịch vụ trả phí khác.
+Google Flow (`labs.google/fx/tools/flow`) qua MCP `google-flow` là **công cụ tạo B-roll mặc định chính** (D15: mục tiêu 100 %, tối thiểu ≥ 95 %): `flow_list_accounts` → `flow_inspect_account` (báo tên tài khoản và số dư tín dụng trước khi tạo) → `flow_generate_video` → `flow_job_status` → chọn bản bằng mắt → `flow_upscale_video` 1080p → `flow_download_job`. Nếu MCP `google-flow` lỗi / chưa kết nối được thì chuyển sang **kênh phụ là trình duyệt Cindy** (`mcp__cindy_browser`) với tài khoản Google người dùng đã đăng nhập — dùng tín dụng có sẵn trong gói, KHÔNG tự mua thêm, không bật dùng thử, không tự nhập mật khẩu (gặp trang đăng nhập → nhờ người dùng đăng nhập). **Muse local** (`scripts/broll_fix.py ready` + `render_muse_broll.py`) chỉ là **dự phòng khẩn cấp** khi cả Google Flow MCP lẫn trình duyệt Cindy đều không khả dụng VÀ người dùng đồng ý. Không có cả Google Flow lẫn Muse (có đồng ý): báo người dùng, dừng bước tạo B-roll; không chuyển sang dịch vụ trả phí khác. Làm đúng `references/flow-broll.md`: `scripts/broll_fix.py plan --engine flow` (giây + tín dụng) → `lint` → `prepare --source flow` → Flow: Video, `9:16`, **Omni 1.2 Flash** (`model: "omni-flash"`), 720p, độ dài ⌈giọng + 0,3 s⌉ (3–15 s), **`outputs: 2`** mỗi cảnh (người dùng 2026-11-14), gõ đúng `prompt_core` không thêm câu cấm → chọn bản 720p theo bảng kiểm bằng mắt (không chữ / logo, màn hình không lộ nội dung, người nói không lộ mặt, một cảnh liền, đúng `anchor_quote`) → nâng & tải **«1080p Đã tăng độ phân giải»** (`flow_upscale_video` 1080p + `flow_download_job` khi dùng MCP; miễn phí ≤ 10 s) → `scripts/broll_fix.py normalize <file> <NN_b-roll-M.mp4> --mark flow` (1080×1920, 30 fps, không tiếng; `--mark flow` chỉ khi bản tải về có dấu ngôi sao — tài khoản PRO ở Việt Nam bị khoá bật, ULTRA tắt được) → `verify`. Không đính ảnh khuôn mặt người nói vào Flow (Thành phần / Khung hình) khi người dùng chưa đồng ý riêng cho video đó (A4).
 
-- Kiểm: — · Nguồn: rules.md; người dùng 2026-11-13 (dùng Google khi Muse hỏng); 2026-11-14 (1080p, x2, mô hình tốt hơn); 2026-11-16 (MCP google-flow) · Độ tin: high
+- Kiểm: — · Nguồn: người dùng 2026-11-13..16 (2026-11-16 chốt Google Flow MCP mặc định thay Muse; 2026-11-14: 1080p, x2, Omni 1.2 Flash) · Độ tin: high
 - Nguồn gốc: `kb-master-video-edit.md#style.md D3`
 
 ### D4 — Tốc độ 1.10x / 1.05x / 1.0x; video < 45 s không tăng tốc
@@ -260,11 +260,11 @@ Chỉ tăng `1.10x` hoặc `1.05x` — BỎ HẲN `1.15x`, `1.25x`, `1.35x`, `1.
 - Kiểm: spec_lint · Nguồn: người dùng 2026-11-13 (thay Rule 1 2026-11-11) · Độ tin: high
 - Nguồn gốc: `kb-master-video-edit.md#style.md D4`, `kb-master-video-edit.md#rules.md mục 7`
 
-### D5 — Kho tài nguyên trám cảnh
+### D5 — Kho tài nguyên trám cảnh (giới hạn ngoại lệ D15 ≤ 5 %)
 
-Lấy thêm cảnh chèn từ `/home/vmiz/Thanh/Media/A huy/Source/soucre thô` (cảnh quay thật Anh Huy; bản gốc ghi thiếu `Source/`, sửa 2026-11-13), `/home/vmiz/Thanh/Media/A huy/B-roll` và `/home/vmiz/Thanh/Media/TNEDIT` (`04_Footage`, `06_B-Roll`). Clip phông xanh: không để lộ vải phông; cách tách theo D11, nền theo D12 (thay cách cũ `rvm-matte` + `despill`).
+Áp dụng trong trần ngoại lệ **D15** (footage thật / stock tối đa **2–5 %**, trần cứng **≤ 5 %** tổng thời lượng B-roll — ưu tiên tạo B-roll độc bản bằng Google Flow MCP theo D3, cấm lấy stock thay thế B-roll Flow): khi cần footage thật trong phần ngoại lệ đó, lấy thêm cảnh chèn từ `/home/vmiz/Thanh/Media/A huy/Source/soucre thô` (cảnh quay thật Anh Huy; bản gốc ghi thiếu `Source/`, sửa 2026-11-13), `/home/vmiz/Thanh/Media/A huy/B-roll` và `/home/vmiz/Thanh/Media/TNEDIT` (`04_Footage`, `06_B-Roll`). Mọi cảnh lấy từ kho phải minh hoạ đúng lời cảnh đó (D9) và tuân giới hạn lặp D8 (≤ 2 lần / video, ≤ 2 video). Clip phông xanh: không để lộ vải phông; cách tách theo D11, nền theo D12 (thay cách cũ `rvm-matte` + `despill`).
 
-- Kiểm: mắt · Nguồn: người dùng 2026-11-09; cách tách sửa bởi D11–D12 · Độ tin: high
+- Kiểm: mắt · Nguồn: người dùng 2026-11-09; cách tách sửa bởi D11–D12; giới hạn ngoại lệ bởi D15 (2026-11-16) · Độ tin: high
 - Nguồn gốc: `kb-master-video-edit.md#style.md D5`, `kb-master-video-edit.md#rules.md mục 7`
 - Chi tiết nguyên văn (thông số, ngoại lệ): `references/rules-details.md` › mục D5
 
@@ -282,25 +282,25 @@ Chỉ áp cho clip QUAY THẬT nền sáng (`live_shoot`) — KHÔNG áp avatar 
 - Kiểm: frame_person · Nguồn: người dùng 2026-11-11 (Rule 5); phần phông xanh thay bởi D12 · Độ tin: high
 - Nguồn gốc: `kb-master-video-edit.md#style.md D7`
 
-### D8 — B-roll không lặp
+### D8 — B-roll lặp giới hạn: ≤ 2 lần / video, ≤ 2 video
 
-Mỗi cảnh B-roll tối đa 1 lần trong một video và dùng cho tối đa 2 video khác nhau. Đo bằng vân tay hình (bắt cả bản mã hoá lại / tăng tốc): `scripts/media_reuse.py audit`; bảng lô báo WARN.
+Mỗi cảnh / clip B-roll được dùng tối đa **2 lần trong 1 video** và tối đa **2 video khác nhau** (tổng cộng). Đo bằng vân tay hình (bắt cả bản mã hoá lại / tăng tốc): `scripts/media_reuse.py audit` + `scripts/edit_rules.py`; bảng lô báo WARN/HOLD khi vượt ngưỡng. Số trong `rules.json › params.broll`.
 
-- Kiểm: media_reuse · Nguồn: người dùng 2026-11-11 · Độ tin: high
+- Kiểm: media_reuse + edit_rules · Nguồn: người dùng 2026-11-16 (thay D8 cũ 2026-11-11 ≤ 1 lần / video) · Độ tin: high
 - Nguồn gốc: `kb-master-video-edit.md#style.md D8`
 
 ### D9 — Cảnh chèn và B-roll bám sát kịch bản
 
-Kịch bản nói gì thì cảnh chèn / B-roll / footage chiếu đúng điều đó — mọi cảnh chèn (kể cả cảnh quay thật, cảnh lấy từ kho D5) minh hoạ đúng lời đang nói ở cảnh đó, không cảnh "cho đẹp" lệch nội dung. Chỉ dùng cảnh tạo cho CHÍNH kịch bản đó (tên thư viện `KBxx_Byy` trùng mã video); cấm cảnh của kịch bản khác (lỗi cũ: OPA01–05 dùng 25 cảnh của KB01–KB10); prompt B-roll tạo từ lời từng cảnh (H5) và không được để trống; giọng dưới cảnh phải đúng lời kịch bản của cảnh (bản bóc lời giống `tts_text` ≥ 80 %). Kiểm: `scripts/scene_check.py --manifest … --spec … --words words_tl.json --transcripts … --review scene_review.md` (FAIL = sửa trước khi mở duyệt) + người duyệt xem bảng `scene_review.md` (lời ↔ prompt ↔ cảnh); bảng lô `media_reuse` báo HOLD khi dùng cảnh kịch bản khác. `scene_check` FAIL `script_source` / `broll_h5` → TỰ tạo lại cảnh đó bằng Muse từ lời của chính cảnh (người dùng 2026-11-13, không cần hỏi lại), mỗi bước một lệnh riêng: `broll_fix.py ready` → `broll_fix.py plan` → agent viết prompt H5 → `broll_fix.py lint` → `broll_fix.py prepare` (sao lưu bản cũ, cập nhật prompts + manifest) → `render_muse_broll.py --shot <file>` → `broll_fix.py verify` (xem ảnh kiểm) → `scene_check` lại. Mỗi cảnh thử lại tối đa 1 lần; làm TRƯỚC bước tăng tốc (sau thì tăng tốc lại riêng file đó).
+Kịch bản nói gì thì cảnh chèn / B-roll / footage chiếu đúng điều đó theo nghĩa đen đời thực — mọi cảnh chèn (kể cả cảnh quay thật, cảnh lấy từ kho D5 trong trần ngoại lệ ≤ 5 % của D15) minh hoạ đúng lời đang nói ở cảnh đó, không cảnh "cho đẹp" lệch nội dung và CẤM ẩn dụ CGI trừu tượng xa rời câu thoại (như khối lập phương phát sáng, lăng kính, bánh răng, thanh ray thép trượt hộp đèn, lõi năng lượng, các nút trôi nổi). Trước khi tạo B-roll phải đi qua Quy trình 3 Agent: Agent 1 (Script Semantic Analyst) đọc trọn `tts_text` của video, tách các đoạn dài > 7,5 s hoặc chứa 2 vế đối lập thành sub-beats rõ ràng và viết `script_beat_vi` (cảnh người & đồ vật đời thực cụ thể chứng minh câu nói); Agent 2 viết `layers` 5 tầng chống nhựa thành `prompt` H5; Agent 3 kiểm `lint` + đối chiếu trực quan 2 bản 720p (`qa/broll_check_sheet.jpg`) loại ngay bản lệch `anchor_quote` hoặc có dấu hiệu nhựa/AI. Chỉ dùng cảnh tạo cho CHÍNH kịch bản đó (tên thư viện `KBxx_Byy` trùng mã video); cấm cảnh của kịch bản khác (lỗi cũ: OPA01–05 dùng 25 cảnh của KB01–KB10); prompt B-roll tạo từ lời từng cảnh (H5) và không được để trống; giọng dưới cảnh phải đúng lời kịch bản của cảnh (bản bóc lời giống `tts_text` ≥ 80 %). Kiểm: `scripts/scene_check.py --manifest … --spec … --words words_tl.json --transcripts … --review scene_review.md` (FAIL = sửa trước khi mở duyệt) + người duyệt xem bảng `scene_review.md` (lời ↔ prompt ↔ cảnh); bảng lô `media_reuse` báo HOLD khi dùng cảnh kịch bản khác. `scene_check` FAIL `script_source` / `broll_h5` → TỰ tạo lại cảnh đó mặc định qua **Google Flow MCP** (D3, D15) từ lời của chính cảnh (người dùng 2026-11-13, cập nhật engine & quy trình 3 Agent 2026-11-16, không cần hỏi lại nếu đủ tín dụng trong gói), mỗi bước một lệnh riêng: `broll_fix.py plan --engine flow` → quy trình 3 Agent viết `layers` + prompt H5 → `broll_fix.py lint` → `broll_fix.py prepare --source flow` (sao lưu bản cũ, cập nhật prompts + manifest) → MCP `google-flow` (D3: 720p `outputs: 2` → Agent 3 xem chọn → 1080p → download) → `broll_fix.py normalize` → `broll_fix.py verify` (xem ảnh kiểm) → `scene_check` lại (chỉ dùng Muse dự phòng khi Flow hỏng và người dùng đồng ý theo D3). Mỗi cảnh thử lại tối đa 1 lần; làm TRƯỚC bước tăng tốc (sau thì tăng tốc lại riêng file đó).
 
-- Kiểm: scene_check + media_reuse + mắt · Nguồn: người dùng 2026-11-11; mở rộng cho mọi cảnh chèn 2026-11-13 · Độ tin: high
+- Kiểm: scene_check + media_reuse + mắt · Nguồn: người dùng 2026-11-11; mở rộng cho mọi cảnh chèn 2026-11-13; cập nhật engine mặc định Google Flow MCP & quy trình 3 Agent chống ẩn dụ CGI 2026-11-16 · Độ tin: high
 - Nguồn gốc: `kb-master-video-edit.md#style.md D9`
 
 ### D10 — Clip `soucre thô` tối đa 2 lần
 
-Mỗi clip quay thật `Source/soucre thô` tối đa 2 lần trên toàn bộ các video; `media_reuse.py audit` khớp bằng thời lượng + vân tay.
+Mỗi clip quay thật `Source/soucre thô` tối đa 2 lần trên toàn bộ các video (khi dùng làm cảnh chèn B-roll vẫn phải tuân trần ngoại lệ 2–5 % của D15 và giới hạn lặp D8 ≤ 2 lần / video, ≤ 2 video); `media_reuse.py audit` khớp bằng thời lượng + vân tay.
 
-- Kiểm: media_reuse · Nguồn: người dùng 2026-11-11 · Độ tin: high
+- Kiểm: media_reuse · Nguồn: người dùng 2026-11-11; tham chiếu D8/D15 2026-11-16 · Độ tin: high
 - Nguồn gốc: `kb-master-video-edit.md#style.md D10`
 
 ### D11 — Phông xanh: tách lại từ file GỐC
@@ -330,6 +330,13 @@ Footage `AHUY QUAY/Video`: xoay `transpose=1`, 1080×1920, tắt tiếng, cắt 
 Giọng của cảnh nào phát dưới hình của chính cảnh đó: đến cảnh nào thì có lời nói của cảnh đó, kể cả cảnh chèn / B-roll (B-roll không có tiếng riêng theo D2 nhưng giọng `voice-b-roll-N` của nó phải chạy đúng dưới hình `b-roll-N`). Đầu giọng lệch đầu hình ≤ 0,12 s; hình của cảnh khác không được chiếm khung khi giọng cảnh này đang nói quá 0,5 s (chỉ cho phép phần chuyển cảnh); thứ tự cảnh theo kịch bản. Cảnh chèn ngoài danh sách (footage, kho D5) được tính là cảnh chèn của cảnh đang nói và phải minh hoạ đúng lời đó (D9). Tăng tốc thì hình và giọng cùng mức (D4). Kiểm: `scripts/scene_check.py` (FAIL chặn như G5).
 
 - Kiểm: scene_check · Nguồn: người dùng 2026-11-13 · Độ tin: high
+- Nguồn gốc: 
+
+### D15 — B-roll mặc định 100 % Google Flow MCP; footage thật / stock tối đa 2–5 % thời lượng B-roll
+
+Mục tiêu **100 %** thời lượng B-roll được tạo bằng **Google Flow MCP** (D3; tối thiểu **≥ 95 %**). Footage quay thật hoặc stock (`auto-footage`, kho `TNEDIT/06_B-Roll`, Pexels, Pixabay, Mixkit, kho D5) chỉ là ngoại lệ hẹp tối đa **2–5 %** thời lượng B-roll (trần cứng **≤ 5 %**; ưu tiên **0 %** nếu Google Flow phủ tốt nội dung cảnh). CẤM kéo clip stock lặp lại từ `auto-footage` / Mixkit / TNEDIT để thay thế việc tạo B-roll độc bản bằng Google Flow. Muse local chỉ dùng làm dự phòng khẩn khi Google Flow không khả dụng và người dùng đồng ý (D3). Số trong `rules.json › params.broll`.
+
+- Kiểm: edit_rules + media_reuse · Nguồn: người dùng 2026-11-16 · Độ tin: high
 - Nguồn gốc: 
 
 ## E. Nỗi đau (ưu tiên edit)
@@ -401,9 +408,9 @@ Giọng còn ồn sau lọc mặc định (DeepFilterNet): đề xuất lọc m�
 
 ### G1 — Thứ tự làm một video từ kịch bản
 
-Phân tích kịch bản → HeyGen A-roll → Muse B-roll → voice B-roll → đối chiếu đủ file (cổng 05.5) → chọn ứng dụng → sơ đồ timeline (C3) → dựng → tự kiểm (G5) → mở cho người dùng duyệt. Đây là thứ tự công việc agent tự theo, không phải chuỗi script tự chạy. Chi tiết: kb-master-video-edit › aroll-broll-workflow.md.
+Phân tích kịch bản → HeyGen A-roll → **Google Flow MCP B-roll** (D3, D15; Muse chỉ dự phòng khẩn khi được đồng ý) → voice B-roll → đối chiếu đủ file (cổng 05.5) → chọn ứng dụng → sơ đồ timeline (C3) → dựng → tự kiểm (G5) → mở cho người dùng duyệt. Đây là thứ tự công việc agent tự theo, không phải chuỗi script tự chạy. Chi tiết: kb-master-video-edit › aroll-broll-workflow.md (bước B-roll áp D3, D15).
 
-- Kiểm: analyze_and_scaffold.py validate · Nguồn: người dùng 2026-11-06 · Độ tin: high
+- Kiểm: analyze_and_scaffold.py validate · Nguồn: người dùng 2026-11-06; cập nhật engine B-roll 2026-11-16 · Độ tin: high
 - Nguồn gốc: `kb-master-video-edit.md#style.md G1`
 
 ### G2 — Khoá HeyGen gửi riêng từng lần
@@ -518,11 +525,11 @@ Mỗi lần người dùng duyệt / chê: ghi nguyên văn vào `APPROVALS.md` 
 - Kiểm: — · Nguồn: dvth OPERATOR.md · Độ tin: medium
 - Nguồn gốc: `kb-dung-video-talking-head.md#releases/1.2.3/stages/OPERATOR.md`
 
-### H5 — Prompt B-roll có kỷ luật
+### H5 — Prompt B-roll có kỷ luật (5 tầng chống nhựa)
 
-Prompt B-roll AI: tiếng Anh 8–60 từ, mô tả cảnh khớp một câu trích trong lời (`anchor_quote`); cấm từ sinh chữ / logo / số liệu / giao diện bịa (đã port bộ từ cấm `1.2.2–1.2.3 F2` vào `BANNED_RE` của `scripts/broll_fix.py`: chữ trên giấy/ghi chú `note`, `checklist`, `checkbox`, `written`, `bullet`, `handwritten`, `handwriting`, màn hình chat `chatting`/`message`/`messaging`/`texting`, so sánh/số liệu `side-by-side`, `comparison`, `graph`, `metrics`, `analytics`, `statistics`, `engagement`, tên nền tảng & hãng `youtube`/`tiktok`/`facebook`/`instagram`/`iphone`/`macbook`/`apple`/`samsung`/`google`…); sản phẩm chung không thương hiệu; màn hình / laptop / tivi / bảng / giấy chỉ khi ngoài khung, mờ hoặc trống («quay đi», «ánh sáng dịu» KHÔNG đủ — Flow 2026-11-13 vẫn vẽ logo và dashboard); người nói / founder / CEO không lộ mặt (sau lưng, qua vai, tay, bóng) vì AI vẽ người lạ; một clip một cảnh liền (không transition, cut, montage, PiP, overlay, ghi chú hậu kỳ); có một hành động và một chuyển động máy; người trong khung ghi «Vietnamese» (kênh Việt — rút từ chạy thử KB06 2026-11-14); không thêm câu cấm vào prompt Flow; không voice, không text (D2). Độ dài xin Muse = ⌈giọng của cảnh + 0,3 s⌉ (tối đa 10 s); Flow 3–15 s. Kiểm bằng `scripts/broll_fix.py lint` trước khi gọi Muse; khi chuẩn hoá bằng `scripts/broll_fix.py normalize` tự động cắt viền trắng/đen/đồng màu ≥ 2 % từ khung đầu (`1.2.2 F3` `trim_uniform_borders`) trước khi scale 1080×1920, rồi kiểm lại bằng `scripts/broll_fix.py verify` (9:16, 30 fps, không tiếng, dài ≥ giọng, không trùng thư viện, xem ảnh kiểm không có chữ).
+Prompt B-roll AI cho Google Flow (`omni-flash`, T5-XXL/Gemma): tiếng Anh `18–95` từ, viết có cấu trúc từ 5 tầng (`layers`: `l1_shot_subject`, `l2_action_script`, `l3_environment`, `l4_optics_realism`, `l5_camera_motion`) bám sát nghĩa đen `anchor_quote` và `script_beat_vi` từ Quy trình 3 Agent (`params.broll.layered_prompt_spec`). (1) `l1_shot_subject` (Primacy Zone): Shot size + Camera angle + bắt buộc `Vietnamese` (khi có người) + Faceless lock (`from behind`, `over the shoulder`, `hands only`, `silhouette`, `face out of frame`) nếu nhắc `founder`/`CEO`/`speaker`/`narrator`/`host` + ngoại hình/trang phục vải thật tự nhiên (copy-paste nguyên văn Frozen Descriptor nếu nhân vật lặp lại). (2) `l2_action_script` (Literal Action): Hành động `State A → Verb → State B` diễn tả đúng nghĩa đen `anchor_quote` bằng con người & đồ vật đời thường thật; CẤM ẩn dụ CGI trừu tượng (`glowing prism`, `amber cube`, `metal pipeline rails`, `floating nodes`, `energy core`, `gears`, `hologram`, `sci-fi`). (3) `l3_environment` (Lived-in Grounding): Bối cảnh công sở/đời thực Việt Nam sống động vừa đủ; màn hình / laptop / tivi / bảng / giấy chỉ xuất hiện khi ghi rõ `out of frame`, `out of focus`, `blurred`, `defocused` hoặc `blank` («angled away», «soft glow» KHÔNG đủ — Flow vẫn vẽ logo và dashboard); sản phẩm chung không thương hiệu. (4) `l4_optics_realism` (Anti-Plastic Optics & Physics): Thông số ống kính tài liệu (`shot on 35mm documentary lens f/2.8`, `subtle natural handheld camera feel`, `soft overcast window light mixing with desk lamp`, `subtle 35mm film grain`, `unretouched skin texture`, `natural fabric creases`); CẤM từ sáo rỗng Anti-Slop (`stunning`, `breathtaking`, `hyper-detailed`, `8k`, `masterpiece`, `magical`, `very realistic`) và từ nhựa/CGI (`glossy skin`, `porcelain skin`, `airbrushed`, `cyberpunk neon`, `unreal engine`, `octane render`). (5) `l5_camera_motion` (Kinetic & Clean Tail): Đúng 1 chuyển động máy nhẹ nhàng tự nhiên + khẳng định sạch khung (`unbranded blank surfaces, clean frame`), KHÔNG nối đuôi `no text/no logo`, KHÔNG cú pháp trọng số CLIP `(keyword:1.3)`. Một clip một cảnh liền (không `transition from/to`, `cut to`, `montage`, `split-screen`, `PiP`, `overlay`); cấm từ sinh chữ/logo/số liệu/UI giả trong `BANNED_RE` (`scripts/broll_fix.py`: `note`, `checklist`, `checkbox`, `written`, `bullet`, `handwritten`, `handwriting`, `chatting`/`message`/`messaging`/`texting`, `side-by-side`, `comparison`, `graph`, `metrics`, `analytics`, `statistics`, `engagement`, tên nền tảng & hãng `youtube`/`tiktok`/`facebook`/`instagram`/`iphone`/`macbook`/`apple`/`samsung`/`google`…); không voice, không text (D2). Độ dài xin Google Flow = ⌈giọng của cảnh + 0,3 s⌉ (3–15 s; tách sub-beat khi > 7,5 s hoặc 2 vế đối lập; Muse dự phòng tối đa 10 s). Kiểm bằng `scripts/broll_fix.py lint` (strict layers & anti-plastic) trước khi gọi Google Flow MCP (hoặc Muse dự phòng theo D3); khi chuẩn hoá bằng `scripts/broll_fix.py normalize` tự động cắt viền trắng/đen/đồng màu ≥ 2 % từ khung đầu (`1.2.2 F3` `trim_uniform_borders`) trước khi scale 1080×1920, rồi kiểm lại bằng `scripts/broll_fix.py verify` + Agent 3 kiểm tra trực quan 2 bản 720p & `qa/broll_check_sheet.jpg` loại ngay bản da nhựa, ngón tay méo, đồ vật phi vật lý, cắt cảnh ngầm hoặc lệch `anchor_quote`.
 
-- Kiểm: — · Nguồn: dvth B-roll 1.2.0–1.2.3 + luật trung thực v2.16 · Độ tin: medium
+- Kiểm: broll_fix lint + verify + mắt · Nguồn: dvth B-roll 1.2.0–1.2.3 + luật trung thực v2.16; cập nhật Flow 2026-11-16; chuẩn hoá 5 tầng Anti-Plastic & 3-Agent 2026-11-16 · Độ tin: high
 - Nguồn gốc: `kb-dung-video-talking-head.md#releases/1.2.3/stages/PLAN.md`, `kb-master-video-edit.md#CHANGELOG.md 2.16`
 
 ## P. Hồ sơ style @__dviet (tuỳ chọn)
@@ -581,3 +588,5 @@ Ghi đè C4/E1 punch: punch-in ×1,12–1,25 tức thì giữa câu, zoom blur 0
 | X11 | motion-fx.md mục trộn (THCN 07): giọng −2,4 dB, nhạc ~−22,5 LUFS, SFX gain_offset −0,5. | F3 | motion-fx.md |
 | X12 | D4 bản 2026-11-11 (Rule 1): chọn 1.15x; sau khi tăng < 40 s thì 1.1x; vẫn < 40 s thì 1.0x; áp cho HeyGen / Muse; media `x115`. | D4 | style.md D4 (2026-11-11) |
 | X9 | PROMPT tầng 6: `edit_rules.py audit` đạt 8/8. Nay máy chấm có 12 tiêu chí. | G5 | PROMPT_CHUAN_THEO_TANG.md |
+| X13 | D3 bản 2026-11-13..14: Muse local là nguồn tạo B-roll mặc định; chỉ chuyển sang Google Flow khi `broll_fix.py ready` báo Muse hỏng. | D3, D15 | rules.md; người dùng 2026-11-13..14 |
+| X14 | D8 bản 2026-11-11: mỗi cảnh B-roll tối đa 1 lần trong một video và tối đa 2 video khác nhau. | D8 | người dùng 2026-11-11 |

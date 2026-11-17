@@ -52,6 +52,10 @@ MAX_STATIC_TEXT_SHARE = 0.05         # Rule 4: tối đa 5 % lớp chữ đứng
 MAX_COVER_S = 0.3                    # luật A6 (2026-11-11): ảnh bìa chỉ 0,2–0,3 s đầu video
 CAPTION_BAND_MARKS = ("dải tối dưới", "dải tối sau phụ đề", "dải tối vùng phụ đề")   # luật B15: không dải tối dưới chữ phụ
 PAIN_WINDOW = (-0.3, 1.5)            # chữ chính và zoom phải rơi trong khoảng này quanh từ khoá nỗi đau
+MAX_REAL_FOOTAGE_SHARE = 0.05        # D15: footage thật tối đa 5 % thời lượng B-roll
+MIN_REAL_FOOTAGE_SHARE = 0.02        # D15: mục tiêu 2–5 % khi có footage thật (hoặc 100 % Google Flow)
+MAX_BROLL_USES_PER_VIDEO = 2         # D8: mỗi clip B-roll tối đa 2 lần trong 1 video
+VALID_BROLL_SOURCES = {"flow", "real_footage", "stock", "muse"}
 
 
 def _norm(s: str) -> str:
@@ -177,7 +181,95 @@ def _trans_name(clip_name: str) -> str:
     return "panel_wipe" if n.startswith("Tấm màu") else n
 
 
-def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | None = None) -> list[dict]:
+def _is_broll_clip(track: dict, clip: dict) -> bool:
+    if track.get("type") != "video":
+        return False
+    tn = track.get("name", "")
+    if tn.startswith(("trans", "text", "Ảnh bìa", "band", "V2", "V3", "V4")):
+        return False
+    if clip.get("name", "").lower().startswith(("b-roll", "footage")) or clip.get("broll_source") or tn.startswith("gfx_under"):
+        return True
+    src = str(clip.get("src") or "")
+    if Path(src).suffix.lower() in (".mp4", ".mov", ".mkv", ".webm"):
+        fn = Path(src).name.lower()
+        return "b-roll" in fn or fn.startswith(("footage", "ftg_", "stock_")) or "06_b-roll" in src.lower()
+    return False
+
+
+def _canon_broll_src(src: str, fallback: str = "") -> str:
+    s = str(src or "").replace("\\", "/")
+    if not s:
+        return fallback.strip().lower()
+    s = re.sub(r"/x(?:105|110|115|125)(?=/)", "", s)
+    p = Path(s)
+    stem = re.sub(r"_x\d{3}$", "", p.stem)
+    return str(p.with_name(stem + p.suffix)).lower()
+
+
+def _origin_from_path(src: str) -> str:
+    s = unicodedata.normalize("NFC", str(src or "")).lower().replace("\\", "/")
+    fn = Path(s).name
+    if "_google_raw" in s or "/flow/" in s:
+        return "flow"
+    if any(k in s for k in ("04_footage", "soucre thô", "source_tho", "footage_studio")) or re.search(r"(?:^|[/_-])c00(?:\d+|xx)", s) or "img_" in fn:
+        return "real_footage"
+    if any(k in s for k in ("06_b-roll", "stock_theo_chu_de", "mixkit", "pexels", "pixabay", "ftg_", "stock_")):
+        return "stock"
+    return "unknown"
+
+
+def _classify_broll(clip: dict, manifest: dict | None = None, broll_sources: dict | None = None) -> str:
+    explicit = str(clip.get("broll_source") or "").strip().lower()
+    if explicit in VALID_BROLL_SOURCES:
+        return explicit
+    src = str(clip.get("src") or "")
+    if broll_sources and src:
+        fname = Path(src).name
+        canon_fname = re.sub(r"_x\d{3}(?=\.[^.]+$)", "", fname)
+        entry = broll_sources.get(fname) or broll_sources.get(canon_fname)
+        if isinstance(entry, dict):
+            esrc = str(entry.get("source") or "").strip().lower()
+            if esrc in VALID_BROLL_SOURCES:
+                return esrc
+            if entry.get("raw"):
+                inferred = _origin_from_path(str(entry["raw"]))
+                if inferred != "unknown":
+                    return inferred
+    if manifest and src:
+        cstem = re.sub(r"_x\d{3}$", "", Path(src).stem).lower()
+        vg_map = {
+            "flow": "flow", "google_flow": "flow", "google-flow": "flow", "omni-flash": "flow",
+            "real_footage": "real_footage", "live_shoot": "real_footage",
+            "stock": "stock", "muse": "muse", "muse_api": "muse",
+        }
+        for seg in manifest.get("segments", []):
+            vf = (seg.get("files") or {}).get("video_file") or ""
+            if vf and re.sub(r"_x\d{3}$", "", Path(vf).stem).lower() == cstem:
+                msrc = str(seg.get("broll_source") or "").strip().lower()
+                if msrc in VALID_BROLL_SOURCES:
+                    return msrc
+                vg = str((seg.get("api_routing") or {}).get("video_generator") or "").strip().lower()
+                if vg in vg_map:
+                    return vg_map[vg]
+    return _origin_from_path(src)
+
+
+def _union_dur(intervals: list[tuple[float, float]]) -> float:
+    total, last = 0.0, None
+    for a, b in sorted(intervals):
+        if b <= a:
+            continue
+        if last is None or a >= last:
+            total += b - a
+            last = b
+        elif b > last:
+            total += b - last
+            last = b
+    return total
+
+
+def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | None = None,
+               manifest: dict | None = None, broll_sources: dict | None = None) -> list[dict]:
     """Đo các luật dựng trên spec; trả [{"rule", "status": OK | CẢNH BÁO | LỖI | CHƯA KIỂM, "detail"}].
     extra_pain = cụm nỗi đau riêng của kịch bản (ngoài từ điển) — vd manifest.keywords / pain_keywords."""
     res: list[dict] = []
@@ -267,8 +359,8 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
 
     # B-roll / footage
     end = spec.get("duration") or max((c["at"] + c["dur"] for _, c in clips), default=0)
-    br = sorted(((c["at"], c["at"] + c["dur"]) for _, c in clips
-                 if c.get("name", "").lower().startswith(("b-roll", "footage"))))
+    broll_items = [(t, c) for t in tracks for c in t.get("clips", []) if _is_broll_clip(t, c)]
+    br = sorted(((c["at"], c["at"] + c["dur"]) for _, c in broll_items))
     covered, last, worst = 0.0, 0.0, (0.0, 0.0)
     for a, b in br + [(end, end)]:
         worst = max(worst, (a - last, last))
@@ -281,6 +373,58 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
     add("Nhiều B-roll / footage", "OK" if ok else "CẢNH BÁO",
         f"{len(br)} cảnh = {share:.0%} thời lượng (ngưỡng >= {MIN_BROLL_SHARE:.0%}); đoạn nói liền dài nhất "
         f"{worst[0]:.1f} s ({w0:.1f}–{w1:.1f} s" + (f": «{said[:90]}»" if said else "") + f", ngưỡng <= {MAX_AROLL_ONLY_S:.0f} s)")
+
+    # D8: mỗi clip B-roll tối đa 2 lần trong 1 video
+    if not broll_items:
+        add("Mỗi clip B-roll tối đa 2 lần trong 1 video", "OK", "chưa có B-roll trong spec")
+    else:
+        by_src: dict[str, list[tuple[float, float]]] = {}
+        for _, c in broll_items:
+            key = _canon_broll_src(c.get("src", ""), c.get("name", ""))
+            by_src.setdefault(key, []).append((float(c["at"]), float(c["at"]) + float(c["dur"])))
+        over_uses = []
+        for key, segs in sorted(by_src.items()):
+            merged: list[list[float]] = []
+            for a, b in sorted(segs):
+                if merged and a <= merged[-1][1] + 0.15:
+                    merged[-1][1] = max(merged[-1][1], b)
+                else:
+                    merged.append([a, b])
+            if len(merged) > MAX_BROLL_USES_PER_VIDEO:
+                over_uses.append(f"{Path(key).name or key} x{len(merged)}")
+        add("Mỗi clip B-roll tối đa 2 lần trong 1 video", "LỖI" if over_uses else "OK",
+            ("vượt quá 2 lần: " + ", ".join(over_uses[:6])) if over_uses else f"{len(by_src)} clip B-roll, đều ≤ {MAX_BROLL_USES_PER_VIDEO} lần")
+
+    # D15: B-roll Google Flow mặc định (100%); footage thật ≤ 5 %
+    total_broll = _union_dur([(float(c["at"]), float(c["at"]) + float(c["dur"])) for _, c in broll_items])
+    if total_broll <= 0:
+        add("B-roll Google Flow mặc định (100%); footage thật ≤ 5 %", "OK", "chưa có B-roll trong spec")
+    else:
+        by_cat: dict[str, list[tuple[float, float]]] = {k: [] for k in ("flow", "real_footage", "stock", "muse", "unknown")}
+        for _, c in broll_items:
+            cat = _classify_broll(c, manifest=manifest, broll_sources=broll_sources)
+            by_cat.setdefault(cat, []).append((float(c["at"]), float(c["at"]) + float(c["dur"])))
+        durs = {k: _union_dur(v) for k, v in by_cat.items()}
+        real_share = durs["real_footage"] / total_broll
+        flow_share = durs["flow"] / total_broll
+        if real_share > MAX_REAL_FOOTAGE_SHARE + 1e-9 or durs["stock"] > 0 or durs["muse"] > 0:
+            status_d15 = "LỖI"
+        elif durs["unknown"] > 0:
+            status_d15 = "CẢNH BÁO"
+        else:
+            status_d15 = "OK"
+        parts = [f"Flow {flow_share:.0%} ({durs['flow']:.1f} s)",
+                 f"footage thật {real_share:.1%} ({durs['real_footage']:.1f} s, ≤ {MAX_REAL_FOOTAGE_SHARE:.0%})"]
+        if durs["stock"] > 0:
+            parts.append(f"stock {durs['stock']:.1f} s (cấm)")
+        if durs["muse"] > 0:
+            parts.append(f"muse {durs['muse']:.1f} s (cấm mặc định)")
+        if durs["unknown"] > 0:
+            parts.append(f"chưa rõ nguồn {durs['unknown']:.1f} s")
+        elif 0 < real_share < MIN_REAL_FOOTAGE_SHARE:
+            parts.append(f"mục tiêu khi dùng footage thật {MIN_REAL_FOOTAGE_SHARE:.0%}–{MAX_REAL_FOOTAGE_SHARE:.0%}")
+        add("B-roll Google Flow mặc định (100%); footage thật ≤ 5 %", status_d15,
+            f"tổng {total_broll:.1f} s: " + " · ".join(parts))
 
     # Từ khoá nỗi đau
     if words is None:
@@ -346,16 +490,32 @@ def _cli() -> int:
     if args.cmd == "pain":
         print(json.dumps(find_pain_in_text(args.text), ensure_ascii=False))
         return 0
-    spec = json.loads(Path(args.spec).read_text(encoding="utf-8"))
+    spec_path = Path(args.spec).resolve()
+    spec = json.loads(spec_path.read_text(encoding="utf-8"))
     words = json.loads(Path(args.words).read_text(encoding="utf-8")) if args.words else None
     extra = [x.strip() for x in (args.pain or "").split(",") if x.strip()]
+    search_dirs = list(spec_path.parents[:3])
+    manifest_data = None
     if args.manifest:
-        for seg in json.loads(Path(args.manifest).read_text(encoding="utf-8")).get("segments", []):
+        manifest_data = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
+        for seg in manifest_data.get("segments", []):
             extra += [*(seg.get("keywords") or []), *(seg.get("pain_keywords") or [])]
-    pain_file = Path(args.spec).resolve().parent / "pain.json"      # build_spec_q ghi cạnh spec: E1 khỏi quên --pain
+    else:
+        for d in search_dirs:
+            mp = d / "00_storyboard_manifest.json"
+            if mp.is_file():
+                manifest_data = json.loads(mp.read_text(encoding="utf-8"))
+                break
+    broll_sources = None
+    for d in search_dirs:
+        sp = d / "_broll_sources.json"
+        if sp.is_file():
+            broll_sources = json.loads(sp.read_text(encoding="utf-8"))
+            break
+    pain_file = spec_path.parent / "pain.json"      # build_spec_q ghi cạnh spec: E1 khỏi quên --pain
     if pain_file.is_file():
         extra += [str(x) for x in json.loads(pain_file.read_text(encoding="utf-8")).get("pain", [])]
-    res = audit_spec(spec, words, sorted(set(extra)) or None)
+    res = audit_spec(spec, words, sorted(set(extra)) or None, manifest=manifest_data, broll_sources=broll_sources)
     count = {k: sum(1 for r in res if r["status"] == k) for k in ("LỖI", "CẢNH BÁO", "CHƯA KIỂM")}
     if args.json:
         print(json.dumps(res, ensure_ascii=False, indent=2))

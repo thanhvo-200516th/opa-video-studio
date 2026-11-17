@@ -138,6 +138,7 @@ fx.caption2('Nếu bạn không', 'muốn cầm tờ', 1.6, 1.4)
 fx.collage([('AI chỉ làm', 3.0, 'mx_heavy', 84), ('phần thô', 3.4, 'brush', 170)], end=4.2)
 fx.word_pop([('một', 4.2), ('hai', 4.4), ('ba', 4.6)], 5.2)
 fx.label_quote('Nguyên tắc', 4.2, 1.0)
+fx.asset_3d('/dev/null', 4.5, 1.8, pos=(760, 560), scale=38.0, anim='float', cue='pop')
 fx.strip_reveal('/dev/null', 2.0, 6.0); fx.grid_reveal('/dev/null', 2.0, 7.0); fx.leak_overlay(8.0)
 fx.cut_burst([('/dev/null', 0.0)] * 4, 8.5)
 v = {'src': '/dev/null', 'at': 6.0, 'dur': 2.0}; fx.join(v, 'flash')
@@ -324,7 +325,7 @@ def check_scripts(quick: bool) -> None:
                                    "audit_sfx.py", "limit_master.py", "master_audio.py", "normalize_tts.py",
                                    "dviet_text.py", "build_dviet_templates.py", "muse_gen.py", "text_fx.py", "fx_gfx.py",
                                    "text_fx_demo.py", "build_kit.py", "qa_frames.py", "qa_audio.py", "silence_cut.py",
-                                   "edit_rules.py", "speed_media.py", "transcribe.py")),
+                                   "edit_rules.py", "speed_media.py", "transcribe.py", "flow_3d_assets.py")),
            *(scripts / "style_analysis").glob("*.py"),
            *(APPS / r for r in ("craft-handoff/tools/fc_build.py", "craft-handoff/tools/craftctl.py",
                                 "talking-head-premiere/scripts/audit_sfx.py",

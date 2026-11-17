@@ -1139,3 +1139,72 @@ class MotionFX(FX):
         self.cues.append({"t": start, "kind": "riser", "dur": t - start, "why": "dồn trước chuỗi cắt"})
         self.transition(t, "flash_burst")                                 # hit cuối có flash burst thật trên hình
         return out, t
+
+    def _frame_keys(self, keys: list, dur: float) -> list:
+        """Snap keyframes onto strictly increasing frame timestamps inside [0, dur]."""
+        max_fr = max(1, round(dur * self.fps) - 1)
+        out: list = []
+        last_fr = -1
+        for k in keys:
+            t, val = float(k[0]), k[1]
+            interp = k[2] if len(k) > 2 else None
+            fr = max(0, min(max_fr, round(t * self.fps)))
+            if fr <= last_fr:
+                fr = last_fr + 1
+            if fr > max_fr:
+                if out:
+                    out[-1] = [out[-1][0], val, *([interp] if interp else [])]
+                continue
+            tf = round(fr / self.fps, 4)
+            out.append([tf, val, *([interp] if interp else [])])
+            last_fr = fr
+        return out
+
+    def asset_3d(self, src: str, at: float, dur: float, pos: tuple[int, int] = (540, 560),
+                 scale: float = 42.0, anim: str = "float", cue: str = "pop", name: str | None = None) -> dict:
+        """Đặt asset 3D minh hoạ (PNG RGBA hoặc video 3D) lên lane `gfx_over` với chuyển động B14 (không tĩnh).
+        anim: float | spin3d | slide | pop; cue: mã SFX trong sfx_catalog.json (mặc định 'pop', None/'' để tắt)."""
+        if anim not in ("float", "spin3d", "slide", "pop"):
+            raise ValueError(f"anim 3D asset lạ: {anim} (chỉ hỗ trợ float | spin3d | slide | pop)")
+        label = name or f"3D Asset · {Path(src).stem[:24]}"
+        c = self.image(src, at, dur, lane="gfx_over", name=label)
+        d = c["dur"]
+        if Path(src).suffix.lower() in {".mp4", ".mov", ".mkv", ".webm"}:
+            c.update({"in": 0.0, "audio": False})
+        else:
+            c["audio"] = False
+        px, py = round(pos[0]), round(pos[1])
+        t_in = min(0.14, d * 0.2)
+        t_peak = min(0.18, d * 0.28)
+        t_settle = min(0.32, d * 0.45)
+        t_mid = max(t_settle + 1 / self.fps, d * 0.62)
+        t_out_s = max(t_in + 1 / self.fps, d - min(0.16, d * 0.2))
+        t_end = max(t_out_s + 1 / self.fps, d - 1 / self.fps)
+
+        if anim == "slide":
+            sc_keys = [[0.0, round(scale * 0.85, 2)], [t_settle, round(scale, 2), "easeOut"],
+                       [t_end, round(scale * 1.03, 2), "linear"]]
+            dx = 180 if px >= 540 else -180
+            pos_keys = [[0.0, [px + dx, py]], [t_settle, [px, py], "easeOut"], [t_end, [px, py - 8], "linear"]]
+        else:
+            sc_keys = [[0.0, round(scale * 0.45, 2)], [t_peak, round(scale * 1.08, 2), "easeIn"],
+                       [t_settle, round(scale, 2), "easeOut"], [t_end, round(scale * 1.04, 2), "linear"]]
+            pos_keys = ([px, py] if anim == "spin3d" else
+                        [[0.0, [px, py + 18]], [t_settle, [px, py], "easeOut"],
+                         [t_mid, [px, py - 10], "linear"], [t_end, [px, py + 6], "linear"]])
+
+        c["motion"] = {
+            "position": self._frame_keys(pos_keys, d) if isinstance(pos_keys[0], list) else pos_keys,
+            "scale": self._frame_keys(sc_keys, d),
+        }
+        c["opacity"] = self._frame_keys([[0.0, 0], [t_in, 100], [t_out_s, 100], [t_end, 0]], d)
+        self._fx(c, "drop_shadow", {"opacity": 55, "distance": 14, "softness": 40})
+        if anim == "spin3d":
+            self._fx(c, "rotate_3d", {
+                "rot_y": self._frame_keys([[0.0, -28.0], [t_settle, 0.0, "easeOut"],
+                                           [t_mid, 10.0, "linear"], [t_end, -8.0, "linear"]], d),
+                "perspective": 60,
+            })
+        if cue:
+            self.cues.append({"t": c["at"], "kind": cue, "why": f"3D asset «{c['name']}»"})
+        return c

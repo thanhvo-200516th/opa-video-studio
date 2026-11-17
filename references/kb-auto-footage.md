@@ -2,6 +2,11 @@
 
 > Trong `opa-video-studio`: mọi chỗ nhắc tới skill/mô-đun khác ("nạp X", "dùng skill X", `modules/X/MODULE.md`) = đọc `references/kb-X.md` trong chính skill này. Code / dữ liệu của nguồn này (nếu có) nằm ở `scripts/apps/auto-footage/` (riêng nguồn lõi `master-video-edit`: `scripts/`, `assets/`, `tests/`). Nội dung dưới đây giữ NGUYÊN VĂN bản gốc; luật hiện hành và cách giải mâu thuẫn nằm ở `references/rules-full.md` + `rules.json`.
 
+> **CẬP NHẬT LUẬT HIỆN HÀNH (2026-11-16 — D3, D8, D15 trong `rules.json` thắng bản gốc bên dưới):**
+> - **Hạ cấp `auto-footage` sang ngoại lệ 2–5 % (D15):** Nguồn B-roll mặc định của `opa-video-studio` là **100 % Google Flow MCP** (tối thiểu ≥ 95 %). `auto-footage` (kho `TNEDIT/06_B-Roll`, Pexels, Pixabay, Mixkit) chỉ được dùng cho phần ngoại lệ **footage thật / stock tối đa 2–5 % thời lượng B-roll** (trần cứng **≤ 5 %**, ưu tiên `0 %` nếu Google Flow phủ đủ).
+> - **Nghiêm cấm lạm dụng stock thay Flow & giới hạn lặp D8:** Cấm kéo clip stock lặp lại từ `auto-footage` / Mixkit / TNEDIT thay cho việc tạo B-roll độc bản bằng Google Flow MCP; mọi clip dùng lại phải tuân giới hạn **D8 (`≤ 2 lần / video, ≤ 2 video`)**.
+> - Các dòng bên dưới ghi *"Muse là cách tạo mặc định"* thuộc bản gốc cũ đã bị thay thế bởi **D3, D15** (Muse local chỉ là dự phòng khẩn khi Google Flow không khả dụng và người dùng đồng ý).
+
 
 <!-- ===== file: auto-footage/SKILL.md ===== -->
 

@@ -137,8 +137,8 @@ Các dòng dưới đây chép NGUYÊN VĂN từ nguồn gốc (`kb-master-video
 
 ## D5
 
-- `references/rules.md:77` — | Kho tài nguyên dựng | `/home/vmiz/Thanh/Media/TNEDIT/` — xếp theo loại: `01_Font`, `02_SFX`, `03_VFX`, `04_Footage`, `05_Hieu_Ung_Chuyen_Canh`, `06_B-Roll`, `07_Assets`, `08_Nhac_Nen`; danh mục ở `README_DANH_MUC_TAI_NGUYEN.md` |
-- `references/rules.md:109` — - **Bắt buộc xóa phông xanh khi dùng `soucre thô`**: các video quay phông xanh trong `/home/vmiz/Thanh/Media/A huy/soucre thô` (`C0043..C0071`, `soucre 1..3`, `soucre final`) phải được xoay đúng chiều dọc 9:16, tách sạch 100% phông xanh + mép tường/kẹp phông (`rvm-matte` + `despill=type=green`) và ghép một background mới (phòng studio tối, văn phòng hiện đại, màn hình hệ thống) thay thế phông xanh trước khi chèn vào timeline. Tuyệt đối không để lộ vải phông xanh. **[có nội dung đã thay — theo D11 hiện hành]**
+- `references/rules.md:77` — | Kho tài nguyên dựng | `/home/vmiz/Thanh/Media/TNEDIT/` — xếp theo loại: `01_Font`, `02_SFX`, `03_VFX`, `04_Footage`, `05_Hieu_Ung_Chuyen_Canh`, `06_B-Roll`, `07_Assets`, `08_Nhac_Nen`; danh mục ở `README_DANH_MUC_TAI_NGUYEN.md` | **[có nội dung đã thay — theo D15 hiện hành]**
+- `references/rules.md:109` — - **Bắt buộc xóa phông xanh khi dùng `soucre thô`**: các video quay phông xanh trong `/home/vmiz/Thanh/Media/A huy/soucre thô` (`C0043..C0071`, `soucre 1..3`, `soucre final`) phải được xoay đúng chiều dọc 9:16, tách sạch 100% phông xanh + mép tường/kẹp phông (`rvm-matte` + `despill=type=green`) và ghép một background mới (phòng studio tối, văn phòng hiện đại, màn hình hệ thống) thay thế phông xanh trước khi chèn vào timeline. Tuyệt đối không để lộ vải phông xanh. **[có nội dung đã thay — theo D11, D15 hiện hành]**
 
 ## D11
 
@@ -174,7 +174,7 @@ Các dòng dưới đây chép NGUYÊN VĂN từ nguồn gốc (`kb-master-video
 
 ## G2
 
-- `references/PROMPT_CHUAN_THEO_TANG.md:44` — - 3a. A-Roll HeyGen (dry-run 0 credit trước; chờ tôi gửi key mới render thật) → 3b. B-Roll Muse (`muse_gen.py`) → 3c. Voice B-Roll.
+- `references/PROMPT_CHUAN_THEO_TANG.md:44` — - 3a. A-Roll HeyGen (dry-run 0 credit trước; chờ tôi gửi key mới render thật) → 3b. B-Roll Muse (`muse_gen.py`) → 3c. Voice B-Roll. **[có nội dung đã thay — theo D3, D15 hiện hành]**
 
 ## G5
 
