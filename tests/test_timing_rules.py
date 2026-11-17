@@ -91,13 +91,13 @@ def test_c1_profile() -> None:
     mix = spec(starts=tuple(range(0, 16, 2)), dur=16)
     v1 = mix["tracks"][0]["clips"]
     for c, k in zip(v1[1:], kinds):
-        c["join_kind"] = k
+        c["name"] += " ⇢ " + k
     dm = rule(edit_rules.audit_spec(mix, profile=PROF), "Chuyển cảnh đa dạng")
     check(dm["status"] == "OK" and "cắt cứng 14%" in dm["detail"],
           "3.6.2: 6 kiểu talking-head + 1 j_cut (tính là cắt cứng) → OK", dm["detail"])
     twice = spec(starts=tuple(range(0, 16, 2)), dur=16)
     for c, k in zip(twice["tracks"][0]["clips"][1:], kinds[:3] + ["paper_rip", "soft_wipe", "paper_rip", "card_swipe"]):
-        c["join_kind"] = k
+        c["name"] += " ⇢ " + k
     dt = rule(edit_rules.audit_spec(twice, profile=PROF), "Chuyển cảnh đa dạng")
     check(dt["status"] == "CẢNH BÁO" and "paper_rip" in dt["detail"], "3.6.2: giấy rách 2 lần → CẢNH BÁO", dt["detail"])
     only_hard = edit_rules.audit_spec(spec(starts=(0, 2, 4, 6), dur=8), profile=PROF)

@@ -187,11 +187,25 @@ _KEYED_FN = {"punch_settle": punch_settle, "drift_reset": drift_reset, "j_cut_re
              "vhs_rewind": vhs_rewind, "chapter_card_slam": chapter_card_slam}
 
 
+JOIN_MARK = " ⇢ "                                   # tên clip "… ⇢ <kiểu>": dấu cho edit_rules (FilmCraft không nhận khoá lạ)
+
+
+def mark(clip: dict, kind: str) -> dict:
+    """Ghi kiểu chuyển cảnh vào tên clip sau điểm cắt (thay dấu cũ nếu có); "hard_cut" cũng ghi được."""
+    clip["name"] = clip.get("name", "").split(JOIN_MARK)[0] + JOIN_MARK + kind
+    return clip
+
+
+def join_kind(clip: dict) -> str | None:
+    name = clip.get("name", "")
+    return name.rsplit(JOIN_MARK, 1)[1] if JOIN_MARK in name else None
+
+
 def th_join(fx, clip: dict, kind: str, cue_sfx: bool = True, **opts) -> dict:
     """Gắn chuyển cảnh `kind` (TH_KINDS) vào đầu `clip` (clip sau điểm cắt); `opts` = tham số riêng của kiểu."""
     if kind not in TH_KINDS:
         raise ValueError(f"kiểu chuyển cảnh lạ: {kind} (có: {', '.join(sorted(TH_KINDS))})")
-    clip["join_kind"] = kind                      # dấu cho edit_rules: kiểu dựng bằng keyframe không có transition_in
+    mark(clip, kind)
     if kind in TH_JOINS:
         return _simple(fx, clip, kind, cue_sfx)
     return _KEYED_FN[kind](fx, clip, cue_sfx, **opts)

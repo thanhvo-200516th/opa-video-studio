@@ -21,7 +21,7 @@ import unicodedata
 from pathlib import Path
 
 import style_profile
-from th_transitions import HARD_KINDS as TH_HARD, ONE_PER_VIDEO as TH_ONCE
+from th_transitions import HARD_KINDS as TH_HARD, ONE_PER_VIDEO as TH_ONCE, join_kind
 
 # ---------------------------------------------------------------- 1. Từ khoá nỗi đau
 PAIN_LEXICON = [
@@ -443,7 +443,7 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
         keyed = any(e.get("effect") == "transform" and isinstance(e["params"].get("scale_height"), list)
                     for e in a.get("effects", []) + b.get("effects", []))
         blur = prof_on and any(e.get("effect") == "directional_blur" for e in b.get("effects", []))   # hồ sơ: mờ ngang vào tranh
-        jk = b.get("join_kind")                                                          # 3.6.2: chuyển cảnh talking-head
+        jk = join_kind(b)                                                          # 3.6.2: chuyển cảnh talking-head
         if jk in TH_HARD:
             jk = "hard_cut" if prof_on else None
         if not (tin or tout or near or keyed or blur or jk):
