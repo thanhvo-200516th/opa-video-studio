@@ -191,6 +191,16 @@ def test_edit_rules_glow() -> None:
         assert status(c["color"], bool(glow_of(c))) == "OK", c["color"]
 
 
+def test_one_sided_small_line_stays_in_frame() -> None:
+    """Chỉ có chữ nhỏ phía trước, rộng hơn từ lớn ngắn: dòng nhỏ căn giữa, nằm trong vùng B8 (x 140–940)."""
+    clips = bt.caption_group("vị trí", ["Ngay khi", "giọng nói", "nhắc đến"], [], [0.0, 0.3, 0.6, 0.9], end=2.0)
+    M = bt.Meter(sp.load(name="minimal-edu"))
+    for lane, c in clips:
+        if lane == "text_low":
+            x1 = c["position"][0] + M.advance("small", c["size"], c["text"])
+            assert 140 - 1 <= c["position"][0] and x1 <= 940 + 1, (c["text"], c["position"][0], x1)
+
+
 if __name__ == "__main__":
     fns = sorted((k, v) for k, v in globals().items() if k.startswith("test_"))
     for name, fn in fns:

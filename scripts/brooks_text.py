@@ -177,6 +177,10 @@ def _small_xs(M: Meter, size: int, before: list[str], after: list[str], left: fl
         raise ValueError("chữ nhỏ trước + sau rộng hơn từ lớn: chọn từ lớn dài hơn, bớt chữ nhỏ hoặc tăng span_ratio")
     if max(tb, ta) > MAX_W:
         raise ValueError("chữ nhỏ rộng hơn vùng chữ B8 (800 px)")
+    if not after and tb > right - left:      # chỉ một phía và rộng hơn từ lớn: căn giữa dòng nhỏ, không tràn khỏi khung
+        left = CX - tb / 2
+    if not before and ta > right - left:
+        right = CX + ta / 2
     xs_b, x = [], left
     for a in adv_b:
         xs_b.append((x, "left"))
