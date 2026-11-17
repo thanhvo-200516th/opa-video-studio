@@ -1,0 +1,32 @@
+{
+ "_note": "PROPOSED generic A-roll lines for user approval. Topic-neutral: the video's own idea goes to B-roll voice-over / on-screen title. Edit freely; aroll_bank.py only reads role, vertical, text. 'kw' = comment keyword that must map to a real lead magnet.",
+ "lines": [
+  {"id": "H1", "role": "hook", "vertical": "any", "text": "Có một điều mà gần như chủ doanh nghiệp nào cũng đang làm sai."},
+  {"id": "H2", "role": "hook", "vertical": "any", "text": "Anh em đừng lướt vội, mười giây tới có thể tiết kiệm cho anh em cả tuần làm việc."},
+  {"id": "H3", "role": "hook", "vertical": "any", "text": "Nếu anh em vẫn đang làm theo cách cũ thì có thể đang mất tiền mà không biết."},
+  {"id": "H4", "role": "hook", "vertical": "any", "text": "Mình hỏi thật anh em một câu trước khi xem tiếp nhé."},
+  {"id": "H5", "role": "hook", "vertical": "any", "text": "Đây là thứ mình ước mình biết sớm hơn ba năm."},
+  {"id": "H6", "role": "hook", "vertical": "any", "text": "Hầu hết anh em làm nghề thật đều mắc đúng một lỗi này."},
+
+  {"id": "T1", "role": "turn", "vertical": "any", "text": "Giờ anh em nhìn cách mình làm nhé."},
+  {"id": "T2", "role": "turn", "vertical": "any", "text": "Mình mở trực tiếp trên máy tính để anh em dễ hình dung nhé."},
+  {"id": "T3", "role": "turn", "vertical": "any", "text": "Nhưng đây mới là phần quan trọng nhất."},
+  {"id": "T4", "role": "turn", "vertical": "any", "text": "Cách mình giải quyết thì khá đơn giản."},
+  {"id": "T5", "role": "turn", "vertical": "any", "text": "Anh em xem kỹ phần này nhé, vì đây là chỗ nhiều người bỏ qua."},
+
+  {"id": "P1", "role": "punch", "vertical": "any", "text": "Điều quan trọng không nằm ở công cụ, mà nằm ở cách mình biến nó thành quy trình."},
+  {"id": "P2", "role": "punch", "vertical": "any", "text": "Làm đúng một lần, về sau chỉ việc chạy lại."},
+  {"id": "P3", "role": "punch", "vertical": "any", "text": "Chúng mình không bán giải pháp trên giấy, chúng mình đang vận hành nó mỗi ngày."},
+
+  {"id": "C1", "role": "cta", "vertical": "any", "kw": null, "text": "Bộ mẫu mình để sẵn ở đầu kênh, anh em ghé xem rồi tải về chạy thử trong hôm nay nhé."},
+  {"id": "C2", "role": "cta", "vertical": "any", "kw": "Mẫu", "text": "Anh em nào muốn nhận bộ mẫu này thì bình luận chữ Mẫu xuống dưới, mình gửi ngay nhé."},
+  {"id": "C3", "role": "cta", "vertical": "any", "kw": null, "text": "Nếu thấy hữu ích thì bấm theo dõi kênh để anh em mình cùng đi tiếp hành trình này nhé."},
+  {"id": "C4", "role": "cta", "vertical": "any", "kw": "Hệ Thống", "text": "Anh em muốn xem cách bọn mình lắp hệ thống này vào doanh nghiệp thì bình luận chữ Hệ Thống xuống dưới nhé."},
+  {"id": "C5", "role": "cta", "vertical": "tai_chinh", "kw": "Tài Chính", "text": "Anh em làm tài chính, đầu tư muốn nhận bản mẫu thì bình luận chữ Tài Chính xuống dưới, mình gửi ngay nhé."},
+  {"id": "C6", "role": "cta", "vertical": "tai_chinh", "kw": null, "text": "Anh em làm tài chính, đầu tư thì ghé xem bản mẫu mình để sẵn ở đầu kênh nhé."},
+  {"id": "C7", "role": "cta", "vertical": "bat_dong_san", "kw": "Bất Động Sản", "text": "Anh em làm bất động sản muốn nhận bản mẫu thì bình luận chữ Bất Động Sản xuống dưới, mình gửi ngay nhé."},
+  {"id": "C8", "role": "cta", "vertical": "bat_dong_san", "kw": null, "text": "Anh em làm bất động sản thì ghé xem bản mẫu mình để sẵn ở đầu kênh nhé."},
+  {"id": "C9", "role": "cta", "vertical": "ban_hang", "kw": "Bán Hàng", "text": "Anh em làm bán hàng, kinh doanh muốn nhận bản mẫu thì bình luận chữ Bán Hàng xuống dưới, mình gửi ngay nhé."},
+  {"id": "C10", "role": "cta", "vertical": "ban_hang", "kw": null, "text": "Anh em làm bán hàng, kinh doanh thì ghé xem bản mẫu mình để sẵn ở đầu kênh nhé."}
+ ]
+}
