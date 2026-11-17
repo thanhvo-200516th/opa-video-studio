@@ -5,6 +5,7 @@
 Đọc : <phiên bản>/media/speed_plan.json (do `speed_media.py plan` ghi) · 00_storyboard_manifest.json (thư mục đánh số, chỉ đọc) ·
       sổ rotation.json nếu có (key_seed, opening_pair, cut_seed; tìm ở <phiên bản>/ trước — `rotation.py plan <thư mục video> <MÃ> --out <phiên bản>`) ·
       media đã tăng tốc ở media/<speed_dir>/ (1.0x → thư mục đánh số) · media/person_alpha*.mov nếu có (matte, xem HEAD_TOP).
+      work/plan_export.json (plan_doc.py export) — CHỈ khi KEY_SPECS trống: sinh KEY_SPECS từ đó; KEY_SPECS trống và không có file → chỉ ghi words_tl.json rồi thoát.
 Ghi : work/<mã>.craft.json · work/words_tl.json · work/transition_plan.md (cột C3) · work/pain.json (nỗi đau đã dùng; edit_rules audit tự đọc)
       (không whisper, không dựng, không lint — việc của các bước sau).
 MÃ = `script_id` trong manifest (in ra khi chạy).
@@ -144,9 +145,22 @@ def broll_source_of(seg: dict, video_name: str) -> str:
     return vg_map.get(vg, "unknown")
 
 
+def specs_from_plan_export(words_tl: list, raw: list[dict]) -> list[tuple]:
+    """KEY_SPECS trống + có work/plan_export.json (plan_doc.py export) → hàng KEY_SPECS cùng định dạng; in ra để chép vào khối `# EDIT:`."""
+    f = W / "plan_export.json"
+    if not f.is_file():
+        return []
+    from plan_doc import key_specs_from_export
+    scene_at = lambda t: next((r["scene"] for r in reversed(raw) if r["t0"] <= t + 1e-3), 0)   # noqa: E731
+    rows, unsupported = key_specs_from_export(json.loads(f.read_text(encoding="utf-8")), words_tl, scene_at)
+    print(f"KEY_SPECS trống → lấy {len(rows)} khối từ {f.name} (chép vào khối `# EDIT:` nếu muốn sửa tay):")
+    print("\n".join(f"    {r!r}," for r in rows))
+    for u in unsupported:
+        print(f"[chưa hỗ trợ] {u} — không có chữ chính; xử lý ở khâu B-roll / đồ hoạ")
+    return rows
+
+
 def main() -> int:
-    if not KEY_SPECS:
-        sys.exit("KEY_SPECS trống: điền các khối chữ chính (dòng `# EDIT:`) rồi chạy lại")
     print(f"Mã video (script_id trong manifest): {CODE}")
     print(f"Sổ luân phiên: SFX mở đầu #{ROT['opening_pair']} · key_seed {ROT['key_seed']}" if ROT else
           f"Chưa có sổ luân phiên cho {CODE} → SFX mở đầu / kiểu chữ theo crc32 mặc định. Cấp sổ (ghi vào {OUT}, không ghi vào {SRC}):\n"
@@ -173,6 +187,11 @@ def main() -> int:
     END = round(t_acc, 3)
     (W / "words_tl.json").write_text(json.dumps(words_tl, ensure_ascii=False, indent=1), encoding="utf-8")
     T0 = [r["t0"] for r in RAW]
+    key_specs = KEY_SPECS or specs_from_plan_export(words_tl, RAW)
+    if not key_specs:
+        print(f"Đã ghi {W / 'words_tl.json'} ({len(words_tl)} từ). KEY_SPECS trống: điền các khối chữ chính (dòng `# EDIT:`), "
+              f"hoặc `plan_doc.py build {W} --manifest {SRC / '00_storyboard_manifest.json'}` → duyệt plan → `plan_doc.py export` rồi chạy lại")
+        return 0
 
     def find_word_time(phrase: str, scene: int) -> float:
         toks, n = norm(phrase).split(), len(norm(phrase).split())
@@ -233,7 +252,7 @@ def main() -> int:
         used[j] = used.get(j, 0) + 1
 
     # ---- 3. Chữ chính (chữ lấy từ kịch bản — B10) ----
-    entries = [(lead, key, script, find_word_time(phrase, sc_i), pal) for sc_i, lead, key, script, phrase, pal in KEY_SPECS]
+    entries = [(lead, key, script, find_word_time(phrase, sc_i), pal) for sc_i, lead, key, script, phrase, pal in key_specs]
     matte_clips: list[dict] = []
     key_spans: list[tuple[float, float, str]] = []
     n3d = 0

@@ -159,3 +159,131 @@ def caption_band(out_dir: Path, name: str, y0: int, y1: int, strength: float = 0
 def solid_panel(out_dir: Path, name: str, color: str) -> str:
     """Tấm màu đặc phủ kín khung (chuyển cảnh panel_wipe)."""
     return _save(Image.new("RGBA", (W, H), _rgba(color)), out_dir, name)
+
+
+# ---------- hồ sơ minimal-edu (C1): nền giấy, hộp tô, quote card, polaroid, lưới đồ thị ----------
+# Màu / số đo lấy từ references/minimal-edu-style.json (style_profile); hàm chỉ chạy khi được gọi — hồ sơ tắt thì không ai gọi.
+def _prof() -> dict:
+    from style_profile import load
+    return load(name="minimal-edu")
+
+
+def _gfx(key: str):
+    return _prof()["graphics"][key]
+
+
+def _rgb(hex_: str):
+    import numpy as np
+    return np.array(_rgba(hex_)[:3], dtype=np.float32)
+
+
+def _smooth_noise(rng, cells: tuple[int, int]):
+    """Mây mềm: nhiễu độ phân giải thấp phóng bicubic lên khung 1080×1920, giá trị ~[-1, 1]."""
+    import numpy as np
+    small = Image.fromarray((rng.random(cells[::-1]) * 255).astype(np.uint8), "L")
+    return (np.asarray(small.resize((W, H), Image.BICUBIC), dtype=np.float32) - 127.5) / 127.5
+
+
+def _halftone(pitch: int = 16, reach: float = 0.42):
+    """Mặt nạ chấm halftone lưới xoay 45°, chấm to dần về 4 góc (0 → 1), mép chấm mềm 1 px."""
+    import numpy as np
+    ys, xs = np.mgrid[0:H, 0:W].astype(np.float32)
+    u, v = (xs + ys) / 1.4142, (ys - xs) / 1.4142
+    cu, cv = (np.floor(u / pitch) + 0.5) * pitch, (np.floor(v / pitch) + 0.5) * pitch
+    d = np.hypot(u - cu, v - cv)
+    dc = np.minimum.reduce([np.hypot(xs - x, ys - y) for x in (0, W) for y in (0, H)])
+    r = pitch * 0.62 * np.clip(1 - dc / (reach * W), 0, 1)
+    return np.clip(r - d + 0.5, 0, 1)
+
+
+def paper_bg(out_dir: Path, name: str, kind: str = "white", seed: int = 0) -> str:
+    """Nền 1080×1920 đặc: kind 'white' (giấy #E8E8F0, chấm halftone dày ở góc) | 'black' (nền đen noise) | 'blue' (cobalt
+    vải thô). Noise hạt + mây mềm + chấm halftone ở góc; cùng seed → cùng ảnh."""
+    import numpy as np
+    prof = _prof()
+    base = {"white": prof["graphics"]["paper_white"], "black": prof["text"]["colors"]["on_paper"],
+            "blue": prof["text"]["colors"]["accent"]}.get(kind)
+    if base is None:
+        raise ValueError(f"kind nền lạ: {kind} (chỉ white | black | blue)")
+    rng = np.random.default_rng(seed)
+    light = kind == "white"
+    grain = rng.normal(0, 5.0 if light else 4.0, (H, W, 1)).astype(np.float32)
+    if kind == "blue":                                     # vải thô: sợi ngang + dọc
+        grain += (_smooth_noise(rng, (540, 1))[..., None] + _smooth_noise(rng, (1, 960))[..., None]) * 3.0
+    cloud = _smooth_noise(rng, (6, 10))[..., None] * (7.0 if light else 5.0)
+    dots = _halftone()[..., None]
+    shade = dots * (-0.16 * _rgb(base) if light else 26.0)
+    img = np.clip(_rgb(base) + grain + cloud + shade, 0, 255).astype(np.uint8)
+    return _save(Image.fromarray(img, "RGB").convert("RGBA"), out_dir, name)
+
+
+def box_fill(out_dir: Path, name: str, w: int, h: int, color: str | None = None, radius: int = 24) -> str:
+    """Hộp bo góc tô đặc kích thước w×h (khít, không phải khung 1080×1920) — đặt bằng motion.position, lộ bằng box_wipe."""
+    k = 4                                                  # siêu mẫu 4× cho mép bo mượt
+    big = Image.new("RGBA", (w * k, h * k), (0, 0, 0, 0))
+    ImageDraw.Draw(big).rounded_rectangle([0, 0, w * k - 1, h * k - 1], radius=radius * k, fill=_rgba(color or _gfx("accent_line")))
+    return _save(big.resize((w, h), Image.LANCZOS), out_dir, name)
+
+
+def quote_card(out_dir: Path, name: str, inner: str | None = None, outer: str | None = None) -> str:
+    """Nền thẻ trích dẫn 1080×1920: gradient radial, tâm `inner` → góc `outer` (đầu sáng chưa xác nhận — giả định tâm sáng)."""
+    import numpy as np
+    qc = _gfx("quote_card")
+    ys, xs = np.mgrid[0:H, 0:W].astype(np.float32)
+    t = np.clip(np.hypot((xs - W / 2) / (W / 2), (ys - H / 2) / (H / 2)) / 1.4142, 0, 1)[..., None]
+    c0, c1 = _rgb(inner or qc["inner"]), _rgb(outer or qc["outer"])
+    return _save(Image.fromarray((c0 + (c1 - c0) * t).astype(np.uint8), "RGB").convert("RGBA"), out_dir, name)
+
+
+def polaroid(out_dir: Path, name: str, photo_path: str, tilt: float = 0.0, width: int = 760) -> str:
+    """Khung polaroid (viền trắng, đáy dày) quanh ảnh vuông cắt giữa, bóng đổ mềm, nền trong suốt. tilt = độ nghiêng nướng
+    vào PNG (0 nếu để polaroid_pop xoay bằng keyframe)."""
+    border, strip, pad = 36, 150, 90
+    inner = width - 2 * border
+    photo = Image.open(photo_path).convert("RGB")
+    s = min(photo.size)
+    photo = photo.crop(((photo.width - s) // 2, (photo.height - s) // 2, (photo.width + s) // 2, (photo.height + s) // 2))
+    frame = Image.new("RGBA", (width, border + inner + strip), (246, 244, 238, 255))
+    frame.paste(photo.resize((inner, inner), Image.LANCZOS), (border, border))
+    card = Image.new("RGBA", (frame.width + 2 * pad, frame.height + 2 * pad), (0, 0, 0, 0))
+    shadow = Image.new("RGBA", card.size, (0, 0, 0, 0))
+    shadow.paste((0, 0, 0, 120), (pad, pad + 18, pad + frame.width, pad + 18 + frame.height))
+    card = Image.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(20)), card)
+    card.alpha_composite(frame, (pad, pad))
+    if tilt:
+        card = card.rotate(tilt, resample=Image.BICUBIC, expand=True)
+    return _save(card, out_dir, name)
+
+
+def graph_grid(out_dir: Path, name: str, step: int = 120) -> str:
+    """Lưới trắng mảnh phát sáng (đồ thị trên nền tối), trong suốt 1080×1920."""
+    im, d = _canvas()
+    for x in range(step // 2, W, step):
+        d.line([(x, 0), (x, H)], fill=(255, 255, 255, 190), width=2)
+    for y in range(step // 2, H, step):
+        d.line([(0, y), (W, y)], fill=(255, 255, 255, 190), width=2)
+    return _save(Image.alpha_composite(im.filter(ImageFilter.GaussianBlur(5)), im), out_dir, name)
+
+
+def paint_texture(out_dir: Path, name: str, src: str, strength: float) -> str:
+    """Nướng texture sơn / vải vào ảnh tranh (dính ảnh nên "chạy theo tranh"). strength 0–1, tối đa
+    graphics.painting_texture_max (0,5: bản nặng bị chê). Giữ nguyên kích thước và kênh alpha."""
+    import numpy as np
+    cap = _gfx("painting_texture_max")
+    if not 0 <= strength <= cap:
+        raise ValueError(f"texture_strength {strength} ngoài 0–{cap} (texture sơn nặng bị chê)")
+    im = Image.open(src).convert("RGBA")
+    rng = np.random.default_rng(zlib_seed(src))
+    w, h = im.size
+    fine = rng.normal(0, 1, (h, w)).astype(np.float32)
+    coarse = np.asarray(Image.fromarray((rng.random((max(2, h // 24), max(2, w // 24))) * 255).astype(np.uint8), "L")
+                        .resize((w, h), Image.BICUBIC), dtype=np.float32) / 127.5 - 1
+    tex = (0.6 * np.clip(fine, -2, 2) / 2 + 0.4 * coarse)[..., None]
+    a = np.asarray(im, dtype=np.float32)
+    a[..., :3] = np.clip(a[..., :3] + tex * strength * 70, 0, 255)
+    return _save(Image.fromarray(a.astype(np.uint8), "RGBA"), out_dir, name)
+
+
+def zlib_seed(s: str) -> int:
+    import zlib
+    return zlib.crc32(s.encode())

@@ -70,6 +70,15 @@
     "SC:text/pencil-write-short.mp3"
    ]
   },
+  "highlighter": {
+   "tier": "soft",
+   "align": "onset",
+   "why": "hồ sơ minimal-edu: bút dạ quét qua đồ thị / chữ nhấn (nhãn Claude của video mẫu); dùng lại file marker đã có ở 'pen'",
+   "files": [
+    "TR:06_Camera_Paper_Typing_Foley/77_Highlighter_Marker_Swipe.wav",
+    "SC:text/marker-pen-line.mp3"
+   ]
+  },
   "key_hit": {
    "tier": "mid",
    "align": "peak",

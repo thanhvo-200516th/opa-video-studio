@@ -10,7 +10,7 @@ description: >-
   thumbnail, học style kênh mẫu; xuất bảng phân cảnh dựng (Edit Blueprint) cho Premiere Pro / After Effects /
   CapCut. Dùng khi người dùng gọi "opa-video-studio", "master-video-edit", "dviet", hoặc nhờ dựng / sửa /
   edit video, thêm phụ đề, hiệu ứng chữ, chuyển cảnh, SFX, nhạc nền, phân tích kịch bản A-roll B-roll, tìm / tạo B-roll.
-version: 3.5.1
+version: 3.6.0
 standalone: true
 ---
 
@@ -51,6 +51,7 @@ Luật cứng phải nhớ không cần mở file (ID ↔ `rules-full.md`):
 | C1 / C2 | Mọi điểm cắt có chuyển cảnh; đa dạng theo ngữ cảnh, ≥ 6 kiểu, không lặp trong 4 điểm cắt, họ nháy sáng ≤ 20 % (máy chấm ≤ 25 %) |
 | C3–C6 | Lập bảng điểm cắt trước; đoạn nói ≥ 4 s có zoom động; 3D 3–4 lần / video (swing3d, ui_card 3D, flip3d_in, wall_text, flip3d, swing_in đều tính); SFX trúng khung đổi mạnh nhất |
 | D1–D2 | Cảnh chèn ≥ 25 %, nói trơ ≤ 8 s; B-roll không giọng không chữ |
+| C7 / C8 / D16 | Điểm cắt đầu câu cách từ đầu tiên 0–0,09 s (cắt cụt chữ = LỖI); chữ chính không kéo quá điểm cắt > 1 khung; gợi ý cảnh theo nghĩa câu (khái niệm mới → giữ mặt, mô tả → cho xem, cảm xúc / kết → mặt cận) — chỉ gợi ý |
 | D3 / D15 | B-roll mặc định 100 % Google Flow (tối thiểu ≥ 95 %); đường thực thi theo phiên: có tool `flow_*` → MCP `google-flow` (tham số theo `flow_inspect_account`, tải 1080p), không có → trình duyệt Cindy (đường chính thức, `references/flow-broll.md`); Muse chỉ dự phòng khẩn khi Flow hỏng và người dùng đồng ý; dùng tín dụng sẵn, không mua thêm, không đính mặt A4; footage thật / stock ngoại lệ tối đa 2–5 % (trần cứng ≤ 5 %; cấm kéo stock thay Flow) |
 | D4 / D6 | Tốc độ mọi nguồn hình: 1.10x → 1.05x → 1.0x, không đẩy video xuống dưới 45 s; video < 45 s giữ 1.0x; CẤM 1.15x / 1.25x. Giữ độ phân giải gốc, CRF 12 slow BT.709, AAC 320k |
 | D7 / D11 / D12 | Clip quay thật nền sáng: đầu ở đường 1/3. Phông xanh: tách lại từ file GỐC (`chroma_studio.py`), nền = ảnh phòng thật không người (`studio_plate.py`), CẤM nền vẽ bằng code |
@@ -65,6 +66,7 @@ Luật cứng phải nhớ không cần mở file (ID ↔ `rules-full.md`):
 | H2 | Kiểm bằng đo lại từ file trên đĩa, không tin số tự báo của bước dựng |
 | H5 | Prompt B-roll 5 tầng (`18–95` từ EN, `layers` `l1`–`l5`) qua Quy trình 3 Agent bám nghĩa đen `anchor_quote` (tách sub-beat `> 7,5 s` / 2 vế), `Vietnamese`, giấu mặt founder, chống nhựa/Anti-Slop/ẩn dụ CGI trừu tượng, `broll_fix.py lint` + Agent 3 duyệt 2 bản 720p |
 | P1 | Style @__dviet là hồ sơ TUỲ CHỌN, chỉ bật khi người dùng gọi tên; khi bật áp P2–P5, mọi luật khác giữ |
+| P6 | Hồ sơ `minimal-edu` (kiểu Joseph / Arthur Brooks) TUỲ CHỌN, chỉ bật khi người dùng gọi tên ("kiểu minimal / Brooks / Joseph"): ghi `W/profile.json` = {"profile": "minimal-edu"}; áp P7–P12 (cụm 1 từ lớn, Inter + Playfair, chữ vào nhanh / mờ ra 2 khung, cắt cứng, 1 màu nhấn, 10 kiểu cảnh đồ hoạ); giữ B2, B8, B10, B14, D–G; không bật cùng @__dviet. Chi tiết `references/minimal-edu-style.json` |
 
 Không làm (luật đã bị thay, xem `rules-full.md` › "Luật đã bị thay"): tốc độ 1.25x / 1.15x; flash ≥ 40 %; dải tối sau phụ đề / `vignette_bottom`; chữ có viền; phụ đề chỉ trắng + vàng; cân giọng −16 LUFS từng clip làm chuẩn cuối; xuất 5 MP4 trước khi duyệt; `rvm-matte` + despill cho phông xanh `soucre thô`; "audit 8/8"; Muse làm công cụ tạo B-roll mặc định (X13); giới hạn B-roll ≤ 1 lần / video (X14); kéo stock / `auto-footage` thay B-roll Google Flow vượt trần 5 % (D15).
 
@@ -136,6 +138,7 @@ Mỗi bước MỘT lệnh; đọc kết quả rồi mới sang bước sau; ⏸
 | 5 | (Không chạy trước.) Lớp người cho chữ sau đầu do bước 8 yêu cầu đúng đoạn cần | — |
 | 6 | `$PY scripts/rotation.py plan V <MÃ> --out O` (lô: `plan <gốc lô> KB06 KB07 …`) | `O/rotation.json` (key_seed, opening_pair, cut_seed) |
 | 7 | ⏸ `cp assets/motion-fx/build_spec_q.py W/build_spec.py`, CHỈ sửa dòng `# EDIT:` (KEY_SPECS chữ chính ~1 khối / 5–6 s theo hướng dẫn trong file, MUSIC, EXTRA_PAIN, HEAD_TOP = số `head_top` đo bằng `$PY scripts/frame_person.py analyze <A-roll>` — với HeyGen chỉ lấy số này, bỏ qua dòng `plan` (D7 không áp avatar). Mẫu tự đặt chữ hook TRƯỚC đầu khi sau đầu bị che > 20 % — đúng luật B9 (đọc được trước), không ép matte) | `W/build_spec.py` |
+| 7b | (Khuyên dùng) Kế hoạch chọn cảnh: chạy bước 8 một lần với KEY_SPECS rỗng để có `W/words_tl.json` → `$PY scripts/plan_doc.py build W [--manifest V/00_storyboard_manifest.json] --out W/edit_plan.html` → ⏸ người dùng mở trang, chọn A/B/C từng nhịp ("Gợi ý" theo D16), ghi chú, bấm "Xuất JSON" → `$PY scripts/plan_doc.py export <file tải về> W` → `W/plan_export.json`; chạy lại bước 8 với KEY_SPECS rỗng → in sẵn các dòng KEY_SPECS từ kế hoạch để dán vào khối `# EDIT:` (nhịp chọn B-roll / đồ hoạ được in `[chưa hỗ trợ]` để làm tay). Hồ sơ minimal-edu: tạo `W/profile.json` trước bước 8 | `W/edit_plan.html`, `W/plan_export.json` |
 | 8 | `OPA_SKILL_DIR=<thư mục skill> $PY W/build_spec.py` — nếu in lệnh `matte.py … --start S --dur D` (chữ sau đầu thiếu lớp người) thì chạy lệnh đó rồi chạy lại bước 8 | `W/<mã>.craft.json`, `W/words_tl.json`, `W/transition_plan.md`, `W/pain.json` |
 | 9 | ⏸ Đưa người dùng xem `transition_plan.md` (C3: Giây \| Cảnh \| Chữ chính \| Chuyển cảnh \| Zoom \| Nỗi đau \| SFX \| Lý do) | — |
 | 10 | `$PY scripts/audio_levels.py plan W/<mã>.craft.json` (F3; tự hạ SFX chồng nhau) | `W/<mã>.levels.craft.json` — MỌI lệnh sau dùng file `.levels` |

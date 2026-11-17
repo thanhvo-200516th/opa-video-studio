@@ -17,3 +17,5 @@ Không xuất MP4 khi chưa có người duyệt. Gọi skill: "Dùng opa-video-
 
 ## Changelog
 - 3.5.1 — đường thực thi Google Flow theo phiên (MCP khi có tool `flow_*`, không thì trình duyệt Cindy); tham số MCP theo `flow_inspect_account`; tải 1080p; X13; mô tả ≤ 1024.
+
+- **3.6.0** (2026-11-17): hồ sơ tuỳ chọn `minimal-edu` (P6–P12, kiểu Joseph / Arthur Brooks — `references/minimal-edu-style.json`, `scripts/style_profile.py`): cụm chữ 1 từ lớn + font Inter / Playfair (`brooks_text.py`, `assets/fonts/`), chữ vào nhanh / mờ ra 2 khung, cắt cứng trong hồ sơ, đồ hoạ 10 nguyên tắc (`draw_path.py` ProRes 4444 alpha, `fx_gfx` giấy / thẻ trích dẫn / polaroid, `MotionFX` box_wipe · polaroid_pop · whip_pan · scene_camera · graph_scene…); tài liệu kế hoạch chọn A/B/C từng nhịp `plan_doc.py` (§3 bước 7b, D16); kiểm C7 điểm cắt đầu câu, C8 chữ quá điểm cắt; SFX `highlighter`; `env_status.py --install-fonts`.

@@ -4,6 +4,8 @@
     python3 env_status.py
 """
 import argparse
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -14,6 +16,27 @@ VENV_PY = HOME / ".venvs" / "video-skills" / "bin" / "python"
 FCM_PY = APPS / "facecammaxxing" / ".venv" / "bin" / "python"
 FFMPEG = HOME / ".local" / "bin" / "ffmpeg"
 TNEDIT = HOME / "Thanh" / "Media" / "TNEDIT"
+
+USER_FONTS = HOME / ".local" / "share" / "fonts"        # nơi FilmCraft / text_fx tìm font (không cần sudo)
+INTER_FONTS = ("Inter-ExtraBold.ttf", "Inter-Medium.ttf")   # hồ sơ minimal-edu (assets/fonts); FilmCraft không đọc thẳng từ thư mục skill
+
+
+def missing_inter_fonts(dest: Path = USER_FONTS) -> list[str]:
+    """Bản tĩnh Inter của hồ sơ minimal-edu chưa có trong thư mục font người dùng (bản biến thiên Inter-Variable.ttf không đủ ExtraBold)."""
+    return [f for f in INTER_FONTS if not (dest / f).is_file()]
+
+
+def install_inter_fonts(dest: Path = USER_FONTS, refresh: bool = True) -> list[str]:
+    """Chép các file Inter còn thiếu từ assets/fonts vào thư mục font người dùng rồi fc-cache; trả danh sách đã chép. Không sudo."""
+    todo = missing_inter_fonts(dest)
+    if todo:
+        dest.mkdir(parents=True, exist_ok=True)
+        for f in todo:
+            shutil.copy2(SKILL_ROOT / "assets" / "fonts" / f, dest / f)
+        if refresh and shutil.which("fc-cache"):
+            subprocess.run(["fc-cache", "-f", str(dest)], check=False, capture_output=True)
+    return todo
+
 
 MODULES = {
     "script-aroll-broll-analyzer": {
@@ -87,6 +110,8 @@ def cmd_status(_args):
     for label, path in checks:
         ok = path.exists()
         print(f"  • {label:<36}: {'✅ Có' if ok else '⚠️ Chưa thấy'} ({path})")
+    miss = missing_inter_fonts()
+    print(f"  • {'Font Inter (hồ sơ minimal-edu)':<36}: " + ("✅ Có" if not miss else f"⚠️ Thiếu {', '.join(miss)} — chạy: python3 env_status.py --install-fonts"))
 
     print("=" * 78)
     if all_ok:
@@ -96,7 +121,12 @@ def cmd_status(_args):
 
 def main():
     parser = argparse.ArgumentParser(description="Kiểm tra trạng thái 7 mô-đun trong scripts/apps/ & kho tài nguyên")
+    parser.add_argument("--install-fonts", action="store_true", help="chép Inter-ExtraBold / Inter-Medium (assets/fonts) vào ~/.local/share/fonts + fc-cache (hồ sơ minimal-edu)")
     args = parser.parse_args()
+    if args.install_fonts:
+        done = install_inter_fonts()
+        print("Đã cài: " + ", ".join(done) if done else "Font Inter đã đủ, không cần cài.")
+        return
     sys.exit(cmd_status(args))
 
 

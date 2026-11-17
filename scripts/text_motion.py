@@ -11,8 +11,14 @@ thì không thêm; đã có transition_out / mờ ra thì không thêm ra.
 
     from text_motion import ensure_motion
     n = ensure_motion(items, fps)        # items = [(lane, clip)] của FX / MotionFX — sửa clip tại chỗ
+
+Hồ sơ tuỳ chọn 'minimal-edu' (references/minimal-edu-style.json, chỉ khi profile.json bật): ensure_motion(items, fps,
+profile=prof, cuts=[...]) — vào ngắn theo khung của chữ chính / chữ nhỏ, ra = mờ `exit_frames` khung (không nhoè), và
+clip kết thúc `end_before_cut_frames` khung trước điểm cắt gần cuối clip (chỉ rút ngắn). profile=None → như cũ.
 """
 from __future__ import annotations
+
+from style_profile import active, get
 
 TEXT_LANES = {"text", "text_top", "text_low", "text_img"}
 KEY_LANES = {"text", "text_top", "text_img"}          # chữ chính / tiêu đề; text_low = phụ đề, dòng nối
@@ -24,6 +30,7 @@ HOLD_SCALE = {"key": 103.0, "cap": 101.5}
 ENTRANCE_WINDOW = 0.35      # có key trong 0,35 s đầu = đã có kiểu vào
 MIN_HOLD_S = 0.6            # clip ngắn hơn: chỉ vào / ra, không thêm phóng giữ
 MIN_CLIP_S = 0.3            # clip ngắn hơn (khung đổi font, chữ chớp…) giữ nguyên: hiệu ứng cố ý tức thời, thêm key sẽ trùng mốc
+CUT_SNAP_S = 0.25           # hồ sơ: điểm cắt cách cuối clip ≤ 0,25 s (về phía trước) thì clip kết thúc theo điểm cắt đó
 SKIP_KEYS = ("src", "text", "name", "font", "style", "color", "shadow", "position", "align", "tracking", "size")
 
 
@@ -102,6 +109,20 @@ def soft_in(c: dict, lane: str) -> None:
                                         "params": {"blurriness": [[min(t, end), v] + (["easeIn"] if i else []) for i, (t, v) in enumerate(bl)]}})
 
 
+def profile_in_frames(prof: dict) -> tuple[int, int]:
+    """(khung vào chữ nhỏ, khung vào chữ chính) của hồ sơ: chữ nhỏ = giữa dải, chữ chính = đầu dải (Brooks: chủ yếu 3 khung)."""
+    lo, hi = get(prof, "text.small_in_frames", [1, 3])
+    return round((lo + hi) / 2), get(prof, "text.hero_blur_in_frames", [3, 6])[0]
+
+
+def soft_in_frames(c: dict, n: int, fps: float, blur_from: float = 22) -> None:
+    """Vào ngắn n khung: opacity 0 → 100 trong ~60 % thời gian, nhoè blur_from → 0 đúng n khung (mốc nằm trên bội số khung)."""
+    end = max(1e-3, c["dur"] - 1e-3)
+    t_op, t_bl = min(max(1, round(0.6 * n)) / fps, end), min(n / fps, end)
+    c["opacity"] = [[0, 0], [t_op, 100]]
+    c.setdefault("effects", []).append({"effect": "gaussian_blur", "params": {"blurriness": [[0, blur_from], [t_bl, 0, "easeIn"]]}})
+
+
 def hold_drift(c: dict, lane: str, t0: float, t1: float) -> None:
     peak = HOLD_SCALE["key" if lane in KEY_LANES else "cap"]
     ax = _anchor(c)
@@ -114,9 +135,10 @@ def hold_drift(c: dict, lane: str, t0: float, t1: float) -> None:
     effects.insert(len(effects) if mi is None else mi, fx)   # phóng TRƯỚC track matte: chữ sau người vẫn khớp viền người
 
 
-def soft_out(c: dict) -> None:
+def soft_out(c: dict, out_s: float = SOFT_OUT_S, blur: float | None = OUT_BLUR) -> None:
+    """Ra: opacity 100 → 0 trong out_s; blur=None → chỉ mờ, không nhoè (hồ sơ minimal-edu)."""
     d = c["dur"]
-    t0 = max(0.0, d - SOFT_OUT_S)
+    t0 = max(0.0, d - out_s)
     op = c.get("opacity")
     if isinstance(op, list) and op and isinstance(op[0], (list, tuple)):
         keep = [k for k in op if k[0] < t0 - 1e-3]
@@ -124,38 +146,73 @@ def soft_out(c: dict) -> None:
         c["opacity"] = keep + [[t0, last], [d, 0]]
     else:
         c["opacity"] = [[0, op if isinstance(op, (int, float)) else 100], [t0, op if isinstance(op, (int, float)) else 100], [d, 0]]
-    blur = _effect(c, "gaussian_blur")
-    if blur and isinstance(blur["params"].get("blurriness"), list):
-        ks = [k for k in blur["params"]["blurriness"] if k[0] < t0 - 1e-3]
-        blur["params"]["blurriness"] = ks + [[t0, 0], [d, OUT_BLUR]]
+    if blur is None:
+        return
+    fx = _effect(c, "gaussian_blur")
+    if fx and isinstance(fx["params"].get("blurriness"), list):
+        ks = [k for k in fx["params"]["blurriness"] if k[0] < t0 - 1e-3]
+        fx["params"]["blurriness"] = ks + [[t0, 0], [d, blur]]
     else:
-        c.setdefault("effects", []).append({"effect": "gaussian_blur", "params": {"blurriness": [[0, 0], [t0, 0], [d, OUT_BLUR]]}})
+        c.setdefault("effects", []).append({"effect": "gaussian_blur", "params": {"blurriness": [[0, 0], [t0, 0], [d, blur]]}})
 
 
-def ensure_motion(items: list[tuple[str, dict]], fps: float = 30.0) -> dict:
-    """Bổ sung vào / giữ / ra cho mọi clip chữ còn thiếu. Trả số clip được thêm từng phần."""
+def _has_out(c: dict) -> bool:
+    """Clip đã có kiểu ra riêng: transition_out, hoặc key opacity cuối là mờ về ~0 ở cuối clip."""
+    d, op = c["dur"], c.get("opacity")
+    fades_out = (isinstance(op, list) and len(op) >= 2 and isinstance(op[-1], (list, tuple))
+                 and op[-1][0] >= d - 0.3 and op[-1][1] <= 5)        # key cuối là mờ về ~0 ở cuối clip
+    return bool(c.get("transition_out")) or fades_out
+
+
+def _trim_to_cut(c: dict, cuts: list[float], fps: float, frames: int) -> bool:
+    """Hồ sơ: clip kết thúc `frames` khung trước điểm cắt gần cuối clip (cắt trong [cuối − CUT_SNAP_S, cuối]). Chỉ rút ngắn,
+    và bỏ qua nếu clip còn key chuyển động nằm sau điểm kết thúc mới (không để key vượt cuối clip)."""
+    end = c["at"] + c["dur"]
+    cut = next((t for t in sorted(cuts) if end - CUT_SNAP_S <= t <= end + 1e-6), None)
+    new_end = None if cut is None else round((cut - frames / fps) * fps) / fps
+    if new_end is None or new_end >= end - 1e-6 or new_end - c["at"] < MIN_CLIP_S:
+        return False
+    if any(t > new_end - c["at"] + 1e-6 for t in _anim_times(c)):
+        return False
+    c["dur"] = round(new_end - c["at"], 6)
+    return True
+
+
+def ensure_motion(items: list[tuple[str, dict]], fps: float = 30.0, profile: dict | None = None,
+                  cuts: list[float] | None = None) -> dict:
+    """Bổ sung vào / giữ / ra cho mọi clip chữ còn thiếu. Trả số clip được thêm từng phần.
+    profile = hồ sơ 'minimal-edu' đã nạp (style_profile.load) → vào ngắn theo khung, ra mờ `exit_frames` khung, cắt clip theo `cuts`
+    (mốc điểm cắt trên timeline, giây); hồ sơ khác / None → hành vi cũ."""
+    prof = profile if active(profile, "minimal-edu") else None
     n = {"in": 0, "hold": 0, "out": 0, "text": 0}
+    if prof:
+        n["trim"] = 0
+        f_small, f_hero = profile_in_frames(prof)
+        out_s = get(prof, "text.exit_frames", 2) / fps
+        end_f = get(prof, "text.end_before_cut_frames", [0, 2])[1]
     for lane, c in items:
         if lane not in TEXT_LANES or c.get("dur", 0) < MIN_CLIP_S:
             continue
         n["text"] += 1
+        if prof and cuts and not _has_out(c) and _trim_to_cut(c, cuts, fps, end_f):
+            n["trim"] += 1
         d = c["dur"]
         ts = _anim_times(c)
         if not any(t <= ENTRANCE_WINDOW for t in ts):
-            soft_in(c, lane)
+            if prof:
+                soft_in_frames(c, f_hero if lane in KEY_LANES else f_small, fps, 22 if lane in KEY_LANES else 14)
+            else:
+                soft_in(c, lane)
             n["in"] += 1
             ts = _anim_times(c)
         in_end = max([t for t in ts if t <= ENTRANCE_WINDOW + 0.25] or [0.0])
-        op = c.get("opacity")
-        fades_out = (isinstance(op, list) and len(op) >= 2 and isinstance(op[-1], (list, tuple))
-                     and op[-1][0] >= d - 0.3 and op[-1][1] <= 5)        # key cuối là mờ về ~0 ở cuối clip
-        has_out = bool(c.get("transition_out")) or fades_out
-        out_start = d if has_out else d - SOFT_OUT_S
+        has_out = _has_out(c)
+        out_start = d if has_out else d - (out_s if prof else SOFT_OUT_S)
         if d >= MIN_HOLD_S and out_start - in_end > 0.2 and not has_hold_motion(c, in_end, out_start):
             hold_drift(c, lane, in_end, out_start)
             n["hold"] += 1
         if not has_out:
-            soft_out(c)
+            soft_out(c, out_s, None) if prof else soft_out(c)
             n["out"] += 1
     return n
 

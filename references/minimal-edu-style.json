@@ -1,0 +1,54 @@
+{
+  "_about": "Hồ sơ tuỳ chọn 'minimal-edu' (P6–P12): phong cách giáo dục tối giản kiểu Joseph | Video Editing / Arthur Brooks. Chỉ bật khi người dùng gọi tên (minimal / Brooks / Joseph); bật bằng file <thư mục work>/profile.json = {\"profile\": \"minimal-edu\"}. Số đo lấy từ phân tích khung hình 2026-11-17 (.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md). Quyết định người dùng 2026-11-17: chữ mờ ra 2 khung (giữ tinh thần B14), cho cắt cứng trong hồ sơ (thay C1/C2 chỉ khi hồ sơ bật), giữ vùng chữ B8.",
+  "name": "minimal-edu",
+  "fonts": {
+    "hero_sans": {"family": "Inter", "weight": 800, "file": "assets/fonts/Inter-ExtraBold.ttf", "tracking": -40},
+    "hero_serif": {"family": "Playfair Display", "style": "Bold Italic", "file": "PlayfairDisplay-BoldItalic.ttf"},
+    "small": {"family": "Inter", "weight": 500, "file": "assets/fonts/Inter-Medium.ttf", "tracking": 0}
+  },
+  "text": {
+    "max_words_per_group": 5,
+    "hero_per_group": 1,
+    "size_hero": 156,
+    "size_small": 50,
+    "ratio_min": 2.7,
+    "ratio_max": 3.5,
+    "span_ratio": 1.0,
+    "small_in_frames": [1, 3],
+    "hero_blur_in_frames": [3, 6],
+    "serif_extra_frames": 1,
+    "second_hero_delay_frames": [2, 3],
+    "exit_frames": 2,
+    "end_before_cut_frames": [0, 2],
+    "zones": "B8",
+    "serif_for": "từ cảm xúc / địa danh / từ kết câu",
+    "colors": {"on_dark": "#FFFFFF", "on_paper": "#111111", "accent": "#123CE8", "accent_only_on_light": true}
+  },
+  "cuts": {
+    "hard_cuts_allowed": true,
+    "min_hard_cut_share": 0.8,
+    "min_distinct_transitions": 2,
+    "max_flashy_share": 0.0,
+    "painting_entry": {"effect": "directional_blur", "frames": [5, 7]},
+    "cut_lead_max_s": 0.067,
+    "silence_pad_s": 0.03
+  },
+  "graphics": {
+    "accent_line": "#0666DE",
+    "accent_spiral": "#303CA8",
+    "spiral_glow": "#C0C8F0",
+    "quote_card": {"inner": "#2848B8", "outer": "#101858"},
+    "paper_white": "#E8E8F0",
+    "line_width_ratio": 0.037,
+    "line_draw_frames": 9,
+    "spiral": {"turns": 4.2, "frames": 23, "hold_s": 1.2},
+    "arrow_frames": [3, 4],
+    "box_wipe_frames": 6,
+    "polaroid": {"settle_frames": [6, 7], "tilt_deg": [2, 3], "scale_from": 1.09},
+    "relayout_blur_frames": 2,
+    "whip_pan_frames": [7, 9],
+    "graph_axis_frames": 17,
+    "painting_texture_max": 0.5
+  },
+  "sound": {"graph_kind": "highlighter", "keyword_kind": "word_click", "transition_kind": "whoosh"}
+}

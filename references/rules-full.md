@@ -230,6 +230,20 @@ Hiệu ứng 3D (xoay, lật, nghiêng phối cảnh) cho chữ hoặc B-roll l�
 - Nguồn gốc: `kb-master-video-edit.md#style.md C6`
 - Chi tiết nguyên văn (thông số, ngoại lệ): `references/rules-details.md` › mục C6
 
+### C7 — Điểm cắt đầu câu sát từ đầu tiên
+
+Điểm cắt rơi vào đầu câu mới phải cách từ đầu tiên của câu 0–0,09 s (mặc định; hồ sơ minimal-edu: 0–0,067 s = ≤ 2 khung). Cắt sau khi từ đã bắt đầu quá 0,017 s là LỖI (cụt chữ). Đo bằng mốc từ đã tinh chỉnh (`words_tl.json`), không dùng mốc Whisper thô.
+
+- Kiểm: edit_rules audit (C7 cut_lead, cần --words) · Nguồn: phân tích video Joseph | Video Editing (Arthur Brooks) 2026-11-17 · Độ tin: medium
+- Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
+
+### C8 — Chữ chính kết thúc trước điểm cắt
+
+Khối chữ chính (text_top / text / text_img) không được kéo quá điểm cắt gần nhất hơn 1 khung (CẢNH BÁO). Hồ sơ minimal-edu: chữ kết thúc 0–2 khung TRƯỚC điểm cắt, ra bằng mờ 2 khung.
+
+- Kiểm: edit_rules audit (C8 text_cut_overrun) · Nguồn: phân tích video Joseph | Video Editing (Arthur Brooks) 2026-11-17 · Độ tin: medium
+- Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
+
 ## D. Cảnh chèn, nguồn hình, tốc độ, chất lượng
 
 ### D1 — Cảnh chèn dày
@@ -338,6 +352,13 @@ Mục tiêu **100 %** thời lượng B-roll được tạo bằng **Google Flow
 
 - Kiểm: edit_rules + media_reuse · Nguồn: người dùng 2026-11-16 · Độ tin: high
 - Nguồn gốc: 
+
+### D16 — Chọn cảnh theo nghĩa câu (gợi ý)
+
+Gợi ý loại cảnh cho từng nhịp theo nghĩa lời: giới thiệu một khái niệm / kiểu mới → giữ mặt người nói; mô tả người, vật, con số, nơi chốn → cho xem (B-roll / đồ hoạ); câu cảm xúc hoặc câu kết → mặt cận. Chỉ là gợi ý ("Gợi ý" trong tài liệu kế hoạch `scripts/plan_doc.py`); người dùng chọn phương án cuối. Bổ sung cho D1 (D1 tính theo thời lượng), không thay D1.
+
+- Kiểm: plan_doc.py (gợi ý) · mắt · Nguồn: phân tích video Joseph | Video Editing (Arthur Brooks) 2026-11-17 · Độ tin: medium
+- Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
 
 ## E. Nỗi đau (ưu tiên edit)
 
@@ -532,7 +553,7 @@ Prompt B-roll AI cho Google Flow (model theo `flow_inspect_account`, T5-XXL/Gemm
 - Kiểm: broll_fix lint + verify + mắt · Nguồn: dvth B-roll 1.2.0–1.2.3 + luật trung thực v2.16; cập nhật Flow 2026-11-16; chuẩn hoá 5 tầng Anti-Plastic & 3-Agent 2026-11-16 · Độ tin: high
 - Nguồn gốc: `kb-dung-video-talking-head.md#releases/1.2.3/stages/PLAN.md`, `kb-master-video-edit.md#CHANGELOG.md 2.16`
 
-## P. Hồ sơ style @__dviet (tuỳ chọn)
+## P. Hồ sơ style tuỳ chọn (@__dviet P1–P5, minimal-edu P6–P12)
 
 ### P1 — Hồ sơ @__dviet chỉ bật khi người dùng gọi tên · *tuỳ chọn*
 
@@ -571,6 +592,55 @@ Ghi đè C4/E1 punch: punch-in ×1,12–1,25 tức thì giữa câu, zoom blur 0
 - Kiểm: mắt · Nguồn: đo 17 video 2026-10-29 + rules.md mục 7 · Độ tin: high
 - Nguồn gốc: `kb-master-video-edit.md#dviet-style-guide.md`
 - Chi tiết nguyên văn (thông số, ngoại lệ): `references/rules-details.md` › mục P5
+
+### P6 — Hồ sơ minimal-edu chỉ bật khi người dùng gọi tên · *tuỳ chọn*
+
+Phong cách giáo dục tối giản (kiểu Joseph | Video Editing / Arthur Brooks) là HỒ SƠ TUỲ CHỌN: chỉ bật khi người dùng nói rõ ("kiểu minimal", "kiểu Brooks", "như video Joseph"), bằng file `<work>/profile.json` = {"profile": "minimal-edu"}; thông số ở `references/minimal-edu-style.json`, nạp qua `scripts/style_profile.py`. Khi bật, P7–P12 GHI ĐÈ luật chung tương ứng; mọi luật khác vẫn giữ, gồm B2, B8 (vùng chữ), B10, B14 (chữ có chuyển động ra), D, E, F, G. Không bật cùng hồ sơ @__dviet (hai hồ sơ ngược nhịp chữ). Học kỹ thuật và nhịp, không chép nội dung hay tài sản của kênh.
+
+- Kiểm: — · Nguồn: người dùng 2026-11-17 (chữ mờ ra 2 khung, cho cắt cứng trong hồ sơ, giữ vùng B8) · Độ tin: high
+- Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
+
+### P7 — minimal-edu: cụm chữ một từ lớn · *tuỳ chọn*
+
+Ghi đè B5 (phụ đề 2 dòng): mỗi cụm ≤ 5 từ, đúng 1 từ lớn (hoặc cặp 2 từ) do kịch bản / KEY_SPECS chọn — không tự đoán; tỉ lệ cỡ lớn : nhỏ 2,7–3,5 (≈ 156 : 50 px); từ nhỏ xếp "sandwich" thẳng mép trái / phải với từ lớn (`scripts/brooks_text.py`). Vẫn đặt trong vùng chữ B8, né mặt.
+
+- Kiểm: brooks_text (test) · Nguồn: phân tích video Joseph | Video Editing (Arthur Brooks) 2026-11-17 · Độ tin: medium
+- Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
+
+### P8 — minimal-edu: 2 font Inter + Playfair · *tuỳ chọn*
+
+Ghi đè B1 (4–6 font): Inter ExtraBold (tracking −40) cho từ khoá thường, Playfair Display Bold Italic cho từ cảm xúc / địa danh / từ kết câu, Inter Medium cho từ nhỏ (bản tĩnh trong `assets/fonts/`).
+
+- Kiểm: mắt · Nguồn: phân tích video Joseph | Video Editing (Arthur Brooks) 2026-11-17 · Độ tin: medium
+- Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
+
+### P9 — minimal-edu: chữ vào nhanh theo từng từ · *tuỳ chọn*
+
+Ghi đè thời lượng vào của B14: từ nhỏ hiện từng từ đúng nhịp nói trong 1–3 khung; từ lớn blur-in 3–6 khung (serif thêm 1 khung); từ lớn thứ hai trễ 2–3 khung. Ra: mờ 2 khung, kết thúc 0–2 khung trước điểm cắt (B14 vẫn giữ: chữ có chuyển động ra).
+
+- Kiểm: text_motion (test) · edit_rules C8 · Nguồn: người dùng 2026-11-17 (chữ mờ ra 2 khung, cho cắt cứng trong hồ sơ, giữ vùng B8) · Độ tin: medium
+- Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
+
+### P10 — minimal-edu: cắt cứng là chính · *tuỳ chọn*
+
+Ghi đè C1/C2 chỉ khi hồ sơ bật: điểm cắt được phép không có chuyển cảnh (cắt cứng thật, không dùng cross_dissolve 1 khung giả); tối thiểu 2 kiểu chuyển cảnh; không nháy sáng; vào tranh bằng mờ ngang 5–7 khung; whip-pan 7–9 khung khi camera chạy theo đường. Cắt lặng chừa 30 ms, điểm cắt đầu câu ≤ 2 khung (C7).
+
+- Kiểm: edit_rules (C1/C2 theo hồ sơ, C7) · Nguồn: người dùng 2026-11-17 (chữ mờ ra 2 khung, cho cắt cứng trong hồ sơ, giữ vùng B8) · Độ tin: medium
+- Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
+
+### P11 — minimal-edu: màu · *tuỳ chọn*
+
+Ghi đè B3/B4 về màu chữ chính: chữ trắng trên nền tối, đen trên nền giấy; một màu nhấn duy nhất #123CE8 cho từ chốt, chỉ dùng trên nền sáng (tương phản ≈ 7,4 : 1 trên trắng, chỉ ≈ 2,8 : 1 trên đen); không glow. Đồ hoạ: đường #0666DE, xoắn ốc #303CA8, thẻ trích dẫn radial #2848B8 → #101858.
+
+- Kiểm: mắt · Nguồn: phân tích video Joseph | Video Editing (Arthur Brooks) 2026-11-17 · Độ tin: medium
+- Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
+
+### P12 — minimal-edu: cảnh đồ hoạ theo 10 nguyên tắc · *tuỳ chọn*
+
+Cảnh cắt sang dùng 10 kiểu: phụ đề · B-roll + chữ (giấy + tối viền + mờ viền) · tranh cổ (texture ≤ 50 %, chạy theo tranh) · đường + chữ (đường xanh dày ≈ 3,7 % W bị chữ cắt ngang, camera theo đường) · đường + minh hoạ · cảnh toàn chữ (thẻ trích dẫn có ngoặc kép) · minh hoạ giữa · minh hoạ bên + chữ · vật + chữ (polaroid hiện 1 khung, lắng 6–7 khung, nghiêng 2–3°) · đồ thị (trục L 17 khung, lưới sáng, bậc thang mỗi từ, SFX highlighter). Nét vẽ dần (xoắn ốc 4,2 vòng / 23 khung, mũi tên 3–4 khung) render bằng `scripts/draw_path.py` thành MOV ProRes 4444 có alpha; nền / thẻ bằng `scripts/fx_gfx.py`; chuyển động bằng `MotionFX` (box_wipe, polaroid_pop, whip_pan, scene_camera, broll_paper, painting_scene, graph_scene). Vignette quanh phụ đề chỉ trong hồ sơ này (B15 giữ ở mặc định).
+
+- Kiểm: mắt · test_minimal_gfx · Nguồn: phân tích video Joseph | Video Editing (Arthur Brooks) 2026-11-17 · Độ tin: medium
+- Nguồn gốc: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md`, `references/minimal-edu-style.json`
 
 ## Luật đã bị thay (không áp)
 
