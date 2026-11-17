@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -257,6 +258,168 @@ def test_key_specs_from_plan_export() -> None:
     print("ok  build_spec_q: KEY_SPECS trống + plan_export.json → khối chữ chính đúng lựa chọn; KEY_SPECS điền tay → bất biến")
 
 
+# ---------------------------------------------------------------- B (minimal): meaning, gfx, library
+def build_in(td: str, extra: list[str] | None = None, words: list | None = None) -> tuple[Path, dict, str]:
+    w = Path(td) / "ver" / "work"
+    write_words(w, words or sample_words())
+    out = w / "p.html"
+    assert pd.main(["build", str(w), "--out", str(out), *(extra or [])]) == 0
+    return w, json.loads((w / "plan_draft.json").read_text(encoding="utf-8")), out.read_text(encoding="utf-8")
+
+
+def test_meaning_suggestion() -> None:
+    with tempfile.TemporaryDirectory() as td:
+        _, base, _ = build_in(td)
+        n = len(base["beats"])
+        assert all(b["suggest_by"] == "keywords" and b["meaning"] is None for b in base["beats"])
+        labels = ["number_data", "process_steps", "emotion", "describe_person", "story", "describe_object", "conclusion", "intro_new_concept"]
+        mf = Path(td) / "beats_meaning.json"
+        mf.write_text(json.dumps([{"beat": i + 1, "label": labels[i], "why": f"vì {i}"} for i in range(min(n, 2))]))   # chỉ 2 nhịp đầu
+        _, d, _ = build_in(td, ["--meaning", str(mf)])
+        assert (d["beats"][0]["suggest"], d["beats"][0]["gfx_kind"], d["beats"][0]["suggest_by"]) == ("C", "graph", "meaning"), d["beats"][0]
+        assert (d["beats"][1]["suggest"], d["beats"][1]["gfx_kind"]) == ("C", "path_illus") and "vì 1" in d["beats"][1]["suggest_why"]
+        assert all(b["suggest_by"] == "keywords" for b in d["beats"][2:]), "nhịp không có nhãn → quay về từ khoá"
+        assert d["beats"][2]["suggest"] == base["beats"][2]["suggest"]
+        # mọi nhãn đều có ánh xạ; emotion → B, intro → A, conclusion → C quote_paper
+        assert {pd.MEANING_MAP[k][0] for k in ("emotion", "intro_new_concept")} == {"B", "A"} and pd.MEANING_MAP["conclusion"] == ("C", "quote_paper")
+        assert set(pd.MEANING_MAP) == set(labels) and all(k in pd.GFX_KINDS for _, k in pd.MEANING_MAP.values() if k)
+        for bad in ([{"beat": 1, "label": "tùy tiện"}], [{"beat": 99, "label": "emotion"}], {"x": 1}):
+            mf.write_text(json.dumps(bad))
+            try:
+                pd.main(["build", str(Path(td) / "ver" / "work"), "--meaning", str(mf), "--out", str(Path(td) / "x.html")])
+            except SystemExit as e:
+                assert str(e) and "Traceback" not in str(e)
+            else:
+                raise AssertionError(f"meaning hỏng phải bị từ chối: {bad}")
+        mf.write_text(json.dumps({"beats": [{"beat": 1, "label": "emotion"}]}))                            # dạng {"beats": [...]} cũng nhận
+        assert build_in(td, ["--meaning", str(mf)])[1]["beats"][0]["suggest"] == "B"
+    print("ok  plan_doc --meaning: nhãn nghĩa → gợi ý A/B/C + kiểu đồ hoạ; thiếu nhãn → từ khoá; file sai → dừng rõ ràng")
+
+
+def test_gfx_block_and_validation() -> None:
+    with tempfile.TemporaryDirectory() as td:
+        w, d, html = build_in(td)
+        assert d["gfx_kinds"].keys() >= {"polaroid", "arrow", "graph", "quote", "cutaway", "painting", "path_text", "path_illus", "illus_mid",
+                                         "illus_side", "quote_paper"}
+        assert "gfxBlock" in html and 'id="data"' in html
+        b = d["beats"][1]
+        assert b["options"][2]["gfx"] is True and b["gfx_defaults"]["word"] and b["gfx_defaults"]["scene"] == 1 and b["gfx_defaults"]["lines"]
+        assert b["options"][1]["kind"] == "keyword" and "serif" in b["options"][1]["desc"] and "sans" in b["options"][0]["desc"]
+        words = pd.load_words(w)
+        base = {"beat": 2, "t0": b["t0"], "t1": b["t1"]}
+        w0 = b["gfx_defaults"]["word"]
+        good = {"kind": "graph", "word": w0, "scene": 1, "words": ["300", "5"]}
+        assert pd.validate_gfx(good, base, words) == []
+        for bad in ({**good, "kind": "lạ"}, {**good, "words": []}, {**good, "scene": 0}, {**good, "word": "không-có-trong-lời"},
+                    {"kind": "quote", "scene": 1, "lines": ["a", "b"], "hero": 2}, {"kind": "illus_side", "word": w0, "image": "x.png", "side": "up"},
+                    {"kind": "painting", "word": w0, "image": "", "secs": 3}, {"kind": "polaroid", "scene": 1, "secs": -1}):
+            assert pd.validate_gfx(bad, base, words), bad
+        assert pd.validate_gfx({"kind": "path_illus", "word": w0, "image": "a.png", "style": "zigzag"}, base, words) == []
+        # export nhận gfx hợp lệ, từ chối gfx lạc chỗ
+        ex = export_of(d, {1: "A", 2: "C"})
+        ex["beats"][1]["gfx"] = good
+        f = Path(td) / "dl.json"
+        f.write_text(json.dumps(ex))
+        assert pd.main(["export", str(f), str(w)]) == 0
+        assert json.loads((w / "plan_export.json").read_text())["beats"][1]["gfx"]["kind"] == "graph"
+        ex["beats"][0]["gfx"] = good
+        f.write_text(json.dumps(ex))
+        try:
+            pd.main(["export", str(f), str(w)])
+        except SystemExit as e:
+            assert "gfx" in str(e)
+        else:
+            raise AssertionError("gfx trên phương án A phải bị từ chối")
+    print("ok  plan_doc: phương án C có ô chọn kiểu đồ hoạ + trường; export kiểm gfx (kind / trường / từ trong lời / hero)")
+
+
+def make_library(root: Path) -> Path:
+    from PIL import Image
+    style = root / "minimal-edu"
+    entries = []
+    for i, (kind, pr) in enumerate([("caption", 1), ("text_motion", None), ("graph", 10), ("painting", 3), ("object", 9), ("quote", 6)]):
+        eid = f"V01-A{i:02d}"
+        (style / eid).mkdir(parents=True)
+        Image.effect_noise((900, 1600), 90).convert("RGB").save(style / eid / "still.png")      # nhiễu → JPEG khó nén, thử giới hạn 30 KB
+        entries.append({"id": eid, "principle": pr, "kind": kind, "title": f"mẫu {kind}", "t": [0, 1], "still": f"{eid}/still.png"})
+    (style / "index.json").write_text(json.dumps({"style": "minimal-edu", "entries": entries}))
+    return root
+
+
+def test_library_previews() -> None:
+    try:
+        import PIL  # noqa: F401
+    except ImportError:
+        print("bỏ qua test_library_previews: không có PIL")
+        return
+    with tempfile.TemporaryDirectory() as td:
+        lib_root = make_library(Path(td) / "lib")
+        _, d, html = build_in(td, ["--library", str(lib_root)])
+        lib = d["library"]
+        assert lib and set(lib) >= {"items", "A", "B", "gfx"}
+        assert lib["A"] and lib["B"] and lib["gfx"]["graph"] and lib["gfx"]["painting"] and lib["gfx"]["polaroid"] and lib["gfx"]["quote_paper"]
+        assert not lib["gfx"]["illus_mid"], "không có entry khớp → để trống, không bịa"
+        for it in lib["items"].values():
+            assert it["img"].startswith("data:image/jpeg;base64,") and len(it["img"]) * 3 // 4 <= pd.THUMB_MAX_BYTES + 300, len(it["img"])
+        assert "SEEN IN THE REELS" in html and not re.search(r"""(?:src|href)=["']?(?:https?:)?//""", html)
+        # env OPA_LIBRARY_DIR
+        old = os.environ.get("OPA_LIBRARY_DIR")
+        os.environ["OPA_LIBRARY_DIR"] = str(lib_root)
+        try:
+            assert build_in(td)[1]["library"]["items"]
+        finally:
+            os.environ.pop("OPA_LIBRARY_DIR", None) if old is None else os.environ.__setitem__("OPA_LIBRARY_DIR", old)
+        os.environ["OPA_LIBRARY_DIR"] = str(Path(td) / "khong-co")
+        try:
+            assert build_in(td)[1]["library"] is None, "không có thư viện → build vẫn chạy"
+        finally:
+            os.environ.pop("OPA_LIBRARY_DIR")
+    print("ok  plan_doc: thư viện hiệu ứng → ảnh nhỏ ≤ 30 KB nhúng base64 theo kind / nguyên tắc; không có thư viện → bỏ qua")
+
+
+def test_html_runs_in_browser() -> None:
+    """Chạy JS thật (playwright + Chrome có sẵn): chọn C, đổi kiểu, điền trường, xuất JSON → plan_export hợp lệ. Bỏ qua nếu không có trình duyệt."""
+    try:
+        from playwright.sync_api import sync_playwright
+        import PIL  # noqa: F401
+    except ImportError:
+        print("bỏ qua test_html_runs_in_browser: thiếu playwright / PIL")
+        return
+    with tempfile.TemporaryDirectory() as td:
+        lib_root = make_library(Path(td) / "lib")
+        w, d, _ = build_in(td, ["--library", str(lib_root)])
+        try:
+            with sync_playwright() as p:
+                chrome = next((c for c in (shutil.which("google-chrome"), shutil.which("chromium")) if c), None)
+                br = p.chromium.launch(executable_path=chrome) if chrome else p.chromium.launch()
+                pg = br.new_page()
+                errors: list[str] = []
+                pg.on("pageerror", lambda e: errors.append(str(e)))
+                pg.goto((w / "p.html").as_uri())
+                assert pg.locator("h4:text('SEEN IN THE REELS')").count() >= 2
+                pg.locator(".beat").nth(1).locator("button:text('Chọn phương án này')").nth(2).click()      # chọn C của nhịp 2
+                card = pg.locator(".beat").nth(1)
+                card.locator(".gfx select").first.select_option("graph")
+                card.locator(".gfx input[type=text]").nth(2).fill("300, 5 triệu")
+                with pg.expect_download() as dl:
+                    pg.click("#bExport")
+                out = Path(td) / "dl.json"
+                dl.value.save_as(out)
+                br.close()
+        except Exception as e:                                           # không có Chrome / sandbox → không phải lỗi mã
+            if "Executable doesn't exist" in str(e) or "launch" in str(e).lower():
+                print("bỏ qua test_html_runs_in_browser:", str(e)[:80])
+                return
+            raise
+        assert not errors, errors
+        data = json.loads(out.read_text())
+        c2 = data["beats"][1]
+        assert c2["choice"]["kind"] == "gfx" and c2["gfx"]["kind"] == "graph" and c2["gfx"]["words"] == ["300", "5 triệu"], c2
+        assert c2["scene_no"] == 1 and data["beats"][0]["gfx"] is None
+        assert pd.main(["export", str(out), str(w)]) == 0, "file JS xuất ra phải qua kiểm của export"
+    print("ok  plan_doc HTML (trình duyệt thật): chọn C → chọn kiểu graph → điền trường → xuất JSON → export chấp nhận")
+
+
 if __name__ == "__main__":
     test_suggest()
     test_split_beats()
@@ -265,4 +428,8 @@ if __name__ == "__main__":
     test_export()
     test_empty_key_specs_writes_words()
     test_key_specs_from_plan_export()
+    test_meaning_suggestion()
+    test_gfx_block_and_validation()
+    test_library_previews()
+    test_html_runs_in_browser()
     print("TẤT CẢ ĐẠT")

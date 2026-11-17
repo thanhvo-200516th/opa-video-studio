@@ -1,6 +1,6 @@
 {
  "skill": "opa-video-studio",
- "version": "3.6.5",
+ "version": "3.6.6",
  "updated": "2026-11-16",
  "_doc": "Bộ luật DUY NHẤT của skill. Mỗi luật: id, group, title, text, params, check, source, confidence (high|medium|low), status (active|superseded|optional), superseded_by, origin (đoạn nguồn trong references/kb-*.md). Thứ tự ưu tiên: lời người dùng trong chat > rules.json > SKILL.md > references/kb-*.md. Toàn văn + lý do: references/rules-full.md.",
  "params": {

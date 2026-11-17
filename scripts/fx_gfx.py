@@ -304,3 +304,76 @@ def paint_texture(out_dir: Path, name: str, src: str, strength: float) -> str:
 def zlib_seed(s: str) -> int:
     import zlib
     return zlib.crc32(s.encode())
+
+
+# ---------- cảnh minimal-edu thêm (v3.6.6): tranh trôi texture, minh hoạ loang mép, hình bên ----------
+# Số đo chưa có trong hồ sơ (ghi chú profile key); đã chỉnh bằng khung hình thật trong .handoff/v366/scene_proof/.
+ROUGH_MEAN = {"paper": 214.0, "paint": 206.0}   # profile key: graphics.rough_texture_mean — độ sáng nền texture (multiply)
+ROUGH_AMP = {"paper": (16.0, 12.0, 14.0, 0.0), "paint": (26.0, 20.0, 10.0, 22.0)}   # profile key: graphics.rough_texture_amp — mây thô, mây vừa, hạt, vệt cọ
+
+
+def cover_image(out_dir: Path, name: str, src: str, size: tuple[int, int] = (W, H)) -> str:
+    """Cắt giữa + phóng cho phủ kín `size` (mặc định cả khung 1080×1920); giữ kênh alpha nếu ảnh có."""
+    im = Image.open(src).convert("RGBA")
+    k = max(size[0] / im.width, size[1] / im.height)
+    im = im.resize((max(size[0], round(im.width * k)), max(size[1], round(im.height * k))), Image.LANCZOS)
+    x, y = (im.width - size[0]) // 2, (im.height - size[1]) // 2
+    return _save(im.crop((x, y, x + size[0], y + size[1])), out_dir, name)
+
+
+def rough_texture(out_dir: Path, name: str, seed: int = 0, kind: str = "paper") -> str:
+    """Lớp texture thô 1080×1920 đặc, sáng (~210/255) để phủ bằng blend multiply ≤ 50 %: mây thô + mây vừa + hạt, kind 'paint'
+    thêm vệt cọ dọc. Trôi chậm bằng motion.position (cảnh tranh: hai lớp trôi ngược chiều, phóng ≥ 108 % để không lộ mép)."""
+    import numpy as np
+    if kind not in ROUGH_MEAN:
+        raise ValueError(f"kind texture lạ: {kind} (chỉ {sorted(ROUGH_MEAN)})")
+    rng = np.random.default_rng(seed)
+    a_coarse, a_mid, a_grain, a_streak = ROUGH_AMP[kind]
+    v = ROUGH_MEAN[kind] + _smooth_noise(rng, (5, 9)) * a_coarse + _smooth_noise(rng, (16, 28)) * a_mid
+    v = v + rng.normal(0, 1, (H, W)).astype(np.float32) * a_grain / 2
+    if a_streak:
+        v = v + _smooth_noise(rng, (60, 3)) * a_streak * 0.6 + _smooth_noise(rng, (120, 6)) * a_streak * 0.4
+    g = np.clip(v, 0, 255).astype(np.uint8)
+    return _save(Image.fromarray(np.stack([g, g, g], -1), "RGB").convert("RGBA"), out_dir, name)
+
+
+def _edge_alpha(size: tuple[int, int], edges: tuple, feather: int, seed: int):
+    """Alpha 0..1 mềm ở các mép `edges` (top|bottom|left|right): khoảng cách tới mép / feather, nhiễu thấp tần làm mép loang như
+    sơn thấm giấy (không thẳng), một lớp hạt mịn làm mép lốm đốm."""
+    import numpy as np
+    w, h = size
+    ys, xs = np.mgrid[0:h, 0:w].astype(np.float32)
+    dist = {"top": ys, "bottom": h - 1 - ys, "left": xs, "right": w - 1 - xs}
+    rng = np.random.default_rng(seed)
+    nz = np.asarray(Image.fromarray((rng.random((max(2, h // 22), max(2, w // 22))) * 255).astype(np.uint8), "L")
+                    .resize((w, h), Image.BICUBIC), dtype=np.float32) / 255 - 0.5
+    grain = np.asarray(Image.fromarray((rng.random((h // 4, w // 4)) * 255).astype(np.uint8), "L").resize((w, h), Image.BILINEAR),
+                       dtype=np.float32) / 255 - 0.5
+    a = np.ones((h, w), np.float32)
+    for e in edges:
+        t = np.clip((dist[e] - feather * 0.3 * (nz * 0.9 + 0.5 + grain * 0.3)) / (feather * 0.7), 0, 1)   # 0 đúng ở mép, ranh giới loang lệch vào trong
+        a = np.minimum(a, t * t * (3 - 2 * t))
+    return a
+
+
+def bleed_image(out_dir: Path, name: str, src: str, size: tuple[int, int] = (W, 1250), edges: tuple = ("top", "left", "right"),
+                feather: int = 170, seed: int = 0) -> str:
+    """Minh hoạ loang vào giấy (nguyên tắc 7): ảnh phủ kín `size`, nền alpha mềm + nhiễu ở các mép `edges` (mép khác tràn khung).
+    Đặt lên giấy bằng blend multiply thì vùng trắng của tranh tan vào giấy."""
+    import numpy as np
+    base = Image.open(cover_image(out_dir, f"{name}_cover", src, size)).convert("RGBA")
+    a = _edge_alpha(size, edges, feather, seed) * (np.asarray(base)[..., 3] / 255)
+    base.putalpha(Image.fromarray((a * 255).astype(np.uint8), "L"))
+    return _save(base, out_dir, name)
+
+
+def side_figure(out_dir: Path, name: str, src: str, side: str = "left", size: tuple[int, int] = (620, 1300), feather: int = 110,
+                strength: float = 0.3, seed: int = 0) -> str:
+    """Hình trừu tượng một bên (nguyên tắc 8): ảnh phủ kín `size`, mép phía trong loang vào giấy, mép ngoài sát cạnh khung, nướng texture
+    sơn `strength` (≤ graphics.painting_texture_max)."""
+    if side not in ("left", "right"):
+        raise ValueError(f"side lạ: {side} (left | right)")
+    inner = "right" if side == "left" else "left"
+    img = Image.open(bleed_image(out_dir, f"{name}_bleed", src, size, ("top", "bottom", inner), feather, seed))
+    tmp = _save(img, out_dir, f"{name}_pre")
+    return _save(Image.open(paint_texture(out_dir, f"{name}_tx", tmp, strength)), out_dir, name)

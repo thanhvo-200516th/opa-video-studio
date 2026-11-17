@@ -20,7 +20,18 @@ SCENE_GFX (tuỳ chọn, theo thứ tự cảnh):
   ("cutaway", "từ", số_cảnh_nguồn, giây[, giây_vào_nguồn])  chèn B-roll câm của cảnh nguồn lên lane trên V1 từ lời «từ» (V1 / giọng chạy tiếp) để cắt
                                                     đoạn nói liền > 8 s (D1); «từ» tìm trong đoạn nói liền dài trước, vào / ra bằng blur_dissolve,
                                                     giấy B-roll phủ, chữ trong lúc đó dùng vùng chữ B-roll; mỗi clip nguồn tối đa 2 lần (D8)
+  ("painting", số_cảnh | "từ", ảnh, giây)           tranh phủ khung (+ texture sơn thô trôi chậm theo tranh), nhoè ngang lúc vào, đẩy máy 100 → 112 % cuối cảnh;
+                                                    chữ GROUPS ở vùng ít chi tiết nhất của tranh
+  ("path_text", số_cảnh | "từ", ["cụm", ...][, "white" | "black"])   nền giấy, một đường xanh vẽ liền tới từ lớn, bị từ «cắt», nối sang từ kế, máy lia theo
+                                                    đường; mỗi cụm viết kiểu GROUPS ("nhỏ | *lớn", chuỗi không dấu * = từ lớn); chữ do cảnh dựng → GROUPS đặt None
+  ("path_illus", số_cảnh | "từ", ảnh, "zigzag" | "rise")   đường + chấm trắng dẫn tới minh hoạ (zigzag: máy lia lộ vật; rise: đường đi lên chủ thể)
+  ("illus_mid", số_cảnh | "từ", ảnh)                 minh hoạ nửa dưới trồi lên giữa trên giấy, mép loang vào giấy, chữ ở nửa trên
+  ("illus_side", số_cảnh | "từ", ảnh, "left" | "right")   hình trừu tượng một bên + chữ bên kia
+  ("quote_paper", số_cảnh, ["dòng 1", ...], chỉ_số_dòng_nhấn[, "white" | "blue"])   cảnh toàn chữ trên giấy thô trắng / xanh + hai dấu ngoặc kép (GROUPS đặt None)
+  Với "từ" thay số cảnh: cảnh bắt đầu ở lời «từ» (lần đầu nói) tới hết cảnh chứa nó. Ảnh = PNG / JPG cục bộ (đường tương đối tính từ thư mục work).
 CTA_WORD: từ lớn trắng trên hộp xanh (box_wipe), None = không có. PAIN: cụm nỗi đau → key_hit (trống = đọc work/pain.json).
+Nếu có work/minimal_plan.json ({"groups": [chuỗi|null], "scene_gfx": [[...]], "cta_word": chuỗi|null, "pain": [chuỗi]}, do plan_to_minimal.py ghi) thì
+GROUPS / SCENE_GFX / CTA_WORD / PAIN lấy từ file đó thay cho khối # EDIT.
 
 # --- VÍ DỤ KB08 (bỏ dấu "# " đầu dòng để dùng; test_build_spec_minimal.py chạy đúng khối này) ---
 # HEAD_TOP = 296
@@ -67,6 +78,7 @@ sys.path.insert(0, str(SKILL / "scripts"))
 import brooks_text as BT  # noqa: E402
 import draw_path as DP  # noqa: E402
 import fx_gfx as G  # noqa: E402
+import minimal_scenes as MS  # noqa: E402
 import style_profile as sp  # noqa: E402
 import th_transitions as TH  # noqa: E402
 from build_kit import clamp_keys, pack, retime_cuts  # noqa: E402
@@ -80,10 +92,15 @@ from text_motion import EntranceStyles, ensure_motion  # noqa: E402
 HEAD_TOP = _HEAD_TOP  # EDIT: đỉnh đầu người nói (px, khung 1080x1920) cho vùng chữ A-roll; đo bằng frame_person.py analyze
 GROUPS = [  # EDIT: cụm chữ "nhỏ | nhỏ | *từ lớn", None = bỏ qua cảnh (xem ví dụ KB08 ở đầu file)
 ]
-SCENE_GFX = []  # EDIT: đồ hoạ theo cảnh: ("polaroid", cảnh, giây) · ("arrow", "từ", cảnh) · ("graph", "từ bắt đầu", cảnh, [từ…]) · ("quote", cảnh, [dòng…], chỉ_số_nhấn) · ("cutaway", "từ", cảnh_nguồn, giây)
+SCENE_GFX = []  # EDIT: đồ hoạ theo cảnh: ("polaroid", cảnh, giây) · ("arrow", "từ", cảnh) · ("graph", "từ bắt đầu", cảnh, [từ…]) · ("quote", cảnh, [dòng…], chỉ_số_nhấn) · ("cutaway", "từ", cảnh_nguồn, giây) · ("painting" | "path_text" | "path_illus" | "illus_mid" | "illus_side" | "quote_paper", …) xem đầu file
 CTA_WORD = None  # EDIT: từ lớn trên hộp xanh (box_wipe), vd "Bất Động Sản"; None = không có
 PAIN = []  # EDIT: cụm nỗi đau (key_hit), vd ["bãi đất trống"]; trống = lấy từ work/pain.json
 # ---------------------------------------------------------------- hết phần sửa
+_PLAN = Path(__file__).resolve().parent / "minimal_plan.json"      # kế hoạch do plan_to_minimal.py ghi: thay khối # EDIT khi có
+if _PLAN.is_file():
+    _p = json.loads(_PLAN.read_text(encoding="utf-8"))
+    GROUPS, CTA_WORD, PAIN = _p.get("groups", GROUPS), _p.get("cta_word", CTA_WORD), _p.get("pain", PAIN)
+    SCENE_GFX = [tuple(g) for g in _p.get("scene_gfx", SCENE_GFX)]
 
 # Hằng số chung (hồ sơ chưa có khoá riêng; xem COMMON v3.6.3)
 POLAROID_POS = [540, 1150]       # profile key: graphics.polaroid_pos
@@ -201,8 +218,31 @@ def cutaway_span(X, word: str, secs: float) -> tuple[float, float]:
     return t0, min(t0 + secs, X.end)
 
 
+def img_path(p: str) -> str:
+    """Ảnh của SCENE_GFX: đường tuyệt đối hoặc tương đối tính từ thư mục work; thiếu file → dừng rõ ràng."""
+    f = Path(p) if Path(p).is_absolute() else W / p
+    if not f.is_file():
+        sys.exit(f"SCENE_GFX: không thấy ảnh {f}")
+    return str(f)
+
+
+def ref_span(X, ref, secs: float | None = None) -> tuple[float, float]:
+    """Khoảng thời gian của một cảnh đồ hoạ: `ref` = số cảnh (cả cảnh) hoặc «từ» (từ lời «từ» tới hết cảnh chứa nó); secs rút ngắn."""
+    if isinstance(ref, int):
+        a, b = scene_span(X, ref)
+    else:
+        t = wt(X, ref, 0.0)
+        a, b = round(t - 0.03, 3), next((e for s0, e in X.sc.values() if s0 - 0.05 <= t < e), X.end)
+    return a, (min(a + secs, b) if secs else b)
+
+
+SPAN_KINDS = {"painting": lambda g: (g[1], g[2], g[3]), "path_illus": lambda g: (g[1], g[2], g[3]), "illus_mid": lambda g: (g[1], g[2], None),
+              "illus_side": lambda g: (g[1], g[2], None)}      # kiểu → (ref, ảnh, secs) cho gfx_spans
+
+
 def gfx_spans(X) -> None:
-    """Khoảng chữ phải ở vùng trên (hình ở giữa–dưới): polaroid (nền giấy sáng → chữ đen) và đồ thị; cutaway = chữ dùng vùng B-roll."""
+    """Khoảng chữ phải ở vùng trên (hình ở giữa–dưới): polaroid (nền giấy sáng → chữ đen) và đồ thị; cutaway = chữ dùng vùng B-roll;
+    painting / path_illus / illus_mid / illus_side: vùng chữ do minimal_scenes.text_zone chọn (span có phần tử thứ 4 = vùng)."""
     for g in SCENE_GFX:
         if g[0] == "cutaway":
             X.cutaways.append(cutaway_span(X, g[1], g[3]))
@@ -212,12 +252,17 @@ def gfx_spans(X) -> None:
         elif g[0] == "graph":
             a, b = scene_span(X, g[2])
             X.spans.append((round(wt(X, g[1], a) - 0.03, 3), b, False))
+        elif g[0] in SPAN_KINDS:
+            ref, img, secs = SPAN_KINDS[g[0]](g)
+            a, b = ref_span(X, ref, secs if g[0] == "painting" else None)
+            zone, light = MS.text_zone(g[0], img_path(img), *g[3:])
+            X.spans.append((a, b, light, zone))
 
 
-def parse_groups(X) -> list:
-    """Khớp tuần tự từng cụm với lời → [(items, giây từng từ)]. None = nhảy tới hết cảnh đang tới."""
-    ptr, parsed = 0, []
-    for g in GROUPS:
+def parse_groups(X, groups: list | None = None, start: float = 0.0) -> list:
+    """Khớp tuần tự từng cụm với lời → [(items, giây từng từ)]. None = nhảy tới hết cảnh đang tới. groups mặc định GROUPS; start = giây bắt đầu khớp."""
+    ptr, parsed = next((i for i, w in enumerate(X.words) if w[1] >= start - 0.05), len(X.words)), []
+    for g in GROUPS if groups is None else groups:
         if g is None:
             t0 = X.words[ptr][1]
             end = next((b for a, b in X.sc.values() if a - 0.05 <= t0 < b), None)
@@ -285,7 +330,7 @@ def captions(X, parsed) -> tuple[list, list]:
         sp_hit = next((s for s in X.spans if s[0] <= start < s[1]), None)
         over_broll = is_broll(c) or any(a <= start < b for a, b in X.cutaways)     # cutaway: chữ nằm trên B-roll
         if sp_hit:
-            zone = "top"
+            zone = sp_hit[3] if len(sp_hit) > 3 else "top"
         else:
             zone = BT.pick_zone(k, not over_broll, None if over_broll else HEAD_TOP, prev_zone=prev_zone)
         prev_zone = zone
@@ -294,7 +339,7 @@ def captions(X, parsed) -> tuple[list, list]:
         seen.add(sc_n)
         on_paper = bool(sp_hit and sp_hit[2])
         cta = bool(CTA_WORD) and words[h] == CTA_WORD                    # chữ trắng trên hộp xanh
-        light = on_paper or (not over_broll and not cta)                 # A-roll: vùng chữ dưới trên áo sáng → chữ đậm màu
+        light = on_paper if sp_hit else (not over_broll and not cta)    # A-roll: vùng chữ dưới trên áo sáng → chữ đậm màu; cảnh đồ hoạ: theo nền
         extra = {"color": "#FFFFFF", "look": "shadow_deep"} if cta else {}
         X.fx.items += group_fit(X, words[h], words[:h], words[h + 1:], t, shrunk, end=end, fps=X.fps,
                                 style="serif" if items[h][0] == "~" else "sans", on_dark=not light, accent=on_paper,
@@ -348,6 +393,50 @@ def gfx_quote(X, n: int, lines: list, hero_index: int) -> None:
             qc["position"] = [qc["position"][0], qc["position"][1] + QUOTE_DY]
     X.fx.items += qt
     X.fx.cues.append({"t": t_hero, "kind": "key_hit", "why": f"câu chốt «{lines[hero_index]}»"})
+
+
+def place_group(X, group, zone: str, on_dark: bool, accent: bool, end: float, **kw) -> list:
+    """Dựng một cụm chữ (items, giây từng từ) cho cảnh đồ hoạ tự có chữ (path_text), thêm vào X.fx.items; trả các (lane, clip) mới."""
+    items, t = group
+    h = next(i for i, s in enumerate(items) if s[0] in "*~")
+    words = [s.lstrip("*~").rstrip(".,") for s in items]
+    new = group_fit(X, words[h], words[:h], words[h + 1:], t, [], end=end, fps=X.fps, style="serif" if items[h][0] == "~" else "sans",
+                    on_dark=on_dark, accent=accent, zone=zone, **kw)
+    X.fx.items += new
+    return new
+
+
+def gfx_painting(X, ref, img: str, secs: float) -> None:
+    a, b = ref_span(X, ref, secs)
+    MS.painting(X.fx, img_path(img), a, b - a, GFX)
+
+
+def gfx_path_text(X, ref, stops: list, bg: str = "white") -> None:
+    """Chữ của cảnh do cảnh dựng (mỗi cụm một điểm dừng của đường): GROUPS phải đặt None cho khoảng này."""
+    a, b = ref_span(X, ref)
+    groups = parse_groups(X, [g if "|" in g or "*" in g or "~" in g else "*" + g.strip() for g in stops], a)
+    MS.path_text(X.fx, lambda grp, zone, dark, accent, end, **kw: place_group(X, grp, zone, dark, accent, end, **kw), a, b, groups, bg, GFX, X.prof)
+
+
+def gfx_path_illus(X, ref, img: str, style: str) -> None:
+    a, b = ref_span(X, ref)
+    MS.path_illus(X.fx, img_path(img), style, a, b, GFX)
+
+
+def gfx_illus_mid(X, ref, img: str) -> None:
+    a, b = ref_span(X, ref)
+    MS.illus_mid(X.fx, img_path(img), a, b, GFX)
+
+
+def gfx_illus_side(X, ref, img: str, side: str) -> None:
+    a, b = ref_span(X, ref)
+    MS.illus_side(X.fx, img_path(img), side, a, b, GFX)
+
+
+def gfx_quote_paper(X, n: int, lines: list, hero_index: int, bg: str = "white") -> None:
+    a, b = scene_span(X, n)
+    t0, t_hero = wt(X, lines[0].split()[0], a - 0.1), wt(X, lines[hero_index].split()[0], a)
+    MS.quote_paper(X.fx, lines, hero_index, a, b, t0, t_hero, bg, GFX, X.prof, QUOTE_DY)
 
 
 def broll_uses(X, src: str) -> int:
@@ -413,7 +502,9 @@ def graphics(X) -> None:
     for i, c in enumerate(X.v1):                       # B-roll: giấy + tối rìa + mờ rìa
         if is_broll(c):
             X.fx.broll_paper(c, seed=i)
-    kinds = {"polaroid": gfx_polaroid, "arrow": gfx_arrow, "graph": gfx_graph, "quote": gfx_quote, "cutaway": gfx_cutaway}
+    kinds = {"polaroid": gfx_polaroid, "arrow": gfx_arrow, "graph": gfx_graph, "quote": gfx_quote, "cutaway": gfx_cutaway,
+             "painting": gfx_painting, "path_text": gfx_path_text, "path_illus": gfx_path_illus, "illus_mid": gfx_illus_mid,
+             "illus_side": gfx_illus_side, "quote_paper": gfx_quote_paper}
     for g in SCENE_GFX:
         if g[0] not in kinds:
             sys.exit(f"SCENE_GFX: kiểu lạ «{g[0]}» (có {sorted(kinds)})")
@@ -424,7 +515,7 @@ def graphics(X) -> None:
 
 def joins(X) -> list:
     """Chuyển cảnh talking-head: plan_cuts_min chọn kiểu theo ngữ cảnh, MotionFX.th_join dựng."""
-    quote_at = [X.sc[g[1]][0] for g in SCENE_GFX if g[0] == "quote"]
+    quote_at = [X.sc[g[1]][0] for g in SCENE_GFX if g[0] in ("quote", "quote_paper")]
 
     def say(t, before):
         return " ".join(w[0] for w in X.words if (t - 2.5 <= w[1] < t if before else t <= w[1] < t + 2.5))

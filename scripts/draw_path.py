@@ -322,6 +322,46 @@ def graph_track(points, progress) -> dict:
                 glow=GRAPH_GLOW, head="ball", easing="linear", jitter=0.0, seed=0, progress=list(map(float, progress)))
 
 
+# ---------- nét dài nhiều màn hình (v3.6.6: cảnh đường + chữ, đường + minh hoạ) ----------
+def curve(points, frames: int, head: str = "none", glow: str | None = None, easing: str = "ease_in_out", per_seg: int | None = 24,
+          width: float | None = None) -> dict:
+    """Nét liền qua các điểm điều khiển: per_seg = số mẫu Catmull-Rom mỗi đoạn (None = giữ nguyên điểm, vd đã bo góc bằng rounded_path),
+    bề dày line_width_ratio·W, ease-in-out theo độ dài cung. head: none | dot (chấm trắng bám đầu nét, quầng `glow`) | ball."""
+    pts = smooth(points, per_seg) if per_seg else np.asarray(points, np.float32)
+    return dict(points=pts, frames=frames, width=width or _line_w(), color=_g("accent_line"), glow=glow, head=head, easing=easing,
+                jitter=0.0, seed=0)
+
+
+def shift(spec: dict, dx: float, dy: float) -> dict:
+    """Bản sao `spec` với toạ độ trừ (dx, dy): đưa nét trong toạ độ "thế giới" về toạ độ khung của màn hình (dx, dy) = góc trên-trái màn hình."""
+    return {**spec, "points": np.asarray(spec["points"], np.float32) - np.array([dx, dy], np.float32)}
+
+
+def hits_canvas(spec: dict, margin: float = 80) -> bool:
+    """Nét có điểm nào nằm trong khung 1080×1920 (nới `margin` px cho bề dày nét) — dùng để bỏ màn hình không có nét."""
+    p = np.asarray(spec["points"])
+    return bool(((p[:, 0] > -margin) & (p[:, 0] < W + margin) & (p[:, 1] > -margin) & (p[:, 1] < H + margin)).any())
+
+
+def write_with_still(spec: dict, out_mov: str | Path, out_png: str | Path, fps: int = 30) -> Path:
+    """Như write() nhưng ghi luôn khung cuối ra PNG trong CÙNG một lượt vẽ (still() phải vẽ lại cả nét)."""
+    from PIL import Image
+    out_mov = Path(out_mov)
+    out_mov.parent.mkdir(parents=True, exist_ok=True)
+    cmd = ["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgba", "-s", f"{W}x{H}",
+           "-framerate", str(fps), "-i", "-", "-c:v", "prores_ks", "-profile:v", "4444", "-pix_fmt", "yuva444p10le", str(out_mov)]
+    proc, last = subprocess.Popen(cmd, stdin=subprocess.PIPE), None
+    try:
+        for last in render_frames(**spec):
+            proc.stdin.write(last.tobytes())
+    finally:
+        proc.stdin.close()
+        if proc.wait() != 0:
+            raise RuntimeError(f"ffmpeg ghi {out_mov} lỗi")
+    Image.fromarray(last, "RGBA").save(out_png)
+    return out_mov
+
+
 # ---------- CLI ----------
 def _xy(s: str) -> tuple[float, float]:
     x, y = s.split(",")

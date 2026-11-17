@@ -27,11 +27,16 @@ EDIT_RE = re.compile(r"(# -{20,} CHỈ SỬA[^\n]*\n)(.*?)(# -{20,} hết phần
 EXAMPLE_RE = re.compile(r"# --- VÍ DỤ KB08[^\n]*\n(.*?)# --- hết ví dụ ---", re.S)
 
 
+def example_text() -> str:
+    """Khối ví dụ KB08 ở đầu file mẫu, bỏ "# " đầu dòng."""
+    src = TEMPLATE.read_text(encoding="utf-8")
+    return "".join(re.sub(r"^# ?", "", ln, count=1) + "\n" for ln in EXAMPLE_RE.search(src).group(1).splitlines())
+
+
 def kb08_template() -> str:
     """Mẫu với khối `# EDIT` thay bằng khối ví dụ KB08 (bỏ "# " đầu dòng)."""
     src = TEMPLATE.read_text(encoding="utf-8")
-    example = "".join(re.sub(r"^# ?", "", ln, count=1) + "\n" for ln in EXAMPLE_RE.search(src).group(1).splitlines())
-    return EDIT_RE.sub(lambda m: m.group(1) + example + m.group(3), src, count=1)
+    return EDIT_RE.sub(lambda m: m.group(1) + example_text() + m.group(3), src, count=1)
 
 
 def counts(spec: dict) -> tuple[int, int]:
@@ -109,6 +114,79 @@ def test_empty_groups_stops() -> None:
     r = run(w)
     assert r.returncode != 0 and "GROUPS" in (r.stdout + r.stderr), r.stderr[-800:]
     print("ok  GROUPS trống → dừng, nói rõ lý do")
+
+
+def edit_block(src: str, fn) -> str:
+    """Sửa khối # EDIT đã thay bằng ví dụ KB08 (không đụng ví dụ chú thích trong docstring)."""
+    m = EDIT_RE.search(src)
+    return src[:m.start(2)] + fn(m.group(2)) + src[m.end(2):]
+
+
+def placeholder_images(w: Path) -> None:
+    from PIL import Image, ImageDraw
+    for name, size in (("tranh.png", (1000, 1400)), ("minh_hoa.png", (900, 1100)), ("hinh_ben.png", (900, 1200))):
+        im = Image.new("RGB", size, (255, 255, 255) if name != "tranh.png" else (40, 30, 24))
+        d = ImageDraw.Draw(im)
+        d.ellipse([size[0] * .25, size[1] * .3, size[0] * .75, size[1] * .6], fill=(30, 70, 200) if name != "tranh.png" else (190, 150, 110))
+        d.rectangle([size[0] * .3, size[1] * .55, size[0] * .7, size[1]], fill=(30, 70, 200))
+        im.save(w / name)
+
+
+NEW_GFX = """SCENE_GFX = [("polaroid", 7, 1.6), ("arrow", "vẽ", 8), ("graph", "biểu", 9, ["vốn", "dòng", "bung", "con"]),
+             ("quote_paper", 11, ["Độ tin cậy tăng lên", "gấp mười lần", "so với video cắt ghép"], 1, "white"),
+             ("cutaway", "khoanh", 7, 2.4),
+             ("painting", 4, "tranh.png", 2.5), ("illus_mid", 3, "minh_hoa.png"), ("illus_side", 5, "hinh_ben.png", "left"),
+             ("path_text", 6, ["áp dụng | *hệ thống", "vào làm | *video", "diễn ra | rất | ~mạch lạc"]),
+             ("path_illus", 10, "minh_hoa.png", "zigzag")]
+"""
+SCENE6 = '    "Cách mình | áp dụng | *hệ thống", "vào làm | *video | bất động sản", "diễn ra | rất | ~mạch lạc",\n'
+
+
+def test_new_scene_kinds() -> None:
+    """SCENE_GFX có đủ 6 kiểu cảnh mới (ảnh giả PIL): dựng không lỗi, spec_lint 0 HARD, edit_rules 0 LỖI; cảnh 6 do path_text tự dựng chữ (GROUPS None)."""
+    w = workdir("v4")
+    for f in INPUTS:
+        shutil.copy(DEMO / f, w / f)
+    placeholder_images(w)
+
+    def fn(blk: str) -> str:
+        assert SCENE6 in blk
+        return re.sub(r"SCENE_GFX = \[.*?\]\n(?=CTA_WORD)", lambda _: NEW_GFX, blk.replace(SCENE6, "    None,\n"), flags=re.S)
+    (w / "build_spec_minimal.py").write_text(edit_block(kb08_template(), fn), encoding="utf-8")
+    r = run(w)
+    assert r.returncode == 0, r.stdout[-1500:] + r.stderr[-2500:]
+    spec = json.loads((w / "kb08.craft.json").read_text(encoding="utf-8"))
+    names = [c["name"] for t in spec["tracks"] for c in t["clips"]]
+    for want in ("Tranh ·", "Texture tranh 1", "Minh hoạ giữa", "Hình bên", "Đường 1 (vẽ)", "Đường minh hoạ (vẽ)", "Nền giấy trích dẫn"):
+        assert any(n.startswith(want) for n in names), want
+    pic = next(c for t in spec["tracks"] for c in t["clips"] if c["name"].startswith("Tranh ·"))
+    assert pic["motion"]["scale"][-1][1] == 112
+    words = json.loads((w / "words_tl.json").read_text(encoding="utf-8"))
+    hard = [x for x in lint(w / "kb08.craft.json", words) if x["status"] == "HARD"]
+    assert not hard, hard
+    prof = style_profile.load(w / "kb08.craft.json")
+    bad = [x for x in audit_spec(spec, words, ["bãi đất trống", "quên ngay"], profile=prof) if x["status"] == "LỖI"]
+    assert not bad, bad
+    print(f"ok  6 kiểu cảnh mới trong mẫu: {counts(spec)[0]} track / {counts(spec)[1]} clip, 0 HARD, 0 LỖI")
+
+
+def test_plan_json() -> None:
+    """work/minimal_plan.json thay khối # EDIT: khối EDIT trống + plan = ví dụ KB08 → cùng số track / clip như chạy bằng khối ví dụ."""
+    w = workdir("v5")
+    for f in INPUTS:
+        shutil.copy(DEMO / f, w / f)
+    ns: dict = {}
+    exec(example_text(), ns)
+    plan = {"groups": ns["GROUPS"], "scene_gfx": [list(g) for g in ns["SCENE_GFX"]], "cta_word": ns["CTA_WORD"], "pain": ns["PAIN"]}
+    (w / "minimal_plan.json").write_text(json.dumps(plan, ensure_ascii=False), encoding="utf-8")
+    shutil.copy(TEMPLATE, w / "build_spec_minimal.py")          # khối EDIT trống: GROUPS / SCENE_GFX / CTA_WORD / PAIN đều từ plan
+    r = run(w)
+    assert r.returncode == 0, r.stdout[-1500:] + r.stderr[-2500:]
+    spec = json.loads((w / "kb08.craft.json").read_text(encoding="utf-8"))
+    ref = json.loads((DEMO / "kb08.craft.json").read_text(encoding="utf-8"))
+    (tn, tc), (rn, rc) = counts(spec), counts(ref)
+    assert abs(tn - rn) <= max(1, 0.1 * rn) and abs(tc - rc) <= 0.1 * rc, f"tracks {tn} vs {rn}, clips {tc} vs {rc}"
+    print(f"ok  minimal_plan.json thay khối EDIT: {tn} track / {tc} clip")
 
 
 if __name__ == "__main__":

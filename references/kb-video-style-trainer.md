@@ -305,3 +305,27 @@ Sau khi qua đủ 4 Round và `lint-skill` đạt `PASS`:
 }
 <!-- ===== /file: video-style-trainer/references/presets/talking-head-ui-hyperframes.json ===== -->
 
+
+## 6. Học style 3 trục + bảng 4 câu hỏi (bổ sung 3.6.6, từ cách Joseph | Video Editing dạy Claude)
+
+Nguồn: `.handoff/tiktok-haihoang/BAO_CAO_TOAN_DIEN.md` §3 bước B, `deep_086_129.md` (Figma 86–99 s), `deep_129_172.md` (131–133 s). Cho mỗi mẫu hiệu ứng, học ĐỒNG THỜI ba trục (lệnh gốc: "study three main things"):
+
+| Trục | Câu hỏi | Ghi lại |
+|---|---|---|
+| 1. Vị trí theo lời ("Where it sits in the script") | hiệu ứng đặt ở đâu so với lời nói? | từ kích hoạt, độ sớm / trễ so với lời (hình đi trước lời 0–1,9 s; điểm cắt trước đầu câu 10–60 ms), loại cảnh theo nghĩa (giới thiệu kiểu mới → giữ mặt, mô tả → cho xem) |
+| 2. Thiết kế ("Study the animation design") | bố cục gồm những phần tử nào? | font, màu, cỡ, tỉ lệ, vùng đặt, texture (chi tiết ở bảng 4 câu hỏi dưới đây) |
+| 3. Logic chuyển động ("Study the animation logic") | dài bao lâu, cảm giác ra sao, để dựng lại được? | số khung ở 30 fps, easing, thứ tự vào / ra, có hiệu ứng thoát hay không |
+
+Video mẫu dạy CHUYỂN ĐỘNG; bảng Figma dạy THIẾT KẾ — cần cả hai ("mẫu dạy chuyển động, Figma dạy thiết kế"). Quy trình gốc: chụp ~130 cảnh vào một bảng cảm hứng → gom vào 10 khung nhóm theo nguyên tắc → phóng to MỘT mẫu mỗi nhóm, vẽ đường chú thích đỏ và trả lời 4 câu hỏi:
+
+| # | Câu hỏi trên bảng Figma (nguyên văn) | Trả lời bằng |
+|---|---|---|
+| 1 | What makes it up? | liệt kê phần tử: nền, giấy / halftone, chữ nhỏ, chữ lớn, đường, minh hoạ, ảnh |
+| 2 | What are the fonts? | cặp font + vai trò (vd Inter ExtraBold chữ chính, Inter Light chữ phụ, Playfair Display Italic từ đặc biệt) |
+| 3 | The colors | mã màu lấy mẫu pixel, màu nào dùng cho từ chốt / đường / hộp số |
+| 4 | The sizes and patterns | tỉ lệ cỡ (vd "khoảng cách chữ phụ = 75 % chữ lớn đậm"), quy luật lặp (sandwich 1 từ lớn + từ nhỏ hai bên) |
+
+Ba chú thích mẫu trên thẻ "common" (93.5–94.5 s): "Multiple sans light small text" · "Singular or double bold sans text" · "Distance of the light sans text is 75% of the big bold text".
+Ghi chú: các tài liệu trên nêu rõ ba trục và bốn câu hỏi như trên; KHÔNG nêu thêm trục thứ tư nào, và không nêu câu trả lời mẫu cho 4 câu hỏi ngoài ví dụ thẻ "common" (cột "Trả lời bằng" ở trên là gợi ý của skill này).
+
+Áp dụng trong skill: mỗi mẫu học xong thành MỘT mục thư viện (`kb-effect-library.md`: `still.png`, `strip.jpg`, `clip.mp4`, `notes.md` ghi số đo ba trục + dòng "dựng lại trên FilmCraft"); `lib_extract.py segments` gợi ý đoạn, `entry` ghi mục, `index` kiểm. Đầu ra gốc của họ là skill `arthur-brooks-minimal-animation` (SKILL.md + 225 mục tham chiếu).

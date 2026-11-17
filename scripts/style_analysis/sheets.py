@@ -1,8 +1,8 @@
 """Ảnh lưới: 1 khung/giây, nhãn thời gian, 4 cột x 3 hàng (12 giây/ảnh). sheets/<id>_NN.jpg"""
-import os, subprocess, sys, glob, json
+import os, shutil, subprocess, sys, glob, json
 from PIL import Image, ImageDraw, ImageFont
 vid_dir, out_dir, fps = sys.argv[1], sys.argv[2], float(sys.argv[3]) if len(sys.argv) > 3 else 1.0
-FF = "/home/vmiz/.local/bin/ffmpeg"
+FF = os.environ.get("FFMPEG") or shutil.which("ffmpeg") or "ffmpeg"
 font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 22)
 W, H, C, R = 300, 533, 4, 3
 for f in sorted(glob.glob(os.path.join(vid_dir, "*.mp4"))):

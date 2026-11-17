@@ -1,8 +1,8 @@
 """Đo mỗi video: thông số, điểm cắt cảnh (scdet), loudness EBU R128. Ghi metrics/<id>.json"""
-import json, os, re, subprocess, sys, statistics
+import json, os, re, shutil, subprocess, sys, statistics
 vid_dir, out_dir = sys.argv[1], sys.argv[2]
 os.makedirs(out_dir, exist_ok=True)
-FF = "/home/vmiz/.local/bin/ffmpeg"
+FF = os.environ.get("FFMPEG") or shutil.which("ffmpeg") or "ffmpeg"
 def run(args):
     return subprocess.run(args, capture_output=True, text=True).stderr
 for f in sorted(os.listdir(vid_dir)):
