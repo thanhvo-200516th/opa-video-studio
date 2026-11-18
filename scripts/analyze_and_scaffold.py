@@ -924,7 +924,7 @@ def main() -> int:
     p_rep.add_argument("root_dir", type=Path, help="Đường dẫn Thư mục tổng")
 
     p_aroll = sub.add_parser("render-aroll", help="Gọi API HeyGen tạo video A-Roll từ prompts_heygen_aroll.json")
-    p_aroll.add_argument("target_dir", type=Path, help="Thư mục con kịch bản hoặc Thư mục tổng")
+    p_aroll.add_argument("target_dir", type=Path, nargs="?", default=None, help="Thư mục con kịch bản hoặc Thư mục tổng (bỏ trống khi dùng --bank)")
     p_aroll.add_argument("--filter-id", type=str, default=None, help="Lọc theo mã kịch bản (VD: XM01, KB10)")
     p_aroll.add_argument("--shot", type=str, default=None, help="Chỉ chạy 1 shot (VD: a-roll-2)")
     p_aroll.add_argument("--avatar-id", type=str, default=None, help="Ghi đè HeyGen Avatar ID")
@@ -932,6 +932,13 @@ def main() -> int:
     p_aroll.add_argument("--resolution", type=str, default="1080p", choices=["720p", "1080p"])
     p_aroll.add_argument("--force", action="store_true", help="Render đè file .mp4 đã tồn tại")
     p_aroll.add_argument("--yes", action="store_true", help="Xác nhận gọi API HeyGen thật (bỏ cờ này sẽ chạy DRY-RUN)")
+    # Các cờ dưới đây chuyển nguyên cho render_heygen_aroll.py (một nơi cài đặt duy nhất; shot quay thật bị bỏ qua sẽ được in ở đó).
+    p_aroll.add_argument("--looks", type=Path, default=None, help="looks.json từ heygen_looks.py list")
+    p_aroll.add_argument("--assign", choices=["auto"], default=None, help="auto: tự chia look cho shot chưa có avatar_id")
+    p_aroll.add_argument("--bank", type=Path, default=None, help="bank.json từ aroll_bank.py: render mỗi câu một lần")
+    p_aroll.add_argument("--estimate", action="store_true", help="In bảng giây (× đơn giá nếu có) rồi thoát, không gọi API")
+    p_aroll.add_argument("--usd-per-min", type=float, default=None, help="Đơn giá USD/phút cho --estimate")
+    p_aroll.add_argument("--key-file", type=Path, default=None, help="File chứa khoá API HeyGen (nếu không dùng HEYGEN_API_KEY)")
 
     p_broll = sub.add_parser("render-broll", help="Gọi API Muse tạo video B-Roll câm từ prompts_muse_veo_broll.json")
     p_broll.add_argument("target_dir", type=Path, help="Thư mục con kịch bản hoặc Thư mục tổng")
@@ -948,7 +955,15 @@ def main() -> int:
     scripts_dir = Path(__file__).resolve().parent
 
     if args.cmd == "render-aroll":
-        cmd_list = [sys.executable, str(scripts_dir / "render_heygen_aroll.py"), str(args.target_dir)]
+        if not args.target_dir and not args.bank:
+            parser.error("render-aroll cần target_dir hoặc --bank")
+        cmd_list = [sys.executable, str(scripts_dir / "render_heygen_aroll.py")] + ([str(args.target_dir)] if args.target_dir else [])
+        for flag, val in (("--looks", args.looks), ("--bank", args.bank), ("--key-file", args.key_file),
+                          ("--usd-per-min", args.usd_per_min), ("--assign", args.assign)):
+            if val is not None:
+                cmd_list += [flag, str(val)]
+        if args.estimate:
+            cmd_list.append("--estimate")
         if args.filter_id:
             cmd_list += ["--filter-id", args.filter_id]
         if args.shot:

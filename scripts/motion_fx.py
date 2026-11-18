@@ -16,10 +16,14 @@ import os
 import zlib
 from pathlib import Path
 
+import numpy as np
+
 TNEDIT_DIR = Path(os.environ.get("TNEDIT_DIR", str(Path.home() / "Thanh/Media/TNEDIT")))
 
 import fx_gfx as G
 import text_fx as _T
+import th_transitions as TH
+from style_profile import get as _sp_get, load as _sp_load
 from text_fx import FONTS, FX, SHADOW, TRACKING, nfc, no_commas
 from text_motion import ensure_motion
 
@@ -191,6 +195,34 @@ def _stacked_marks(text: str) -> bool:
                for ch in nfc(text))
 
 
+def _pget(dotted: str, default=None):
+    """Số đo hồ sơ minimal-edu (references/minimal-edu-style.json); chỉ các hàm opt-in của hồ sơ gọi."""
+    return _sp_get(_sp_load(name="minimal-edu"), dotted, default)
+
+
+def _mid_frames(rng: list) -> int:
+    return (rng[0] + rng[-1]) // 2
+
+
+# Chưa đo được từ mẫu (JSON không có): xử lý B-roll "giấy + tối rìa + mờ rìa" và hình học cảnh đồ thị — chỉnh khi duyệt mắt.
+BROLL_PAPER = {"opacity": 32, "vignette": {"amount": -30, "midpoint": 55, "roundness": 0, "feather": 60},
+               "focus_blur": {"shape": "Radial", "center": [540, 960], "size": 760, "feather": 360, "amount": 10}}
+GRAPH_GEOM = {"origin": (150, 1550), "size": (780, 900), "axis_w": 10, "axis_color": "#FFFFFF"}
+GRAPH_ROUND = 0.35        # bo góc bậc thang = 0,35 × min(bề ngang, bề cao bậc) (profile key: graphics.graph_corner_ratio)
+GRAPH_ZOOM = 112          # camera đồ thị: scale 100 → 112 % theo easing (profile key: graphics.graph_camera_zoom)
+GRAPH_FOLLOW = 0.16       # camera lệch ngược hướng bóng = 0,16 × khoảng cách tới tâm khung (profile key: graphics.graph_camera_follow)
+GRAPH_SMOOTH_S = 0.5      # làm mượt vị trí bóng cho camera: trung bình trượt 0,5 s (profile key: graphics.graph_camera_smooth_s)
+GRAPH_CAM_STEP = 2        # khoảng cách khung giữa hai keyframe camera, nội suy tuyến tính (profile key: graphics.graph_camera_step)
+GRAPH_LEAD = 3            # bóng hiện ở gốc trước từ đầu tiên 3 khung (profile key: graphics.graph_ball_lead_frames)
+GRAPH_AXIS_ORIGIN = 0.54  # trục L vẽ tới gốc toạ độ ở ~54 % thời gian vẽ (cạnh đứng 900 / tổng 1680 px)
+PAN_DIRS = {"left": (-1, 0, 90), "right": (1, 0, 90), "up": (0, -1, 0), "down": (0, 1, 0)}   # (dx, dy, hướng nhoè: 90 = ngang)
+
+
+def _keyed(v) -> bool:
+    """Giá trị motion đã là danh sách keyframe ([[t, giá trị], …]) chứ không phải số / cặp toạ độ."""
+    return isinstance(v, list) and bool(v) and isinstance(v[0], list)
+
+
 class MotionFX(FX):
     ALLOW_CAPTION_BAND = False      # luật B15 (2026-11-11): không dải tối dưới chữ phụ
     def __init__(self, *args, palettes: list[str] | None = None, name: str = "", key_seed: int | None = None, **kwargs):
@@ -206,6 +238,7 @@ class MotionFX(FX):
         self._ent_last = {"cap": None, "key": None}
         self._fly_side = 1
         self._lead_i = 0
+        self.th_state = {"drift": 0}                        # th_transitions: hướng trôi đảo chiều mỗi lần drift_reset
         # mỗi video một bộ 10–15 kiểu cho chữ chính; key_seed do sổ luân phiên cấp, không có → theo tên video
         rnd = random.Random(zlib.crc32(name.encode()) if key_seed is None else key_seed)
         self.key_kinds = rnd.sample(KEY_POOL, rnd.randint(*KEY_KINDS_PER_VIDEO))
@@ -915,9 +948,13 @@ class MotionFX(FX):
         return self.enter(c, ent, cps=9)
 
     # ---------- chuyển cảnh ----------
-    def join(self, clip: dict, kind: str = "flash", cue_sfx: bool = True) -> dict:
+    def join(self, clip: dict, kind: str = "flash", cue_sfx: bool = True, before: dict | None = None) -> dict:
         """Gắn chuyển cảnh vào đầu `clip` (clip sau điểm cắt trên V1/B-roll) + SFX tương ứng.
-        kind: flash | zoom | whip | glitch | leak | slide | cross_zoom (bảng JOINS)."""
+        kind: flash | zoom | whip | glitch | leak | slide | cross_zoom (bảng JOINS) hoặc kiểu talking-head của
+        th_transitions.TH_KINDS (morph_smooth, soft_wipe, paper_rip, card_swipe, flash_cut, whip_pan, spin_roll…); `before` = clip ngay
+        trước điểm cắt (chỉ kiểu talking-head dùng: đuôi nó chuyển động cùng đầu `clip`)."""
+        if kind in TH.TH_KINDS:
+            return TH.th_join(self, clip, kind, cue_sfx, before=before)
         eff, frames, sfx = JOINS[kind]
         clip["transition_in"] = {"effect": eff, "frames": frames}
         if cue_sfx:                                    # chuyển cảnh căn giữa điểm cắt: tiếng chỉ được vào từ nửa đầu của nó
@@ -925,6 +962,10 @@ class MotionFX(FX):
                 self.cues.append({"t": clip["at"], "kind": s, "max_pre": frames / 2 / self.fps + 0.02,
                                   "why": f"chuyển cảnh {kind}"})
         return clip
+
+    def th_join(self, clip: dict, kind: str, cue_sfx: bool = True, **opts) -> dict:
+        """Như join nhưng nhận tham số riêng của kiểu talking-head (vd text="2." cho chapter_card_slam, black=True cho dip_to_paper)."""
+        return TH.th_join(self, clip, kind, cue_sfx, **opts)
 
     def transition(self, cut: float, kind: str, clip_after: dict | None = None, variant: int = 0) -> dict:
         """T0 Chuyển cảnh overlay TNEDIT (bảng TRANS): khung sáng nhất trúng `cut`, SFX căn đỉnh vào đó (hoặc tiếng có sẵn
@@ -1057,11 +1098,13 @@ class MotionFX(FX):
         grid_reveal / strip_reveal riêng (xem assets/motion-fx/example_build_spec.py)."""
         if kind == "zoom + punch":
             return self.join(clip_after, "zoom")
-        if kind in TRANS:
+        if kind == "hard_cut":                                       # hồ sơ minimal-edu: cắt cứng là một kiểu hợp lệ
+            return clip_after
+        if kind in TRANS:                                            # light_leak / film_burn có cả ở TH_KINDS: đường mặc định giữ nguyên
             return self.transition(cut, kind, clip_after=clip_after, variant=variant)
         if kind in COMBO_KINDS:
             return self.combo(cut, kind, clip_after, variant=variant, clip_before=clip_before)
-        return self.join(clip_after, kind)
+        return self.join(clip_after, kind, before=clip_before)       # kiểu talking-head của minimal-edu dựng hai phía (before=)
 
     def _sub(self, src: str, src_in: float, at: float, dur: float, crop: dict, motion: dict | None, white_f: int,
              name: str) -> dict:
@@ -1208,3 +1251,184 @@ class MotionFX(FX):
         if cue:
             self.cues.append({"t": c["at"], "kind": cue, "why": f"3D asset «{c['name']}»"})
         return c
+
+    # ---------- hồ sơ minimal-edu (C3): opt-in, không hàm cũ nào gọi ----------
+    def box_wipe(self, c: dict, frames: int | None = None) -> dict:
+        """Hộp tô lộ trái → phải ≈ 6 khung bằng `crop.right` 100 → 0 (PNG hộp từ `fx_gfx.box_fill`)."""
+        n = max(1, min(frames or _pget("graphics.box_wipe_frames"), round(c["dur"] * self.fps) - 1))
+        self._crop_right(c)["right"] = self._frame_keys([[0, 100, "linear"], [n / self.fps, 0.0, "linear"]], c["dur"])
+        return c
+
+    def polaroid_pop(self, c: dict, tilt: float | None = None, settle: int | None = None) -> dict:
+        """Polaroid hiện tức thì (opacity 1 khung), scale 109 → 100% lắng 6–7 khung ease-out, xoay lắng về `tilt`° (±2–3°)."""
+        gp = _pget("graphics.polaroid")
+        tilt = sum(gp["tilt_deg"]) / 2 if tilt is None else tilt
+        t_s = (settle or gp["settle_frames"][0]) / self.fps
+        base = c.get("motion", {}).get("scale", 100)
+        base = base if isinstance(base, (int, float)) else 100
+        c["opacity"] = self._frame_keys([[0, 0, "hold"], [1 / self.fps, 100]], c["dur"])
+        c.setdefault("motion", {}).update({
+            "scale": self._frame_keys([[0, round(base * gp["scale_from"], 2)], [t_s, base, "easeIn"]], c["dur"]),
+            "rotation": self._frame_keys([[0, round(tilt * 1.4, 2)], [t_s, tilt, "easeIn"]], c["dur"])})
+        self.cues.append({"t": c["at"], "kind": "pop", "why": f"polaroid «{c['name']}»"})
+        return c
+
+    def relayout_blur(self, clips: list, frames: int | None = None, at: float | None = None, blur: float = 24) -> list:
+        """Nhoè toàn khung `frames` (2) khung để bố cục lại: gaussian_blur blur → 0 trên mọi clip; `at` (giây timeline)
+        dời mốc nhoè vào giữa clip (clip đã có sẵn), mặc định ngay đầu clip."""
+        n = frames or _pget("graphics.relayout_blur_frames")
+        for c in clips:
+            t0 = 0.0 if at is None else max(0.0, at - c["at"])
+            keys = ([[0, 0, "hold"]] if t0 > 0 else []) + [[t0, blur], [t0 + n / self.fps, 0, "easeIn"]]
+            self._fx(c, "gaussian_blur", {"blurriness": self._frame_keys(keys, c["dur"])})
+        return clips
+
+    @staticmethod
+    def _pos_of(c: dict) -> list:
+        pos = c.get("motion", {}).get("position")
+        if _keyed(pos):
+            raise ValueError(f"clip «{c.get('name')}» đã có keyframe motion.position riêng — xung đột với camera / whip-pan")
+        return list(pos) if pos else [540, 960]
+
+    def whip_pan(self, clips: list, direction: str = "left", frames: int | None = None, at: float | None = None,
+                 dist: float | None = None, blur: float = 120) -> list:
+        """Whip-pan 7–9 khung: mọi clip trượt cùng quãng `dist` (mặc định cả khung) theo `direction` (left|right|up|down),
+        position ease-in-out, directional_blur đỉnh giữa chừng. `at` = giây timeline bắt đầu, mặc định kết thúc ở khung
+        cuối của clip ngắn nhất."""
+        if direction not in PAN_DIRS:
+            raise ValueError(f"hướng whip-pan lạ: {direction} (left | right | up | down)")
+        n = frames or _mid_frames(_pget("graphics.whip_pan_frames"))
+        dx, dy, bdir = PAN_DIRS[direction]
+        dist = dist or (1080 if dx else 1920)
+        start = self.snap(at if at is not None else min(c["at"] + c["dur"] for c in clips) - (n + 1) / self.fps)
+        bases = [self._pos_of(c) for c in clips]                   # kiểm xung đột trước khi sửa clip nào
+        for c, (x, y) in zip(clips, bases):
+            t0, t1 = start - c["at"], start - c["at"] + n / self.fps
+            c.setdefault("motion", {})["position"] = self._frame_keys(
+                [[t0, [x, y], "bezier"], [t1, [x + dx * dist, y + dy * dist], "bezier"]], c["dur"])
+            peak = t0 + (n // 2) / self.fps
+            self._fx(c, "directional_blur", {"direction": bdir, "length": self._frame_keys(
+                [[t0, 0], [peak, blur], [t1, 0]], c["dur"])})
+        return clips
+
+    def scene_camera(self, clips: list, keys: list) -> list:
+        """Camera chung cho cả cảnh: mọi clip nhận cùng keyframe `motion.position` / `motion.scale`. `keys` =
+        [[giây timeline, (x, y), scale %, nội suy?], …] (scale None = không đổi). Báo lỗi nếu clip nào đã có keyframe
+        position / scale riêng (nudge, pop…) — không sửa clip nào khi lỗi."""
+        for c in clips:
+            m = c.get("motion", {})
+            if _keyed(m.get("position")) or _keyed(m.get("scale")):
+                raise ValueError(f"clip «{c.get('name')}» đã có keyframe motion.position/scale riêng — không thể gắn camera chung")
+        for c in clips:
+            local = [(k[0] - c["at"], k) for k in keys if -1e-6 <= k[0] - c["at"] <= c["dur"] + 1e-6]
+            tail = lambda k: [k[3]] if len(k) > 3 else []                      # noqa: E731
+            pos = [[t, list(k[1]), *tail(k)] for t, k in local]
+            sc = [[t, k[2], *tail(k)] for t, k in local if k[2] is not None]
+            m = c.setdefault("motion", {})
+            if pos:
+                m["position"] = self._frame_keys(pos, c["dur"])
+            if sc:
+                m["scale"] = self._frame_keys(sc, c["dur"])
+        return clips
+
+    def broll_paper(self, c: dict, seed: int = 0) -> dict:
+        """B-roll kiểu minimal: giấy nhẹ (PNG giấy blend multiply ~32%) + tối rìa (vignette) + mờ rìa (focus_blur Radial).
+        CHỈ dùng khi hồ sơ minimal-edu bật (vignette đụng luật B15)."""
+        self._fx(c, "vignette", dict(BROLL_PAPER["vignette"]))
+        self._fx(c, "focus_blur", dict(BROLL_PAPER["focus_blur"]))
+        p = self.image(G.paper_bg(self.gfx_dir, f"paper_white_{seed}", "white", seed), c["at"], c["dur"], lane="card",
+                       name="Giấy B-roll")
+        p["blend"], p["opacity"] = "multiply", BROLL_PAPER["opacity"]
+        return c
+
+    def painting_scene(self, img: str, at: float, dur: float, texture_strength: float | None = None,
+                       frames: int | None = None, name: str | None = None) -> dict:
+        """Cảnh tranh: nướng texture sơn vào PNG (≤ painting_texture_max = 0,5; lớn hơn → ValueError) rồi vào bằng nhoè
+        ngang 5–7 khung (directional_blur 90°)."""
+        strength = _pget("graphics.painting_texture_max") if texture_strength is None else texture_strength
+        stem = Path(img).stem
+        baked = G.paint_texture(self.gfx_dir, f"paint_{stem}_{round(strength * 100)}", img, strength)
+        c = self.image(baked, at, dur, lane="gfx_under", name=name or f"Tranh · {stem[:24]}")
+        entry = _pget("cuts.painting_entry")
+        n = frames or _mid_frames(entry["frames"])
+        self._fx(c, entry["effect"], {"direction": 90, "length": self._frame_keys(
+            [[0, 80], [n / self.fps, 0, "easeIn"]], c["dur"])})
+        return c
+
+    def graph_scene(self, word_times: list, at: float, dur: float) -> list:
+        """Cảnh đồ thị: nền đen noise, lưới sáng, trục L vẽ 17 khung (.mov alpha rồi PNG tĩnh nối sau), rồi MỘT nét liền
+        (.mov alpha cả cảnh) do bóng sáng dẫn đầu vẽ ra qua các bậc thang — bóng tới chân bậc thứ i đúng lúc từ thứ i;
+        camera bám bóng (scale 100 → GRAPH_ZOOM). Ghi vào self.cues và trả các cue SFX 'highlighter'."""
+        import draw_path as DP
+        fps, geo = self.fps, GRAPH_GEOM
+        if any(not at - 1e-6 <= t <= at + dur for t in word_times):
+            raise ValueError("word_times phải nằm trong [at, at + dur]")
+        n_ax, end = _pget("graphics.graph_axis_frames"), at + dur
+        self.image(G.paper_bg(self.gfx_dir, "graph_bg", "black", 7), at, dur, lane="gfx_under", name="Nền đồ thị")
+        grid = self.image(G.graph_grid(self.gfx_dir, "graph_grid"), at, dur, lane="card", name="Lưới đồ thị")
+        grid["opacity"] = self._frame_keys([[0, 0], [n_ax / fps, 100]], grid["dur"])
+        (x0, y0), (gw, gh) = geo["origin"], geo["size"]
+        axis = DP.line([(x0, y0 - gh), (x0, y0), (x0 + gw, y0)], frames=n_ax)
+        axis.update(width=geo["axis_w"], color=geo["axis_color"])
+        mov = DP.write(axis, self.gfx_dir / "graph_axis.mov", fps)
+        a1 = self.image(str(mov), at, n_ax / fps, lane="card", name="Trục L (vẽ)")
+        a1.update({"in": 0.0, "audio": False})
+        t_hold = self.snap(at + n_ax / fps)
+        a2 = self.image(str(DP.still(axis, self.gfx_dir / "graph_axis.png")), t_hold, end - t_hold, lane="card", name="Trục L")
+        return self._graph_steps(DP, word_times, at, end, (x0, y0, gw, gh), [grid, a1, a2])
+
+    def _graph_steps(self, DP, word_times: list, at: float, end: float, geom: tuple, layers: list) -> list:
+        """Nét liền qua các bậc thang: một .mov alpha từ lúc bóng hiện (trước từ đầu GRAPH_LEAD khung) tới hết cảnh. Mốc i =
+        chân bậc i (đỉnh bậc i-1; từ 0 = gốc), mốc cuối = hết bậc cuối sau ~ một khoảng giữa hai từ. Rồi gắn camera bám bóng
+        lên `layers` và trả cue highlighter ở từng từ."""
+        n, fps = len(word_times), self.fps
+        if n == 0:
+            return []
+        pts, marks = DP.rounded_path(_stair_points(geom, n), GRAPH_ROUND * min(geom[2], geom[3] * 0.85) / n)
+        gap = (word_times[-1] - word_times[0]) / (n - 1) if n > 1 else 0.6
+        t_end = max(word_times[-1] + 2 / fps, min(word_times[-1] + gap, end - 2 / fps))
+        t_s = self.snap(max(at, min(at + _pget("graphics.graph_axis_frames") / fps * GRAPH_AXIS_ORIGIN,
+                                    word_times[0] - GRAPH_LEAD / fps)))
+        frames = max(2, round((end - t_s) * fps))
+        times = [t_s + f / fps for f in range(frames)]
+        prog = DP.progress_curve([*word_times, t_end], [marks[2 * i] for i in range(n)] + [1.0], times)
+        spec = DP.graph_track(pts, prog)
+        c = self.image(str(DP.write(spec, self.gfx_dir / "graph_curve.mov", fps)), t_s, frames / fps, lane="card",
+                       name="Đường đồ thị (vẽ)")
+        c.update({"in": 0.0, "audio": False})
+        self._graph_camera([*layers, c], at, end, (t_s, DP.path_points(pts, prog)))
+        cues = [{"t": t, "kind": _pget("sound.graph_kind"), "why": f"bậc đồ thị {i + 1}"} for i, t in enumerate(word_times)]
+        self.cues.extend(cues)
+        return cues
+
+    def _graph_camera(self, layers: list, at: float, end: float, track: tuple) -> None:
+        """Camera bám bóng: scale 100 → GRAPH_ZOOM (ease-in-out), vị trí lệch ngược hướng bóng (đã làm mượt), kẹp trong lề
+        do phóng to chừa ra để không lộ mép lớp. Keyframe tuyến tính mỗi GRAPH_CAM_STEP khung, mọi lớp dùng chung."""
+        fps, (t_s, head) = self.fps, track
+        t0 = self.snap(at)
+        nf = max(2, round((end - t0) * fps))
+        shift = max(0, round((t_s - t0) * fps))
+        h = np.vstack([np.repeat(head[:1], shift, 0), head])[:nf]
+        h = np.vstack([h, np.repeat(h[-1:], nf - len(h), 0)])
+        w = max(1, round(GRAPH_SMOOTH_S * fps)) | 1
+        padded = np.pad(h, ((w // 2, w // 2), (0, 0)), mode="edge")
+        sm = np.stack([np.convolve(padded[:, j], np.ones(w) / w, mode="valid") for j in (0, 1)], 1)
+        u = np.arange(nf) / max(1, nf - 1)
+        sc = 100 + (GRAPH_ZOOM - 100) * u * u * (3 - 2 * u)
+        keys = []
+        for f in sorted({*range(0, nf, GRAPH_CAM_STEP), nf - 1}):
+            lim = np.maximum(0, (sc[f] / 100 - 1) * np.array([540, 960]) - 2)
+            off = np.clip(-(sm[f] - (540, 960)) * GRAPH_FOLLOW, -lim, lim)
+            keys.append([t0 + f / fps, (round(540 + float(off[0]), 2), round(960 + float(off[1]), 2)), round(float(sc[f]), 3),
+                         "linear"])
+        self.scene_camera(layers, keys)
+
+
+def _stair_points(geom: tuple, n: int) -> list:
+    """Đường bậc thang n bậc từ gốc: mỗi bậc = thềm ngang rồi bậc đứng (đỉnh bậc i-1 = chân bậc i = đỉnh số 2i)."""
+    x0, y0, gw, gh = geom
+    sw, rise = gw / n, gh * 0.85 / n
+    pts = [(x0, y0)]
+    for i in range(n):
+        pts += [(x0 + (i + 1) * sw, y0 - i * rise), (x0 + (i + 1) * sw, y0 - (i + 1) * rise)]
+    return pts

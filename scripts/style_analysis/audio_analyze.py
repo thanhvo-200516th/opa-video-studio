@@ -1,9 +1,9 @@
 """Đo âm thanh từ stem đã tách: mức nhạc/SFX so với giọng, nhạc có chạy suốt không, duck khi nói,
 mật độ tiếng nhấn (transient) và tỷ lệ điểm cắt cảnh có tiếng nhấn. Ghi audio_metrics/<id>.json"""
-import json, os, re, subprocess, sys, glob, random
+import json, os, re, shutil, subprocess, sys, glob, random
 import numpy as np
 S = sys.argv[1]; out = os.path.join(S, "audio_metrics"); os.makedirs(out, exist_ok=True)
-FF = "/home/vmiz/.local/bin/ffmpeg"
+FF = os.environ.get("FFMPEG") or shutil.which("ffmpeg") or "ffmpeg"
 def load(p, sr=16000):
     pcm = subprocess.run([FF, "-v", "error", "-i", p, "-f", "s16le", "-ac", "1", "-ar", str(sr), "-"], capture_output=True, check=True).stdout
     return np.frombuffer(pcm, np.int16).astype(np.float32) / 32768.0

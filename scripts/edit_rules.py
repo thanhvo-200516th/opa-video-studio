@@ -20,6 +20,9 @@ import sys
 import unicodedata
 from pathlib import Path
 
+import style_profile
+from th_transitions import HARD_KINDS as TH_HARD, ONE_PER_VIDEO as TH_ONCE, join_kind
+
 # ---------------------------------------------------------------- 1. Từ khoá nỗi đau
 PAIN_LEXICON = [
     "mất khách", "mất tiền", "mất thời gian", "tốn thời gian", "tốn tiền", "tốn công", "tốn kém", "đốt tiền",
@@ -40,6 +43,8 @@ PAIN_LEXICON = [
     "hàng trăm lần thử sai", "đè lên mặt", "lặp lại lỗi cũ", "vài tuần loay hoay",
 ]
 # NGƯỠNG
+LIGHT_GRADIENT_TAG = "Chữ gradient sáng"   # = brooks_text.LIGHT_TAG: từ lớn gradient PNG trên nền sáng (không glow)
+PROFILE_FONTS = (2, 3)               # hồ sơ minimal-edu (P8)
 MIN_FONTS, MAX_FONTS = 4, 6          # số font family chữ trong 1 video (luật 2026-11-06)
 LONG_TALK_S = 4.0                    # đoạn A-roll liền dài hơn mức này phải có zoom động
 MAX_AROLL_ONLY_S = 8.0               # đoạn nói liền không có B-roll / footage dài nhất cho phép
@@ -56,6 +61,11 @@ MAX_REAL_FOOTAGE_SHARE = 0.05        # D15: footage thật tối đa 5 % thời 
 MIN_REAL_FOOTAGE_SHARE = 0.02        # D15: mục tiêu 2–5 % khi có footage thật (hoặc 100 % Google Flow)
 MAX_BROLL_USES_PER_VIDEO = 2         # D8: mỗi clip B-roll tối đa 2 lần trong 1 video
 VALID_BROLL_SOURCES = {"flow", "real_footage", "stock", "muse"}
+CUT_LEAD_MAX_S = 0.09                # C7 # NGƯỠNG: chữ đầu câu bắt đầu sau điểm cắt 0 … 0,09 s (hồ sơ minimal-edu: cuts.cut_lead_max_s)
+CUT_LEAD_TRUNC_S = -0.017            # C7: chữ bắt đầu sớm hơn điểm cắt quá 0,5 khung = cắt cụt chữ → LỖI
+CUT_LEAD_SCAN = (-0.10, 0.15)        # C7: chữ bắt đầu trong khoảng này quanh điểm cắt = chữ đầu câu của đoạn mới; xa hơn = bỏ qua
+TEXT_CUT_NEAR_S = 0.5                # C8: chỉ xét chữ chính kết thúc cách điểm cắt gần nhất ≤ 0,5 s
+MAIN_TEXT_LANES = ("text_top", "text", "text_img")
 
 
 def _norm(s: str) -> str:
@@ -163,6 +173,15 @@ def _lane(track_name: str) -> str:
     return parts[0] if parts else ""
 
 
+PROFILE_GLOW_MIN_LUM = 0.3          # P11: chữ chính có màu SÁNG (nền tối) phải phát sáng; màu đậm trên nền giấy (độ chói < 0,3) thì không
+
+
+def _luminance(hex_color: str) -> float:
+    """Độ chói tương đối WCAG của `#RRGGBB`."""
+    r, g, b = ((v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4) for v in (int(hex_color[i:i + 2], 16) / 255 for i in (1, 3, 5)))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
 def _has_glow(c: dict) -> bool:
     return any(e.get("effect") in GLOW_IDS for e in c.get("effects", []))
 
@@ -268,10 +287,94 @@ def _union_dur(intervals: list[tuple[float, float]]) -> float:
     return total
 
 
+def _diversity(primary: list[str], prof: dict | None) -> dict:
+    """Dòng 'Chuyển cảnh đa dạng'. Mặc định: nháy sáng ≤ 25 %, ≥ 6 kiểu, không lặp liền. Hồ sơ minimal-edu (`prof`):
+    nháy sáng ≤ cuts.max_flashy_share, ≥ cuts.min_distinct_transitions kiểu (cắt cứng `hard_cut` là một kiểu), lặp liền chỉ xét chuyển cảnh thật."""
+    max_fl = style_profile.get(prof, "cuts.max_flashy_share", MAX_FLASHY_SHARE)
+    min_d = style_profile.get(prof, "cuts.min_distinct_transitions", MIN_DISTINCT_TRANSITIONS)
+    flashy = sum(1 for k in primary if any(m in k.lower() for m in FLASHY_MARKS))
+    share, distinct = flashy / len(primary), len(set(primary))
+    adjacent = sum(1 for x, y in zip(primary, primary[1:]) if x == y and not (prof and x == "hard_cut"))
+    bad = share > max_fl or distinct < min(min_d, len(primary)) or adjacent
+    extra = ""
+    if prof:                                       # 3.6.2: cắt cứng ≤ max_hard_cut_share, kiểu nặng (giấy rách / khói…) ≤ 1 lần
+        max_h = style_profile.get(prof, "cuts.max_hard_cut_share", 1.0)
+        hard_share = primary.count("hard_cut") / len(primary)
+        twice = sorted(k for k in TH_ONCE if primary.count(k) > 1)
+        bad = bad or hard_share > max_h + 1e-9 or bool(twice)
+        extra = f" · cắt cứng {hard_share:.0%} (≤ {max_h:.0%})" + (f" · lặp kiểu 1 lần/video: {', '.join(twice)}" if twice else "")
+    name = (f"Chuyển cảnh đa dạng (hồ sơ minimal-edu: nháy sáng ≤ {max_fl:.0%}, ≥ {min_d} kiểu gồm cắt cứng, không lặp liền)"
+            if prof else "Chuyển cảnh đa dạng (flash / flicker ≤ 25 %, ≥ 6 kiểu, không lặp liền)")
+    return {"rule": name, "status": "CẢNH BÁO" if bad else "OK",
+            "detail": f"nháy sáng {flashy}/{len(primary)} = {share:.0%} · {distinct} kiểu · lặp liền {adjacent}{extra}; dùng: "
+                      + ", ".join(sorted(set(primary))[:12])}
+
+
+def _cut_lead(cut_ts: list[float], words: list | None, prof: dict | None) -> dict:
+    """C7 cut_lead (chỉ gọi khi có điểm cắt V1): chữ đầu câu của đoạn mới bắt đầu 0 … lead_max s SAU điểm cắt V1; sớm hơn 0,017 s = cắt cụt chữ (LỖI).
+    Chữ đầu câu = chữ bắt đầu trong CUT_LEAD_SCAN quanh điểm cắt; không có chữ nào trong đó (cắt giữa khoảng lặng / giữa câu) = bỏ qua.
+    Dùng mốc `words` timeline (refine_words), không dùng Whisper thô."""
+    lead_max = style_profile.get(prof, "cuts.cut_lead_max_s", CUT_LEAD_MAX_S)
+    name = f"C7 cut_lead: chữ đầu câu bắt đầu 0–{lead_max * 1000:.0f} ms sau điểm cắt"
+    if words is None:
+        return {"rule": name, "status": "CHƯA KIỂM", "detail": "thiếu --words: danh sách [chữ, giây] trên timeline"}
+    cut_off, late, skipped = [], [], 0
+    for t in cut_ts:
+        near = [float(w[1]) for w in words if t + CUT_LEAD_SCAN[0] <= float(w[1]) <= t + CUT_LEAD_SCAN[1]]
+        if not near:
+            skipped += 1
+            continue
+        lead = min(near) - t
+        if lead < CUT_LEAD_TRUNC_S:
+            cut_off.append(f"{t:.2f}s ({lead * 1000:+.0f} ms)")
+        elif lead > lead_max + 1e-6:
+            late.append(f"{t:.2f}s ({lead * 1000:+.0f} ms)")
+    status = "LỖI" if cut_off else ("CẢNH BÁO" if late else "OK")
+    detail = f"{len(cut_ts) - skipped}/{len(cut_ts)} điểm cắt đầu câu đã đo, {skipped} bỏ qua (không có chữ đầu câu ngay sau cắt)"
+    if cut_off:
+        detail += f"; cắt cụt đầu chữ: {', '.join(cut_off[:6])}"
+    if late:
+        detail += f"; chữ vào chậm hơn {lead_max * 1000:.0f} ms: {', '.join(late[:6])}"
+    return {"rule": name, "status": status, "detail": detail}
+
+
+def _text_cut_overrun(tracks: list[dict], cut_ts: list[float], fps: float, prof: dict | None) -> dict:
+    """C8 text_cut_overrun (chỉ gọi khi có điểm cắt V1): khối chữ chính (text_top / text / text_img) kết thúc cạnh điểm cắt gần nhất (≤ 0,5 s).
+    Mặc định: CẢNH BÁO nếu chữ kết thúc SAU điểm cắt > 1 khung. Hồ sơ minimal-edu: phải kết thúc trong
+    [cắt − max(text.end_before_cut_frames)/fps, cắt] (chữ mờ ra 0–2 khung trước cắt)."""
+    frames = max(style_profile.get(prof, "text.end_before_cut_frames", [0]) or [0]) if prof else None
+    name = ("C8 text_cut_overrun: chữ chính kết thúc 0–%d khung trước điểm cắt" % frames if prof
+            else "C8 text_cut_overrun: chữ chính không kết thúc sau điểm cắt > 1 khung")
+    texts = [(t.get("name", ""), c) for t in tracks if _lane(t.get("name", "")) in MAIN_TEXT_LANES for c in t.get("clips", [])
+             if c.get("dur", 0) > 0]
+    if not texts:
+        return {"rule": name, "status": "OK", "detail": "không có khối chữ chính"}
+    bad, n = [], 0
+    for _, c in texts:
+        e = c["at"] + c["dur"]
+        nc = min(cut_ts, key=lambda t: abs(e - t))
+        if abs(e - nc) > TEXT_CUT_NEAR_S:
+            continue
+        n += 1
+        off = (e - nc) * fps                                                       # khung; > 0 = chữ lố qua điểm cắt
+        if (off > 1e-3 + (0 if prof else 1)) or (prof and off < -frames - 1e-3):
+            bad.append(f"«{str(c.get('text', c.get('name', '?')))[:16]}» {e:.2f}s vs cắt {nc:.2f}s ({off:+.1f} khung)")
+    return {"rule": name, "status": "CẢNH BÁO" if bad else "OK",
+            "detail": f"{n}/{len(texts)} khối chữ chính cạnh điểm cắt" + (f"; lệch: {'; '.join(bad[:6])}" if bad else "; đều đúng")}
+
+
+def _sfx_density(tracks: list[dict], dur: float) -> dict:
+    """sfx_density: số SFX (track âm tên có « SFX ») trên giây — chỉ báo, không chặn."""
+    n = sum(len(t.get("clips", [])) for t in tracks if t.get("type") == "audio" and "SFX" in t.get("name", ""))
+    return {"rule": "sfx_density: mật độ SFX mỗi giây (chỉ báo)", "status": "OK",
+            "detail": f"{n} SFX / {dur:.1f} s = {n / dur:.2f} /s" if dur else f"{n} SFX (không rõ độ dài)"}
+
+
 def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | None = None,
-               manifest: dict | None = None, broll_sources: dict | None = None) -> list[dict]:
+               manifest: dict | None = None, broll_sources: dict | None = None, profile: dict | None = None) -> list[dict]:
     """Đo các luật dựng trên spec; trả [{"rule", "status": OK | CẢNH BÁO | LỖI | CHƯA KIỂM, "detail"}].
-    extra_pain = cụm nỗi đau riêng của kịch bản (ngoài từ điển) — vd manifest.keywords / pain_keywords."""
+    extra_pain = cụm nỗi đau riêng của kịch bản (ngoài từ điển) — vd manifest.keywords / pain_keywords.
+    profile = style_profile.load(spec) (hồ sơ minimal-edu): nới C1 (cắt cứng được phép), siết C7 / C8; None = luật mặc định."""
     res: list[dict] = []
     tracks = spec.get("tracks", [])
     clips = [(t.get("name", ""), c) for t in tracks for c in t.get("clips", [])]
@@ -279,15 +382,18 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
     def add(rule: str, status: str, detail: str) -> None:
         res.append({"rule": rule, "status": status, "detail": detail})
 
-    # Font 4-6
+    prof_on = style_profile.active(profile, "minimal-edu")          # hồ sơ tắt ⇒ mọi luật giữ nguyên
+
+    # Font 4-6 (hồ sơ minimal-edu, P8: 2–3 font)
     fams: dict[str, int] = {}
     for _, c in clips:
         if c.get("font"):
             fams[c["font"]] = fams.get(c["font"], 0) + 1
     n = len(fams)
-    add("Font 4-6 mỗi video", "OK" if MIN_FONTS <= n <= MAX_FONTS else "LỖI",
+    lo_f, hi_f = PROFILE_FONTS if prof_on else (MIN_FONTS, MAX_FONTS)
+    add("Font 2-3 mỗi video (P8)" if prof_on else "Font 4-6 mỗi video", "OK" if lo_f <= n <= hi_f else "LỖI",
         f"{n} font: " + ", ".join(f"{k} x{v}" for k, v in sorted(fams.items(), key=lambda x: -x[1]))
-        + " (chữ vẽ thành PNG như từ khoá template không đếm được)")
+        + " (chữ vẽ thành PNG — từ khoá template, từ lớn gradient của hồ sơ — không có trường font nên không đếm, cùng họ Inter / Playfair)")
 
     # Màu chữ phụ + chữ chính phát sáng
     bad_cap, glow_ok_cap, key_no_glow, key_n = [], 0, [], 0
@@ -295,7 +401,8 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
         lane = _lane(tn)
         if lane == "text_img":                      # từ khoá template: PNG, kiểm phát sáng
             key_n += 1
-            if not _has_glow(c):
+            light_png = prof_on and c.get("name", "").startswith(LIGHT_GRADIENT_TAG)    # P11: gradient đậm trên nền sáng không glow
+            if not (_has_glow(c) or light_png):
                 key_no_glow.append(c.get("name", "?")[:22])
             continue
         if "text" not in c:
@@ -309,13 +416,18 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
                     bad_cap.append(f"{c['text'][:18]} ({fam})")
         elif lane in ("text_top", "text"):
             key_n += 1
-            if fam != "white" and not _has_glow(c):
+            if prof_on:                              # P11: trắng / đen không glow; chữ màu sáng phải glow
+                needs = fam not in ("white", "grey", None) and _luminance(c["color"]) >= PROFILE_GLOW_MIN_LUM
+            else:
+                needs = fam != "white"
+            if needs and not _has_glow(c):
                 key_no_glow.append(c["text"][:18])
     add("Chữ phụ: không cam / hồng / tím / đỏ trừ khi phát sáng", "LỖI" if bad_cap else "OK",
         ("; ".join(bad_cap[:6]) if bad_cap else "không có dòng phụ vi phạm")
         + (f" ({glow_ok_cap} dòng dùng màu đó và đã phát sáng)" if glow_ok_cap else ""))
     add("Chữ chính có phát sáng", "CẢNH BÁO" if key_no_glow else "OK",
-        f"{key_n} khối chính" + (f"; thiếu phát sáng: {', '.join(key_no_glow[:6])}" if key_no_glow else "; đều có"))
+        f"{key_n} khối chính" + (" (hồ sơ P11: chữ màu sáng phải glow, trắng / đen không)" if prof_on else "")
+        + (f"; thiếu phát sáng: {', '.join(key_no_glow[:6])}" if key_no_glow else "; đều có"))
 
     # Điểm cắt có chuyển cảnh, họ ưu tiên, zoom động
     v1 = next((t for t in tracks if t.get("type") == "video" and t.get("name", "").startswith("V1")), None)
@@ -330,26 +442,28 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
         near = [c for c in overlays if c["at"] - 0.45 <= t <= c["at"] + c["dur"] + 0.45]
         keyed = any(e.get("effect") == "transform" and isinstance(e["params"].get("scale_height"), list)
                     for e in a.get("effects", []) + b.get("effects", []))
-        if not (tin or tout or near or keyed):
+        blur = prof_on and any(e.get("effect") == "directional_blur" for e in b.get("effects", []))   # hồ sơ: mờ ngang vào tranh
+        jk = join_kind(b)                                                          # 3.6.2: chuyển cảnh talking-head
+        if jk in TH_HARD:
+            jk = "hard_cut" if prof_on else None
+        if not (tin or tout or near or keyed or blur or jk):
             uncovered.append(round(t, 2))
         kinds += [x["effect"] for x in (tin, tout) if x]
         kinds += [c.get("name", "").replace("Chuyển cảnh ", "").strip() for c in near]
         kinds += ["zoom_through"] if keyed else []
         names = [_trans_name(c.get("name", "")) for c in near]                           # kiểu chính của điểm cắt
-        primary.append((names[0] if names else (tin or {}).get("effect") or ("zoom_through" if keyed else (tout or {}).get("effect"))) or "?")
+        hard = "directional_blur" if blur else ("hard_cut" if prof_on else "?")        # hồ sơ: cắt cứng là một kiểu hợp lệ
+        primary.append(jk or (names[0] if names else (tin or {}).get("effect") or ("zoom_through" if keyed else (tout or {}).get("effect"))) or hard)
     if not cuts:
         add("Mọi điểm cắt có chuyển cảnh", "CHƯA KIỂM", "không tìm thấy track V1 có từ 2 clip")
+    elif prof_on:
+        add("Mọi điểm cắt có chuyển cảnh", "OK",
+            f"{len(cuts)} điểm cắt trên V1; cắt cứng {len(uncovered)} (hồ sơ minimal-edu cho phép cắt cứng — thay C1 chỉ khi hồ sơ bật)")
     else:
         add("Mọi điểm cắt có chuyển cảnh", "LỖI" if uncovered else "OK",
             f"{len(cuts)} điểm cắt trên V1" + (f"; thiếu ở {uncovered[:8]} s" if uncovered else "; đều có"))
     if primary:
-        flashy = sum(1 for k in primary if any(m in k.lower() for m in FLASHY_MARKS))
-        share, distinct = flashy / len(primary), len(set(primary))
-        adjacent = sum(1 for x, y in zip(primary, primary[1:]) if x == y)
-        bad = share > MAX_FLASHY_SHARE or distinct < min(MIN_DISTINCT_TRANSITIONS, len(primary)) or adjacent
-        add("Chuyển cảnh đa dạng (flash / flicker ≤ 25 %, ≥ 6 kiểu, không lặp liền)", "CẢNH BÁO" if bad else "OK",
-            f"nháy sáng {flashy}/{len(primary)} = {share:.0%} · {distinct} kiểu · lặp liền {adjacent}; dùng: "
-            + ", ".join(sorted(set(primary))[:12]))
+        res.append(_diversity(primary, profile if prof_on else None))
     if v1:
         long_c = [c for c in v1["clips"] if c["dur"] >= LONG_TALK_S      # chỉ đoạn người nói, không tính B-roll / footage
                   and not c.get("name", "").lower().startswith(("b-roll", "footage"))]
@@ -470,6 +584,12 @@ def audit_spec(spec: dict, words: list | None = None, extra_pain: list[str] | No
     add("Chữ trên hình không có dấu phẩy", "OK" if not comma else "LỖI",
         "không có" if not comma else f"{len(comma)} chữ còn dấu phẩy: " + "; ".join(comma[:4])
         + " (chữ vẽ thành PNG như từ khoá template không kiểm được qua spec)")
+    # C7 / C8 (hồ sơ minimal-edu, TIMING) + mật độ SFX
+    cut_ts = [t for t, _, _ in cuts]
+    prof = profile if prof_on else None
+    if cut_ts:                                       # không có điểm cắt V1: C1 đã báo CHƯA KIỂM, khỏi lặp
+        res += [_cut_lead(cut_ts, words, prof), _text_cut_overrun(tracks, cut_ts, float(spec.get("fps", 30)), prof)]
+    res.append(_sfx_density(tracks, float(end or 0)))
 
     return res
 
@@ -515,7 +635,8 @@ def _cli() -> int:
     pain_file = spec_path.parent / "pain.json"      # build_spec_q ghi cạnh spec: E1 khỏi quên --pain
     if pain_file.is_file():
         extra += [str(x) for x in json.loads(pain_file.read_text(encoding="utf-8")).get("pain", [])]
-    res = audit_spec(spec, words, sorted(set(extra)) or None, manifest=manifest_data, broll_sources=broll_sources)
+    prof = style_profile.load(spec_path)             # <work>/profile.json cạnh spec; không có = luật mặc định
+    res = audit_spec(spec, words, sorted(set(extra)) or None, manifest=manifest_data, broll_sources=broll_sources, profile=prof)
     count = {k: sum(1 for r in res if r["status"] == k) for k in ("LỖI", "CẢNH BÁO", "CHƯA KIỂM")}
     if args.json:
         print(json.dumps(res, ensure_ascii=False, indent=2))
@@ -524,6 +645,8 @@ def _cli() -> int:
             print(f"[{r['status']:<9}] {r['rule']:<62} {r['detail']}")
         if pain_file.is_file():
             print(f"(nỗi đau: đọc thêm {pain_file})")
+        if prof:
+            print(f"(hồ sơ: {prof.get('name')} — C1 cho cắt cứng, C7 / C8 theo hồ sơ)")
         print(f"Tổng: {count['LỖI']} LỖI · {count['CẢNH BÁO']} CẢNH BÁO · {count['CHƯA KIỂM']} CHƯA KIỂM")
     return 1 if count["LỖI"] else 0
 

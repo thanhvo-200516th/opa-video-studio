@@ -19,7 +19,11 @@ import math
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import style_profile  # noqa: E402
 
 FFMPEG = shutil.which("ffmpeg") or str(Path.home() / ".local/bin/ffmpeg")
 FFPROBE = shutil.which("ffprobe") or str(Path.home() / ".local/bin/ffprobe")
@@ -62,10 +66,17 @@ def _sound_onset(a: float, quiet_ends: list[float]) -> float:
 
 def speech_segments(voice: Path, words: list[dict], noise_db: float = -35, min_silence: float = 0.3, pad_in: float = 0.07,
                     pad_out: float = 0.09, merge_gap: float = 0.12, fps: int | None = 30,
-                    max_end: float | None = None) -> list[tuple[float, float]]:
+                    max_end: float | None = None, pad: float | None = None, snap: str = "round",
+                    profile: dict | None = None) -> list[tuple[float, float]]:
     """[(giây vào, giây ra)] các đoạn có lời, khớp khung (1/fps; fps=None = không làm tròn). Tiếng rời không chạm chữ nào
     (thở, va chạm) bị bỏ. Đoạn cuối kẹp theo độ dài file (và `max_end` nếu có), không bao giờ vượt hết file.
-    Lặng đầu 0,28 s của TTS / HeyGen < `min_silence` nên silencedetect không báo: đo lại ở ngưỡng 0,12 s và vào ở cuối lặng đó."""
+    Lặng đầu 0,28 s của TTS / HeyGen < `min_silence` nên silencedetect không báo: đo lại ở ngưỡng 0,12 s và vào ở cuối lặng đó.
+    `pad` (nếu có) thay cả pad_in lẫn pad_out; `snap="floor"` làm tròn điểm VÀO xuống khung (cắt 0–1 khung trước chữ đầu, thay vì round).
+    `profile` = hồ sơ minimal-edu đang bật → pad = cuts.silence_pad_s, snap = floor (cắt chặt 0–2 khung trước đầu câu). Mặc định không đổi."""
+    if style_profile.active(profile, "minimal-edu"):
+        pad, snap = style_profile.get(profile, "cuts.silence_pad_s", pad), "floor"
+    if pad is not None:
+        pad_in = pad_out = pad
     dur = min(duration(voice), max_end if max_end is not None else math.inf)
     edges = [0.0] + [v for s in silences(voice, noise_db, min_silence, duration(voice)) for v in s] + [dur]
     speech = [(edges[i], min(edges[i + 1], dur)) for i in range(0, len(edges) - 1, 2)]       # (cuối lặng trước, đầu lặng sau)
@@ -95,7 +106,8 @@ def speech_segments(voice: Path, words: list[dict], noise_db: float = -35, min_s
     if fps is None:
         return [(round(a, 3), round(b, 3)) for a, b in segs if a < dur and b > a]
     last = math.floor(dur * fps + 1e-6) / fps            # khung cuối còn nằm trong file
-    out = [(round(a * fps) / fps, min(round(b * fps) / fps, last)) for a, b in segs if a < dur]
+    head = (lambda a: math.floor(a * fps + 1e-6) / fps) if snap == "floor" else (lambda a: round(a * fps) / fps)
+    out = [(head(a), min(round(b * fps) / fps, last)) for a, b in segs if a < dur]
     return [(a, b) for a, b in out if b > a]
 
 
@@ -147,9 +159,11 @@ def main() -> None:
     ap.add_argument("--noise", type=float, default=-35, help="ngưỡng lặng dB (mặc định -35)")
     ap.add_argument("--min-silence", type=float, default=0.3, help="khoảng lặng ngắn nhất bị cắt, giây (mặc định 0.3)")
     ap.add_argument("--max-end", type=float, default=None, help="kẹp đoạn cuối không quá giây này (ví dụ độ dài hình)")
+    ap.add_argument("--profile", help="tên hồ sơ phong cách (vd minimal-edu): pad 0,03 s + làm tròn xuống khung")
     ap.add_argument("-o", "--out", type=Path)
     a = ap.parse_args()
-    segs = speech_segments(a.voice, load_words(a.words), a.noise, a.min_silence, max_end=a.max_end)
+    segs = speech_segments(a.voice, load_words(a.words), a.noise, a.min_silence, max_end=a.max_end,
+                           profile=style_profile.load(name=a.profile) if a.profile else None)
     tl = Timeline(segs)
     src = segs[-1][1] - segs[0][0] if segs else 0
     print(f"{len(segs)} đoạn · nguồn {src:.1f} s → {tl.end:.2f} s (bỏ {src - tl.end:.1f} s lặng)")

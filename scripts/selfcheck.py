@@ -74,6 +74,9 @@ def check_tools() -> None:
                        ("Montserrat", "Black"), ("Bebas Neue", "Regular")):
         ok = any(fam in l and style in l for l in fonts.splitlines())
         note("OK" if ok else "LỖI", f"font {fam} {style}")
+    miss = [f for f in ("Inter-ExtraBold.ttf", "Inter-Medium.ttf") if not (HOME / ".local/share/fonts" / f).is_file()]
+    note("OK" if not miss else "CẢNH BÁO", "font Inter ExtraBold / Medium (hồ sơ minimal-edu, FilmCraft)",
+         "" if not miss else f"thiếu {', '.join(miss)} trong ~/.local/share/fonts — chạy python3 scripts/env_status.py --install-fonts")
     tpl = sorted(glob.glob(str(HOME / ".local/share/filmcraft/Graphics Templates/dviet-v2-*.fcgt")))
     note("OK" if len(tpl) == 6 else "CẢNH BÁO", "6 template FilmCraft [DViet v2]", f"có {len(tpl)}")
     usb = Path("/media/vmiz/Over Powers/SaoLuu_D_20261028_132523/Vibe Coding/AI Video/prompts/MASTER_VIDEO_EDITOR_VI.md")
